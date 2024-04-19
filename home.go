@@ -15,20 +15,25 @@ func main() {
     http.Handle("GET /js/", http.StripPrefix("/js/", http.FileServer(http.Dir("./static/js"))))
     http.HandleFunc("GET /", getRootHandler)
     http.HandleFunc("GET /home/", makeHandler(getHomeHandler))
+    http.HandleFunc("GET /invoices/", getInvoicesHandler)
+    http.HandleFunc("GET /customers/", getCustomersHandler)
+    http.HandleFunc("GET /products/", getProductsHandler)
+    http.HandleFunc("GET /settings/", getSettingsHandler)
 
     log.Fatal(http.ListenAndServe(":8080", nil))
-}
-
-func getHomeHandler(w http.ResponseWriter, r *http.Request) {
-    renderTemplate(w, "home")
 }
 
 func getRootHandler(w http.ResponseWriter, r *http.Request) {
     http.Redirect(w, r, "/home/", 308)
 }
 
+func getHomeHandler(w http.ResponseWriter, r *http.Request) {
+    renderTemplate(w, "base")
+}
+
 func renderTemplate(writer http.ResponseWriter, templateName string) {
-    template, err := template.ParseFiles("tmpl/base.html", "tmpl/" + templateName + ".html")
+    // template, err := template.ParseFiles("tmpl/base.html", "tmpl/nav.html", "tmpl/" + templateName + ".html")
+    template, err := template.ParseFiles("tmpl/" + templateName + ".html")
     if err != nil {
         http.Error(writer, err.Error(), http.StatusInternalServerError)
     }

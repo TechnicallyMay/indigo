@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Indigo | {{template "title" .}} </title>
+        <title>Indigo</title>
         <meta name="author" content="Mason Wells" />
         <meta
         name="description"
@@ -13,8 +13,22 @@
         <!-- <link rel="icon" href="./favicon.ico" type="image/x-icon"> -->
         <script src="/js/htmx.js"></script>
     </head>
-
     <body hx-boost="true">
-        {{template "content" .}}
+
+        <div id="header">
+            <nav id="global-nav">
+                <ul>
+                    <li><a href="/" hx-target="body">Home</a></li>
+                    <li><a href="/invoices" hx-target="#main-content">Invoices</a></li>
+                    <li><a href="/products" hx-target="#main-content">Products</a></li>
+                    <li><a href="/customers" hx-target="#main-content">Customers</a></li>
+                    <li><a href="/settings" hx-target="#main-content">Settings</a></li>
+                </ul>
+            </nav>
+        </div>
+
+        <div id="main-content">
+        </div>
+
     </body>
 </html>
