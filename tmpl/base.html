@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Indigo | {{template "title" .}} </title>
+        <meta name="author" content="Mason Wells" />
+        <meta
+        name="description"
+        content="Indigo is a new, lightweight Invoice Sender that can be accessed 
+        via the web instead of as a desktop application" />
+        <!-- <link rel="stylesheet" href="./style.css"> -->
+        <!-- <link rel="icon" href="./favicon.ico" type="image/x-icon"> -->
+        <script src="/js/htmx.js"></script>
+    </head>
+
+    <body hx-boost="true">
+        {{template "content" .}}
+    </body>
+</html>
