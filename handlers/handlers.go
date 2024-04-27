@@ -4,22 +4,19 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"strings"
 )
 
 func renderTemplate(writer http.ResponseWriter, r *http.Request, templateName string, prereqTemplates []string) {
-    // template, err := template.ParseFiles("tmpl/base.html", "tmpl/nav.html", "tmpl/" + templateName + ".html")
-    var toRender []string
-
     var err error
-    toRender = getTemplateFiles(templateName)
     if r.Header.Get("HX-Request") == "true" {
-        fmt.Printf("Rendering template for htmx request: %v\n", toRender)
-        template := template.Must(template.ParseFiles(toRender...))
+        fmt.Printf("Rendering template for htmx request (content only): %v\n", templateName)
+        template := getOrParse(templateName)
         err = template.ExecuteTemplate(writer, "content", nil)
     } else {
-        toRender = append(toRender, getTemplateFiles(prereqTemplates...)...)
-        fmt.Printf("Rendering template for non-htmx request: %v\n", toRender)
-        template := template.Must(template.ParseFiles(toRender...))
+        toRender := append([]string{templateName}, prereqTemplates...)
+        fmt.Printf("Rendering template for non-htmx request (entire template): %v\n", toRender)
+        template := getOrParse(toRender...)
         err = template.Execute(writer, nil)
     }
 
@@ -28,13 +25,22 @@ func renderTemplate(writer http.ResponseWriter, r *http.Request, templateName st
     }
 }
 
-func getTemplateFiles(templates ...string) []string {
-    results := make([]string, len(templates))
+var templates = make(map[string]template.Template)
 
-    for i, tmp := range templates {
-        results[i] = "tmpl/" + tmp + ".html"
+func getOrParse(templateNames ...string) template.Template {
+    templateKey := strings.Join(templateNames, "-")
+    existing, exists := templates[templateKey]
+    if exists {
+        fmt.Printf("Found previously parsed template for %v\n", templateKey)
+        return existing
     }
 
-    return results
-}
+    fmt.Printf("Creating new template for %v\n", templateKey)
+    templateFiles := make([]string, len(templateNames))
+    for i, tmp := range templateNames {
+        templateFiles[i] = "tmpl/" + tmp + ".html"
+    }
 
+    templates[templateKey] = *template.Must(template.ParseFiles(templateFiles...))
+    return templates[templateKey]
+}
