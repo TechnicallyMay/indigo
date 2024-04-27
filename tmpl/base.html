@@ -1,3 +1,4 @@
+{{ define "base" }}
 <!DOCTYPE html>
 <html lang="en-US">
     <head>
@@ -9,7 +10,7 @@
         name="description"
         content="Indigo is a new, lightweight Invoice Sender that can be accessed 
         via the web instead of as a desktop application" />
-        <!-- <link rel="stylesheet" href="./style.css"> -->
+        <link rel="stylesheet" href="/css/styles.css">
         <!-- <link rel="icon" href="./favicon.ico" type="image/x-icon"> -->
         <script src="/js/htmx.js"></script>
     </head>
@@ -18,8 +19,8 @@
         <div id="header">
             <nav id="global-nav">
                 <ul>
-                    <li><a href="/" hx-target="body">Home</a></li>
-                    <li><a href="/invoices" hx-target="#main-content">Invoices</a></li>
+                    <li><a href="/" hx-target="#main-content">Home</a></li>
+                    <li><a href="/billing" hx-target="#main-content">Billing</a></li>
                     <li><a href="/products" hx-target="#main-content">Products</a></li>
                     <li><a href="/customers" hx-target="#main-content">Customers</a></li>
                     <li><a href="/settings" hx-target="#main-content">Settings</a></li>
@@ -28,7 +29,9 @@
         </div>
 
         <div id="main-content">
+            {{ template "content" . }}
         </div>
 
     </body>
 </html>
+{{ end }}

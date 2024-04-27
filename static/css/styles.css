@@ -1,0 +1,11 @@
+nav {
+    border-bottom: 1px solid;
+}
+
+nav ul {
+    list-style: none;
+}
+
+nav ul li {
+    display: inline-block;
+}
