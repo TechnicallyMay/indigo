@@ -5,11 +5,19 @@ import (
 	"net/http"
 	"regexp"
 
+	"github.com/TechnicallyMay/indigo/db"
 	"github.com/TechnicallyMay/indigo/handlers"
 )
 var validPath = regexp.MustCompile("^(/[a-zA-Z0-9]+/{0,1}?)*$")
 
 func main() {
+    log.Println("Starting!")
+
+    pool := db.OpenDb()
+    defer pool.Close()
+
+    customerHandler := handlers.NewCustomerHandler(*db.InitCustomerTable(pool))
+
     mux := http.NewServeMux()
     mux.Handle("GET /js/", http.StripPrefix("/js/", http.FileServer(http.Dir("./static/js"))))
     mux.Handle("GET /css/", http.StripPrefix("/css/", http.FileServer(http.Dir("./static/css"))))
@@ -17,7 +25,7 @@ func main() {
     mux.HandleFunc("GET /{$}", handlers.GetRootHandler)
     mux.HandleFunc("GET /home/", handlers.GetHomeHandler)
     mux.HandleFunc("GET /billing/", handlers.GetBillingHandler)
-    mux.HandleFunc("GET /customers/", handlers.GetCustomersHandler)
+    mux.HandleFunc("GET /customers/", customerHandler.HandleGetCustomers)
     mux.HandleFunc("GET /products/", handlers.GetProductsHandler)
     mux.HandleFunc("GET /settings/", handlers.GetSettingsHandler)
 
