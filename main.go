@@ -24,9 +24,15 @@ func main() {
 
     mux.HandleFunc("GET /{$}", handlers.GetRootHandler)
     mux.HandleFunc("GET /home/", handlers.GetHomeHandler)
+
     mux.HandleFunc("GET /billing/", handlers.GetBillingHandler)
+
     mux.HandleFunc("GET /customers/", customerHandler.HandleGetCustomers)
+    mux.HandleFunc("GET /customers/new", customerHandler.HandleGetNewCustomer)
+    mux.HandleFunc("POST /customers", customerHandler.HandlePostCustomer)
+
     mux.HandleFunc("GET /products/", handlers.GetProductsHandler)
+
     mux.HandleFunc("GET /settings/", handlers.GetSettingsHandler)
 
     server := &http.Server{

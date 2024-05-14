@@ -1,0 +1,15 @@
+{{ template "base" . }}
+
+{{ define "content" }}
+<h1>
+    New Customer!
+</h1>
+
+<form action="/customers" method="post">
+  <input type="text" name="first" placeholder="First Name...">
+  <input type="text" name="last" placeholder="Last Name...">
+  <input type="email" name="email" placeholder="Email...">
+  <button>Create</button>
+</form>
+
+{{ end }}
