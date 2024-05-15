@@ -43,7 +43,7 @@ func InitCustomerTable(db *sql.DB) *CustomerTable {
     return instance
 }
 
-func (h *CustomerTable) List() {
+func (h *CustomerTable) List() []Customer {
     rows, err := h.db.Query("SELECT id, first_name, last_name, email FROM customer")
     if err != nil {
         log.Fatal("Error when listing customers.", err)
@@ -52,7 +52,7 @@ func (h *CustomerTable) List() {
     customers := make([]Customer, 0)
     for rows.Next() {
         var cust Customer
-        if err := rows.Scan(&cust.Id, &cust.FirstName, &cust.LastName, &cust.LastName); err != nil {
+        if err := rows.Scan(&cust.Id, &cust.FirstName, &cust.LastName, &cust.Email); err != nil {
             log.Fatal("Error when listing customers.", err)
         }
 
@@ -60,6 +60,7 @@ func (h *CustomerTable) List() {
     }
 
     log.Printf("Found rows %v", customers)
+    return customers
 }
 
 func (h *CustomerTable) Add(cust Customer) uint16 {

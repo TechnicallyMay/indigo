@@ -3,9 +3,9 @@ package handlers
 import "net/http"
 
 func GetRootHandler(w http.ResponseWriter, r *http.Request) {
-    http.Redirect(w, r, "/home/", 308)
+    http.Redirect(w, r, "/home/", http.StatusMovedPermanently)
 }
 
 func GetHomeHandler(w http.ResponseWriter, r *http.Request) {
-    renderTemplate(w, r, "home", []string{"base"})
+    renderTemplate(w, r, "home", []string{"base"}, nil)
 }

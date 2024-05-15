@@ -21,16 +21,25 @@ func NewCustomerHandler(db db.CustomerTable) *CustomerHandler {
 }
 
 func (h *CustomerHandler) HandleGetCustomers(w http.ResponseWriter, r *http.Request) {
-    h.db.List()
-    // h.db.Add(db.Customer{FirstName: "heyo", LastName: "heyooo", Email: "test"})
-    renderTemplate(w, r, "customers", []string{"base"})
+    customers := h.db.List()
+    renderTemplate(w, r, "customers", []string{"base"}, customers)
 }
 
 func (h *CustomerHandler) HandleGetNewCustomer(w http.ResponseWriter, r *http.Request) {
-    renderTemplate(w, r, "newCustomer", []string{"base"})
+    renderTemplate(w, r, "newCustomer", []string{"base"}, nil)
 }
 
 func (h *CustomerHandler) HandlePostCustomer(w http.ResponseWriter, r *http.Request) {
     log.Println("Adding a new customer")
+    r.ParseForm()
+    log.Println(r.PostForm)
+
+    newCustomer:= db.Customer{FirstName: r.PostForm.Get("firstName"), LastName: r.PostForm.Get("lastName"), Email: r.PostForm.Get("email") }
+
+    log.Printf("Got customer %v %v %v\n", newCustomer.FirstName, newCustomer.LastName, newCustomer.Email)
+
+    h.db.Add(newCustomer)
+
+    HtmxRedirect(w, "/customers", "#main-content")
 }
 

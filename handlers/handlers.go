@@ -7,17 +7,17 @@ import (
 	"strings"
 )
 
-func renderTemplate(writer http.ResponseWriter, r *http.Request, templateName string, prereqTemplates []string) {
+func renderTemplate(writer http.ResponseWriter, r *http.Request, templateName string, prereqTemplates []string, data any) {
     var err error
     if r.Header.Get("HX-Request") == "true" {
         log.Printf("Rendering template for htmx request (content only): %v\n", templateName)
         template := getOrParse(templateName)
-        err = template.ExecuteTemplate(writer, "content", nil)
+        err = template.ExecuteTemplate(writer, "content", data)
     } else {
         toRender := append([]string{templateName}, prereqTemplates...)
         log.Printf("Rendering template for non-htmx request (entire template): %v\n", toRender)
         template := getOrParse(toRender...)
-        err = template.Execute(writer, nil)
+        err = template.Execute(writer, data)
     }
 
     if err != nil {
