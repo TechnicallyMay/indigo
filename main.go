@@ -28,7 +28,6 @@ func main() {
     mux.HandleFunc("GET /billing/", handlers.GetBillingHandler)
 
     mux.HandleFunc("GET /customers/", customerHandler.HandleGetCustomers)
-    mux.HandleFunc("GET /customers/new", customerHandler.HandleGetNewCustomer)
     mux.HandleFunc("POST /customers", customerHandler.HandlePostCustomer)
 
     mux.HandleFunc("GET /products/", handlers.GetProductsHandler)

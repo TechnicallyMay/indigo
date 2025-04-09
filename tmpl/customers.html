@@ -23,6 +23,11 @@
         {{ end }}
     </tbody>
 </table>
+<form action="/customers" method="post">
+    <input type="text" name="firstName" placeholder="First Name...">
+    <input type="text" name="lastName" placeholder="Last Name...">
+    <input type="text" name="email" placeholder="Email...">
 
-<a href="/customers/new" hx-target="#main-content">New Customer</a>
+    <button name="route" data-route="test">Create</button>
+</form>
 {{ end }}

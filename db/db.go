@@ -17,6 +17,7 @@ func OpenDb() *sql.DB {
     }
 
     var err error
+	//TODO: Physical file/db
     pool, err = sql.Open("sqlite", ":memory:")
 
     if err != nil {
