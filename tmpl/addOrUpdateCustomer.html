@@ -1,0 +1,17 @@
+{{ define "content" }}
+<tr>
+    <td>
+        <form
+            id="update-form-{{ .Id }}"
+            action={{ if .Id }} "/customers/{{ .Id }}" {{ else }} "/customers" {{ end }} method={{ if .Id }} "put" {{ else }} "post" {{ end }}>
+            <input type="hidden" name="id" value="{{ .Id }}" />
+        </form>
+    </td>
+    <td><input form="update-form-{{ .Id }}" type="text" name="firstName" placeholder="First Name..." value="{{ .FirstName }}"></td>
+    <td><input form="update-form-{{ .Id }}" type="text" name="lastName" placeholder="Last Name..." value="{{ .LastName }}"></td>
+    <td><input form="update-form-{{ .Id }}" type="text" name="email" placeholder="Email..." value="{{ .Email }}"></td>
+    <td><input form="update-form-{{ .Id }}" type="submit" value={{ if .Id }} "Update" {{ else }} "Create" {{ end }}></td>
+    <td><button><a href="/customers" hx-target="#main-content">Cancel</a></button></td>
+</tr>
+{{ end }}
+

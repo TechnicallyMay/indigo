@@ -43,6 +43,17 @@ func InitCustomerTable(db *sql.DB) *CustomerTable {
     return instance
 }
 
+func (h *CustomerTable) Get(id int64) Customer {
+    row:= h.db.QueryRow("SELECT id, first_name, last_name, email FROM customer WHERE id = (?)", id)
+
+	var cust Customer
+	if err:= row.Scan(&cust.Id, &cust.FirstName, &cust.LastName, &cust.Email); err != nil {
+		log.Fatal("Error when getting customer.", err)
+	}
+
+    return cust
+}
+
 func (h *CustomerTable) List() []Customer {
     rows, err := h.db.Query("SELECT id, first_name, last_name, email FROM customer")
     if err != nil {
@@ -84,4 +95,29 @@ func (h *CustomerTable) Add(cust Customer) uint16 {
     }
 
     return uint16(newId)
+}
+
+func (h *CustomerTable) Update(cust Customer) uint16 {
+    log.Printf("Updating existing customer with id %v.\n", cust.Id)
+
+    res, err := h.db.Exec(`UPDATE customer SET first_name = (?), last_name = (?), email = (?) WHERE customer.id = (?)`,
+        cust.FirstName, cust.LastName, cust.Email, cust.Id)
+
+    if err != nil {
+        log.Fatal("Error when updating customer.", err)
+    }
+
+	rowsAffected, err:= res.RowsAffected()
+
+    if err != nil {
+        log.Fatal("Error when determining if update was successful.", err)
+    }
+
+	if rowsAffected == 0 {
+        log.Fatal("Attempted update didn't modify any rows for id.", err)
+	}
+
+    log.Println("Successfully updated customer.")
+
+    return uint16(cust.Id)
 }
