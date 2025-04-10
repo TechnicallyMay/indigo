@@ -35,6 +35,10 @@ func main() {
 
     mux.HandleFunc("GET /products/", handlers.GetProductsHandler)
 
+    mux.HandleFunc("GET /records/", handlers.GetRecordsHandler)
+
+    mux.HandleFunc("GET /reports/", handlers.GetReportsHandler)
+
     mux.HandleFunc("GET /settings/", handlers.GetSettingsHandler)
 
     server := &http.Server{
