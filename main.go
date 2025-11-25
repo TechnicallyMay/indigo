@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"regexp"
 
+	"codeberg.org/go-pdf/fpdf"
 	"github.com/TechnicallyMay/indigo/db"
 	"github.com/TechnicallyMay/indigo/handlers"
 )
@@ -18,8 +19,8 @@ func main() {
 	pdf := fpdf.New("P", "mm", "A4", "")
 	pdf.AddPage()
 	pdf.SetFont("Arial", "B", 16)
-	pdf.Cell(40, 10, "Hello, world")
-	err := pdf.OutputFileAndClose("hello.pdf")
+	pdf.Cell(40, 10, "you owe me so much money")
+	pdf.OutputFileAndClose("hello.pdf")
 
 	pool := db.OpenDb()
 	defer pool.Close()
