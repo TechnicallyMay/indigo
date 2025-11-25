@@ -30,7 +30,7 @@
             <div>
             <td colspan="5">
                 <button
-                    onclick="location.href='/customers/new'"
+                    hx-get="/customers/new"
                     hx-target="#new-customer"
                     hx-swap="outerHTML"
                     hx-replace-url="false">

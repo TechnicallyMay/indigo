@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -29,6 +30,7 @@ func (h *CustomerHandler) HandleGetCustomers(w http.ResponseWriter, r *http.Requ
 
 func (h *CustomerHandler) HandleGetAddOrUpdateCustomerForm(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
+	fmt.Println("Here")
 
 	if id != "" {
 		id, err := strconv.ParseInt(r.PathValue("id"), 10, 64)
