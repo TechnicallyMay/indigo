@@ -6,6 +6,5 @@ import (
 )
 
 func HtmxRedirect(w http.ResponseWriter, location string, target string) {
-    w.Header().Add("Hx-Location", fmt.Sprintf("{ \"path\": \"%v\", \"target\": \"%v\" }", location, target))
+	w.Header().Add("Hx-Location", fmt.Sprintf("{ \"path\": \"%v\", \"target\": \"%v\" }", location, target))
 }
-
