@@ -14,6 +14,13 @@ var validPath = regexp.MustCompile("^(/[a-zA-Z0-9]+/{0,1}?)*$")
 func main() {
 	log.Println("Starting!")
 
+	log.Println("making example pdf")
+	pdf := fpdf.New("P", "mm", "A4", "")
+	pdf.AddPage()
+	pdf.SetFont("Arial", "B", 16)
+	pdf.Cell(40, 10, "Hello, world")
+	err := pdf.OutputFileAndClose("hello.pdf")
+
 	pool := db.OpenDb()
 	defer pool.Close()
 

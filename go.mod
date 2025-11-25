@@ -5,6 +5,7 @@ go 1.25
 require modernc.org/sqlite v1.40.1
 
 require (
+	codeberg.org/go-pdf/fpdf v0.11.1 // indirect
 	dario.cat/mergo v1.0.2 // indirect
 	github.com/air-verse/air v1.63.1 // indirect
 	github.com/bep/godartsass/v2 v2.5.0 // indirect
