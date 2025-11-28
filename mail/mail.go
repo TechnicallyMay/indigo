@@ -65,7 +65,7 @@ type SmtpClient struct {
 }
 
 func (client SmtpClient) SendMail(mail Mail) error {
-	var mailData = buildMailData(mail)
+	mailData := buildMailData(mail)
 	return smtp.SendMail(client.getFullAddress(), client.Auth, mail.From, mail.To, mailData)
 }
 

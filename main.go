@@ -7,10 +7,10 @@ import (
 	"net/smtp"
 	"regexp"
 
-	"codeberg.org/go-pdf/fpdf"
 	"github.com/TechnicallyMay/indigo/db"
 	"github.com/TechnicallyMay/indigo/handlers"
 	"github.com/TechnicallyMay/indigo/mail"
+	"github.com/TechnicallyMay/indigo/pdf"
 )
 
 var validPath = regexp.MustCompile("^(/[a-zA-Z0-9]+/{0,1}?)*$")
@@ -20,11 +20,10 @@ func main() {
 
 	// PDF
 	log.Println("making example pdf")
-	pdf := fpdf.New("P", "mm", "A4", "")
-	pdf.AddPage()
-	pdf.SetFont("Arial", "B", 16)
-	pdf.Cell(40, 10, "you owe me so much money")
-	pdf.OutputFileAndClose("hello.pdf")
+	pdfPath, err := pdf.MakeInvoicePdf()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// MAIL
 	log.Println("Sending an email")
@@ -36,8 +35,8 @@ func main() {
 	auth := smtp.PlainAuth("", "postmaster@sandbox6799805213174515aa97c14ef663c50e.mailgun.org", smtpPass, "smtp.mailgun.org")
 	client := mail.SmtpClient{Host: "smtp.mailgun.org", Port: 587, Auth: auth}
 
-	msg := mail.Mail{From: "mail@chickpea-home.duckdns.org", To: []string{"masonwells01@gmail.com"}, Subject: "Test Mail", Body: "Test Message Body", AttachmentFilePath: "hello.pdf"}
-	err := client.SendMail(msg)
+	msg := mail.Mail{From: "mail@chickpea-home.duckdns.org", To: []string{"masonwells01@gmail.com"}, Subject: "Test Mail", Body: "Test Message Body", AttachmentFilePath: pdfPath}
+	err = client.SendMail(msg)
 	if err != nil {
 		log.Fatal(err)
 	}
