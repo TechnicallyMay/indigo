@@ -1,10 +1,7 @@
 package main
 
 import (
-	"bytes"
-	"encoding/base64"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/smtp"
@@ -13,49 +10,10 @@ import (
 	"codeberg.org/go-pdf/fpdf"
 	"github.com/TechnicallyMay/indigo/db"
 	"github.com/TechnicallyMay/indigo/handlers"
+	"github.com/TechnicallyMay/indigo/mail"
 )
 
 var validPath = regexp.MustCompile("^(/[a-zA-Z0-9]+/{0,1}?)*$")
-
-func readFile(fileName string) []byte {
-
-	data, err := ioutil.ReadFile(fileName)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return data
-}
-
-func BuildMail(filename string) []byte {
-	var buf bytes.Buffer
-
-	buf.WriteString(fmt.Sprintf("From: %s\r\n", "postmaster@sandbox6799805213174515aa97c14ef663c50e.mailgun.org"))
-	buf.WriteString(fmt.Sprintf("To: %s\r\n", "masonwells01@gmail.com"))
-	buf.WriteString(fmt.Sprintf("Subject: %s\r\n", "some Email stuff"))
-
-	boundary := "doesthismatter"
-	buf.WriteString("MIME-Version: 1.0\r\n")
-	buf.WriteString(fmt.Sprintf("Content-Type: multipart/mixed; boundary=%s\n", boundary))
-	buf.WriteString(fmt.Sprintf("\r\n--%s\r\n", boundary))
-	buf.WriteString("Content-Type: text/plain;\r\n")
-	buf.WriteString(fmt.Sprintf("\r\n%s", "someEmailBody"))
-
-	buf.WriteString(fmt.Sprintf("\r\n--%s\r\n", boundary))
-	buf.WriteString("Content-Type: text/plain;\r\n")
-	buf.WriteString("Content-Transfer-Encoding: base64\r\n")
-	buf.WriteString("Content-Disposition: attachment; filename=" + filename + "\r\n")
-	buf.WriteString("Content-ID: <" + filename + ">\r\n\r\n")
-
-	data := readFile(filename)
-	b := make([]byte, base64.StdEncoding.EncodedLen(len(data)))
-	base64.StdEncoding.Encode(b, data)
-	buf.Write(b)
-	buf.WriteString(fmt.Sprintf("\r\n--%s", boundary))
-	buf.WriteString("--")
-
-	return buf.Bytes()
-}
 
 func main() {
 	log.Println("Starting!")
@@ -70,18 +28,21 @@ func main() {
 
 	// MAIL
 	log.Println("Sending an email")
-	host := "smtp.mailgun.org"
-	addr := host + ":587"
+
 	var smtpPass string
 	fmt.Println("Enter the smtp pass")
 	fmt.Scan(&smtpPass)
-	auth := smtp.PlainAuth("", "postmaster@sandbox6799805213174515aa97c14ef663c50e.mailgun.org", smtpPass, host)
 
-	msg := BuildMail("hello.pdf")
-	err := smtp.SendMail(addr, auth, "mail@chickpea-home.duckdns.org", []string{"masonwells01@gmail.com"}, msg)
+	auth := smtp.PlainAuth("", "postmaster@sandbox6799805213174515aa97c14ef663c50e.mailgun.org", smtpPass, "smtp.mailgun.org")
+	client := mail.SmtpClient{Host: "smtp.mailgun.org", Port: 587, Auth: auth}
+
+	msg := mail.Mail{From: "mail@chickpea-home.duckdns.org", To: []string{"masonwells01@gmail.com"}, Subject: "Test Mail", Body: "Test Message Body", AttachmentFilePath: "hello.pdf"}
+	err := client.SendMail(msg)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	// MAIN
 
 	pool := db.OpenDb()
 	defer pool.Close()
