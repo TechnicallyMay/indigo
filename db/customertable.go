@@ -7,6 +7,9 @@ import (
 
 type Customer struct {
 	Id        int64
+	Version   int64
+	CreatedAt int64
+
 	FirstName string
 	LastName  string
 	Email     string
@@ -29,10 +32,14 @@ func InitCustomerTable(db *sql.DB) *CustomerTable {
 	instance = &CustomerTable{db: db}
 	_, err := instance.db.Exec(`
         CREATE TABLE IF NOT EXISTS customer(
-            id INTEGER PRIMARY KEY,
+            id INTEGER NOT NULL,
+			version INTEGER NOT NULL,
+			created_at INTEGER NOT NULL,
+
             first_name TEXT NOT NULL,
             last_name TEXT NOT NULL,
-            email TEXT NOT NULL UNIQUE
+            email TEXT NOT NULL UNIQUE,
+			PRIMARY KEY (id, version)
         )
     `)
 
@@ -45,10 +52,15 @@ func InitCustomerTable(db *sql.DB) *CustomerTable {
 }
 
 func (h *CustomerTable) Get(id int64) Customer {
-	row := h.db.QueryRow("SELECT id, first_name, last_name, email FROM customer WHERE id = (?)", id)
+	row := h.db.QueryRow(`
+		SELECT id, version, created_at, first_name, last_name, email 
+		FROM customer 
+		WHERE id = (?)
+		ORDER BY version DESC
+		LIMIT 1`, id)
 
 	var cust Customer
-	if err := row.Scan(&cust.Id, &cust.FirstName, &cust.LastName, &cust.Email); err != nil {
+	if err := row.Scan(&cust.Id, &cust.Version, &cust.CreatedAt, &cust.FirstName, &cust.LastName, &cust.Email); err != nil {
 		log.Fatal("Error when getting customer.", err)
 	}
 
@@ -56,15 +68,27 @@ func (h *CustomerTable) Get(id int64) Customer {
 }
 
 func (h *CustomerTable) List() []Customer {
-	rows, err := h.db.Query("SELECT id, first_name, last_name, email FROM customer")
+	rows, err := h.db.Query(`
+		SELECT id, version, created_at, first_name, last_name, email
+		FROM customer
+		INNER JOIN (
+			SELECT id as innerId, MAX(version) as maxVersion
+			FROM customer
+			GROUP BY id
+		) ON id = innerId
+		WHERE version = maxVersion;
+		`)
 	if err != nil {
 		log.Fatal("Error when listing customers.", err)
 	}
 
 	customers := make([]Customer, 0)
 	for rows.Next() {
+		if rows.Err() != nil {
+			log.Fatal("Error when listing customers.", err)
+		}
 		var cust Customer
-		if err := rows.Scan(&cust.Id, &cust.FirstName, &cust.LastName, &cust.Email); err != nil {
+		if err := rows.Scan(&cust.Id, &cust.Version, &cust.CreatedAt, &cust.FirstName, &cust.LastName, &cust.Email); err != nil {
 			log.Fatal("Error when listing customers.", err)
 		}
 
@@ -81,11 +105,15 @@ func (h *CustomerTable) Add(cust Customer) uint16 {
 		log.Fatal("Tried to add an existing customer, updates are not yet supported.")
 	}
 
-	res, err := h.db.Exec(`INSERT INTO customer (first_name, last_name, email) VALUES (?, ?, ?)`,
+	res, err := h.db.Exec(`
+		INSERT INTO customer (id, version, created_at, first_name, last_name, email) 
+		VALUES (
+			(SELECT COALESCE(MAX(id) + 1, 0) from customer), 
+			0, strftime('%s', 'now'), ?, ?, ?)`,
 		cust.FirstName, cust.LastName, cust.Email)
 
 	if err != nil {
-		log.Fatal("Error when inserting new customer.", err)
+		log.Fatal("Error when inserting new customer. ", err)
 	}
 
 	log.Println("Successfully added new customer.")
@@ -101,8 +129,9 @@ func (h *CustomerTable) Add(cust Customer) uint16 {
 func (h *CustomerTable) Update(cust Customer) uint16 {
 	log.Printf("Updating existing customer with id %v.\n", cust.Id)
 
-	res, err := h.db.Exec(`UPDATE customer SET first_name = (?), last_name = (?), email = (?) WHERE customer.id = (?)`,
-		cust.FirstName, cust.LastName, cust.Email, cust.Id)
+	res, err := h.db.Exec(`
+		INSERT INTO customer (id, version, created_at, first_name, last_name, email) 
+		VALUES (?, (SELECT MAX(version) + 1 FROM customer WHERE id == (?)), strftime('%s', 'now'), ?, ?, ?)`, cust.Id, cust.Id, cust.FirstName, cust.LastName, cust.Email)
 
 	if err != nil {
 		log.Fatal("Error when updating customer.", err)

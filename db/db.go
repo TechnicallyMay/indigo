@@ -18,7 +18,8 @@ func OpenDb() *sql.DB {
 
 	var err error
 	//TODO: Physical file/db
-	pool, err = sql.Open("sqlite", ":memory:")
+	// pool, err = sql.Open("sqlite", ":memory:")
+	pool, err = sql.Open("sqlite", "db.db")
 
 	if err != nil {
 		log.Fatal("Error when connecting to database.", err)

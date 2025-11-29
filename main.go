@@ -1,16 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
-	"net/smtp"
 	"regexp"
 
 	"github.com/TechnicallyMay/indigo/db"
 	"github.com/TechnicallyMay/indigo/handlers"
-	"github.com/TechnicallyMay/indigo/mail"
-	"github.com/TechnicallyMay/indigo/pdf"
 )
 
 var validPath = regexp.MustCompile("^(/[a-zA-Z0-9]+/{0,1}?)*$")
@@ -18,28 +14,28 @@ var validPath = regexp.MustCompile("^(/[a-zA-Z0-9]+/{0,1}?)*$")
 func main() {
 	log.Println("Starting!")
 
-	// PDF
-	log.Println("making example pdf")
-	pdfPath, err := pdf.MakeInvoicePdf()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// MAIL
-	log.Println("Sending an email")
-
-	var smtpPass string
-	fmt.Println("Enter the smtp pass")
-	fmt.Scan(&smtpPass)
-
-	auth := smtp.PlainAuth("", "postmaster@sandbox6799805213174515aa97c14ef663c50e.mailgun.org", smtpPass, "smtp.mailgun.org")
-	client := mail.SmtpClient{Host: "smtp.mailgun.org", Port: 587, Auth: auth}
-
-	msg := mail.Mail{From: "mail@chickpea-home.duckdns.org", To: []string{"masonwells01@gmail.com"}, Subject: "Test Mail", Body: "Test Message Body", AttachmentFilePath: pdfPath}
-	err = client.SendMail(msg)
-	if err != nil {
-		log.Fatal(err)
-	}
+	// // PDF
+	// log.Println("making example pdf")
+	// pdfPath, err := pdf.MakeInvoicePdf()
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	//
+	// // MAIL
+	// log.Println("Sending an email")
+	//
+	// var smtpPass string
+	// fmt.Println("Enter the smtp pass")
+	// fmt.Scan(&smtpPass)
+	//
+	// auth := smtp.PlainAuth("", "postmaster@sandbox6799805213174515aa97c14ef663c50e.mailgun.org", smtpPass, "smtp.mailgun.org")
+	// client := mail.SmtpClient{Host: "smtp.mailgun.org", Port: 587, Auth: auth}
+	//
+	// msg := mail.Mail{From: "mail@chickpea-home.duckdns.org", To: []string{"masonwells01@gmail.com"}, Subject: "Test Mail", Body: "Test Message Body", AttachmentFilePath: pdfPath}
+	// err = client.SendMail(msg)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 
 	// MAIN
 
