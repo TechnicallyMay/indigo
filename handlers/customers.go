@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -13,14 +12,14 @@ type CustomerHandler struct {
 	db db.CustomerTable
 }
 
-var handlerInstance *CustomerHandler
+var customerHandlerInstance *CustomerHandler
 
 func NewCustomerHandler(db db.CustomerTable) *CustomerHandler {
-	if handlerInstance == nil {
-		handlerInstance = &CustomerHandler{db: db}
+	if customerHandlerInstance == nil {
+		customerHandlerInstance = &CustomerHandler{db: db}
 	}
 
-	return handlerInstance
+	return customerHandlerInstance
 }
 
 func (h *CustomerHandler) HandleGetCustomers(w http.ResponseWriter, r *http.Request) {
@@ -30,7 +29,6 @@ func (h *CustomerHandler) HandleGetCustomers(w http.ResponseWriter, r *http.Requ
 
 func (h *CustomerHandler) HandleGetAddOrUpdateCustomerForm(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
-	fmt.Println("Here")
 
 	if id != "" {
 		id, err := strconv.ParseInt(r.PathValue("id"), 10, 64)

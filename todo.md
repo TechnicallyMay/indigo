@@ -1,18 +1,35 @@
 # Indigo
 
 ## Todo
-- [x] Figure out major data structures
 - [ ] Billing Tab
-    - [ ] Create new Button => Goes to `Billing/{id}`
+    - [x] Do invoice batches need a state?
+      - Maybe invoice notifications also have a state. If they error, we have to create a new notification. Error column added to notification
+    - [ ] Add states for invoice batches
+    - [ ] Billing database handler
+    - [x] Create new Button => Goes to `Billing/{id}`
+
     - [ ] `Billing/{id}` page
         - [ ] Customer list
         - [ ] Show each included customer
         - [ ] Edit each invoice
     - [ ] Billing page show historical sessions
+- [x] Figure out major data structures
+- [ ] Customers Tweaks
+  - [ ] I think I need a "enabled" flag
+  - [ ] Delete button (soft delete obvs)
 * [ ] Send email to actual customers
 * [ ] Config file
 * [ ] Docker?
 * [ ] nixpkg
+
+## Notes
+### Invoice Batch States
+The point would be to better indicate the cumulative state of the invoices belonging to the batch. If all were sent successfully, the batch is successful. If only some were successfully sent, it would be some kind of partial state.
+
+* Draft
+* Sent
+* Failed
+* PartialFailure
 
 ## Design
 

@@ -42,7 +42,11 @@ func main() {
 	pool := db.OpenDb()
 	defer pool.Close()
 
-	customerHandler := handlers.NewCustomerHandler(*db.InitCustomerTable(pool))
+	custTable := db.InitCustomerTable(pool)
+	invoiceBatchTable := db.InitInvoiceBatchTable(pool)
+
+	customerHandler := handlers.NewCustomerHandler(*custTable)
+	billingHandler := handlers.NewBillingHandler(*invoiceBatchTable)
 
 	mux := http.NewServeMux()
 	mux.Handle("GET /js/", http.StripPrefix("/js/", http.FileServer(http.Dir("./static/js"))))
@@ -51,7 +55,8 @@ func main() {
 	mux.HandleFunc("GET /{$}", handlers.GetRootHandler)
 	mux.HandleFunc("GET /home/", handlers.GetHomeHandler)
 
-	mux.HandleFunc("GET /billing/", handlers.GetBillingHandler)
+	mux.HandleFunc("GET /billing/", billingHandler.HandleGetBilling)
+	mux.HandleFunc("GET /billing/new", billingHandler.HandleGetNewBilling)
 
 	mux.HandleFunc("GET /customers/", customerHandler.HandleGetCustomers)
 	mux.HandleFunc("GET /customers/new", customerHandler.HandleGetAddOrUpdateCustomerForm)
@@ -59,13 +64,11 @@ func main() {
 	mux.HandleFunc("POST /customers", customerHandler.HandlePostCustomer)
 	mux.HandleFunc("PUT /customers/{id}", customerHandler.HandlePutCustomer)
 
-	mux.HandleFunc("GET /products/", handlers.GetProductsHandler)
+	mux.HandleFunc("GET /products/", handlers.HandleGetProducts)
 
-	mux.HandleFunc("GET /records/", handlers.GetRecordsHandler)
+	mux.HandleFunc("GET /records/", handlers.HandleGetRecords)
 
-	mux.HandleFunc("GET /reports/", handlers.GetReportsHandler)
-
-	mux.HandleFunc("GET /settings/", handlers.GetSettingsHandler)
+	mux.HandleFunc("GET /settings/", handlers.HandleGetSettings)
 
 	server := &http.Server{
 		Addr:    ":8080",
