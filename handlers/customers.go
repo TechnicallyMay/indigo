@@ -53,7 +53,7 @@ func (h *CustomerHandler) HandlePostCustomer(w http.ResponseWriter, r *http.Requ
 
 	h.db.Add(newCustomer)
 
-	HtmxRedirect(w, "/customers", "#main-content")
+	HtmxSoftRedirect(w, "/customers", "#main-content")
 }
 
 func (h *CustomerHandler) HandlePutCustomer(w http.ResponseWriter, r *http.Request) {

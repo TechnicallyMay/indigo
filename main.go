@@ -57,6 +57,7 @@ func main() {
 
 	mux.HandleFunc("GET /billing/", billingHandler.HandleGetBilling)
 	mux.HandleFunc("GET /billing/new", billingHandler.HandleGetNewBilling)
+	mux.HandleFunc("GET /billing/{id}", billingHandler.HandleGetInvoiceBatch)
 
 	mux.HandleFunc("GET /customers/", customerHandler.HandleGetCustomers)
 	mux.HandleFunc("GET /customers/new", customerHandler.HandleGetAddOrUpdateCustomerForm)
