@@ -70,5 +70,5 @@ func (h *CustomerHandler) HandlePutCustomer(w http.ResponseWriter, r *http.Reque
 
 	h.db.Update(updatedCustomer)
 
-	HtmxRedirect(w, "/customers", "#main-content")
+	HtmxSoftRedirect(w, "/customers", "#main-content")
 }

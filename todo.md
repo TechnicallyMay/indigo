@@ -2,10 +2,11 @@
 
 ## Todo
 - [ ] Billing Tab
+    - [ ] Properly redirect from billing/new to billing/{new-id}
     - [x] Do invoice batches need a state?
       - Maybe invoice notifications also have a state. If they error, we have to create a new notification. Error column added to notification
-    - [ ] Add states for invoice batches
-    - [ ] Billing database handler
+    - [x] Add states for invoice batches
+    - [x] Billing database handler
     - [x] Create new Button => Goes to `Billing/{id}`
 
     - [ ] `Billing/{id}` page

@@ -6,7 +6,7 @@
 </h1>
 
 <div class="billing-content">
-    <button onclick="location.href='/billing/new'" type="button">
+    <button hx-get="/billing/new" hx-target="#main-content" type="button">
         Start New
     </button>
 </div>

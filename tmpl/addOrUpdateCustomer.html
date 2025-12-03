@@ -14,7 +14,7 @@
         <input form="update-form-{{ .Id }}" type="submit" value={{ if .Id }} "Update" {{ else }} "Create" {{ end }}>
     </td>
     <td>
-        <input class="secondary" type="button" value="Cancel" onclick="location.href='/customers'">
+        <input class="secondary" type="button" value="Cancel" hx-get="/customers" hx-target="#main-content">
     </td>
 </tr>
 {{ end }}
