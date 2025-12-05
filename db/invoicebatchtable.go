@@ -14,6 +14,21 @@ const (
 	PartialFailure
 )
 
+func (state InvoiceBatchState) String() string {
+	switch state {
+	case Draft:
+		return "Draft"
+	case Sent:
+		return "Sent"
+	case Failed:
+		return "Failed"
+	case PartialFailure:
+		return "PartialFailure"
+	default:
+		return "Unknown"
+	}
+}
+
 type InvoiceBatch struct {
 	Id        int64
 	CreatedAt int64

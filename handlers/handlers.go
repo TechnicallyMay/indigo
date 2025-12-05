@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 )
 
 func renderTemplate(writer http.ResponseWriter, r *http.Request, templateName string, prereqTemplates []string, data any) {
@@ -41,6 +42,17 @@ func getOrParse(templateNames ...string) template.Template {
 		templateFiles[i] = "tmpl/" + tmp + ".html"
 	}
 
-	templates[templateKey] = *template.Must(template.ParseFiles(templateFiles...))
+	tmpl := template.New(templateNames[0] + ".html")
+	addCustomFuncs(tmpl)
+	template := *template.Must(tmpl.ParseFiles(templateFiles...))
+	templates[templateKey] = template
 	return templates[templateKey]
+}
+
+func addCustomFuncs(templ *template.Template) {
+	templ.Funcs(template.FuncMap{
+		"convertLocalTimestamp": func(secSinceEpoch int64) time.Time {
+			return time.Unix(secSinceEpoch, 0)
+		},
+	})
 }

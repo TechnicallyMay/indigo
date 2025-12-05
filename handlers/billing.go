@@ -22,7 +22,8 @@ func NewBillingHandler(db db.InvoiceBatchTable) *BillingHandler {
 }
 
 func (h *BillingHandler) HandleGetBilling(w http.ResponseWriter, r *http.Request) {
-	renderTemplate(w, r, "billing", []string{"base"}, nil)
+	batches := h.db.List()
+	renderTemplate(w, r, "billingHome", []string{"base"}, batches)
 }
 
 func (h *BillingHandler) HandleGetNewBilling(w http.ResponseWriter, r *http.Request) {

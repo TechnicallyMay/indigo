@@ -2,18 +2,21 @@
 
 ## Todo
 - [ ] Billing Tab
-    - [ ] Properly redirect from billing/new to billing/{new-id}
+    - [x] Billing page list existing sessions
+    - [ ] Ability to delete draft batches
+    - [x] Properly redirect from billing/new to billing/{new-id}
     - [x] Do invoice batches need a state?
       - Maybe invoice notifications also have a state. If they error, we have to create a new notification. Error column added to notification
     - [x] Add states for invoice batches
     - [x] Billing database handler
+    - [ ] Don't create a new batch every time you navigate to `/new`
+      - Maybe just check if there already exists an empty batch
     - [x] Create new Button => Goes to `Billing/{id}`
 
     - [ ] `Billing/{id}` page
         - [ ] Customer list
         - [ ] Show each included customer
         - [ ] Edit each invoice
-    - [ ] Billing page show historical sessions
 - [x] Figure out major data structures
 - [ ] Customers Tweaks
   - [ ] I think I need a "enabled" flag
