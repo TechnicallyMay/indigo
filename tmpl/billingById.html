@@ -1,0 +1,22 @@
+{{ template "base" . }}
+
+{{ define "content" }}
+<h4>
+    Invoice Batch #{{ .Batch.Id }}
+</h4>
+
+<div class="flex-row">
+    <div class="flex-column">
+        {{range .Customers}}
+            <div>
+                {{ .FirstName }} {{ .LastName }}
+            </div>
+        {{ end }}
+    </div>
+
+    <div id="invoice-display">
+        <strong>Select a customer on the left to view & modify their invoice</strong>
+    </div>
+</div>
+
+{{ end }}

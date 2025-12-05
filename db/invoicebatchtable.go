@@ -72,18 +72,16 @@ func InitInvoiceBatchTable(db *sql.DB) *InvoiceBatchTable {
 	return invoiceBatchInstance
 }
 
-func (h *InvoiceBatchTable) Get(id int64) InvoiceBatch {
+func (h *InvoiceBatchTable) Get(id int64) (InvoiceBatch, error) {
 	row := h.db.QueryRow(`
 		SELECT id, created_at, state, due_date, finished_sending_at
 		FROM invoice_batch 
 		WHERE id = (?);`, id)
 
 	var batch InvoiceBatch
-	if err := row.Scan(&batch.Id, &batch.CreatedAt, &batch.State, &batch.DueDate, &batch.FinishedSendingAt); err != nil {
-		log.Fatal("Error when getting invoice batch.", err)
-	}
+	err := row.Scan(&batch.Id, &batch.CreatedAt, &batch.State, &batch.DueDate, &batch.FinishedSendingAt)
 
-	return batch
+	return batch, err
 }
 
 func (h *InvoiceBatchTable) List() []InvoiceBatch {
