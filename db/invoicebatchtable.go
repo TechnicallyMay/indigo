@@ -107,7 +107,6 @@ func (h *InvoiceBatchTable) List() []InvoiceBatch {
 		batches = append(batches, batch)
 	}
 
-	log.Printf("Found rows %v", batches)
 	return batches
 }
 

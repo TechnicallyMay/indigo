@@ -1,7 +1,12 @@
 # Indigo
 
 ## Todo
+- [ ] Invoice Table
 - [ ] Billing Tab
+    - [ ] `Billing/{id}` page
+        - [ ] Customer list
+        - [ ] Show each included customer
+        - [ ] Edit each invoice
     - [x] Billing page list existing sessions
     - [ ] Ability to delete draft batches
     - [x] Properly redirect from billing/new to billing/{new-id}
@@ -13,10 +18,6 @@
       - Maybe just check if there already exists an empty batch
     - [x] Create new Button => Goes to `Billing/{id}`
 
-    - [ ] `Billing/{id}` page
-        - [ ] Customer list
-        - [ ] Show each included customer
-        - [ ] Edit each invoice
 - [x] Figure out major data structures
 - [ ] Customers Tweaks
   - [ ] I think I need a "enabled" flag
@@ -62,8 +63,8 @@ The point would be to better indicate the cumulative state of the invoices belon
 ```go
 type Customer struct {
 	Id        int64
-    Version   int64 // Updates just insert new records. Primary key = id + version. On GET, return latest version.
-    CreatedAt int64
+  Version   int64 // Updates just insert new records. Primary key = id + version. On GET, return latest version.
+  CreatedAt int64
 
 	FirstName string
 	LastName  string
@@ -101,8 +102,8 @@ type Invoice struct {
 type InvoiceItem struct {
 	InvoiceId      int64
 	ProductId      int64
-    ProductVersion int64
-    Quantity       int64
+  ProductVersion int64
+  Quantity       int64
 }
 ```
 
@@ -120,11 +121,11 @@ type InvoiceNotification struct {
 
 ```go
 type InvoiceBatch struct {
-    Id                int64
-    CreatedAt         int64
+    Id                     int64
+    CreatedAt              int64
 
-    DueDate           int64 // Default to whatever invoice sender does (next 15th?), can add some fanciness later
-    FinishedSendingAt int64 // When the last invoice notification in the batch was sent successfully
+    DueDate                int64 // Default to whatever invoice sender does (next 15th?), can add some fanciness later
+    FinishedSendingAt      int64 // When the last invoice notification in the batch was sent successfully
     AllNotificationsSent   bool
 }
 ```

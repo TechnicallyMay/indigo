@@ -95,7 +95,6 @@ func (h *CustomerTable) List() []Customer {
 		customers = append(customers, cust)
 	}
 
-	log.Printf("Found rows %v", customers)
 	return customers
 }
 

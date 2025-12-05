@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"regexp"
@@ -44,6 +45,10 @@ func main() {
 
 	custTable := db.InitCustomerTable(pool)
 	invoiceBatchTable := db.InitInvoiceBatchTable(pool)
+	invoiceTable := db.InitInvoiceTable(pool)
+
+	invoices, _ := invoiceTable.List()
+	fmt.Println(invoices)
 
 	customerHandler := handlers.NewCustomerHandler(*custTable)
 	billingHandler := handlers.NewBillingHandler(*invoiceBatchTable)
