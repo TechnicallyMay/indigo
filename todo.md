@@ -26,6 +26,10 @@
 * [ ] Config file
 * [ ] Docker?
 * [ ] nixpkg
+- [ ] Cleanup
+  - [ ] Error handling
+  - [ ] Rename things to make more sense (handlers)
+  - [ ] println vs log
 
 ## Notes
 ### Invoice Batch States

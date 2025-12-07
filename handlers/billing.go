@@ -13,8 +13,9 @@ type BillingHandler struct {
 }
 
 type billingData struct {
-	Batch             db.InvoiceBatch
-	IncludedCustomers []db.Customer
+	Batch              db.InvoiceBatch
+	IncludedCustomers  []db.Customer
+	AvailableCustomers []db.Customer
 }
 
 var billingHandlerInstance *BillingHandler
@@ -62,22 +63,33 @@ func (h *BillingHandler) HandleGetInvoiceBatch(w http.ResponseWriter, r *http.Re
 	data := &billingData{
 		Batch: batch,
 		IncludedCustomers: []db.Customer{
-			db.Customer{
+			{
 				Id:        1,
 				Version:   1,
 				CreatedAt: 0,
 
-				FirstName: "test",
-				LastName:  "whatever",
+				FirstName: "mason",
+				LastName:  "wells",
+				Email:     "emlakdsf",
+			},
+			{
+				Id:        1,
+				Version:   1,
+				CreatedAt: 0,
+
+				FirstName: "dex",
+				LastName:  "goodboi",
 				Email:     "masil",
 			},
-			db.Customer{
+		},
+		AvailableCustomers: []db.Customer{
+			{
 				Id:        1,
 				Version:   1,
 				CreatedAt: 0,
 
-				FirstName: "test",
-				LastName:  "whatever2",
+				FirstName: "New",
+				LastName:  "Customer",
 				Email:     "masil",
 			},
 		},
