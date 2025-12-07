@@ -7,5 +7,5 @@ func GetRootHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetHomeHandler(w http.ResponseWriter, r *http.Request) {
-	renderTemplate(w, r, "home", []string{"base"}, nil)
+	renderTemplate(w, r, "home", nil, nil)
 }

@@ -24,7 +24,7 @@ func NewCustomerHandler(db db.CustomerTable) *CustomerHandler {
 
 func (h *CustomerHandler) HandleGetCustomers(w http.ResponseWriter, r *http.Request) {
 	customers := h.db.List()
-	renderTemplate(w, r, "customers", []string{"base"}, customers)
+	renderTemplate(w, r, "customers", nil, customers)
 }
 
 func (h *CustomerHandler) HandleGetAddOrUpdateCustomerForm(w http.ResponseWriter, r *http.Request) {
@@ -37,9 +37,9 @@ func (h *CustomerHandler) HandleGetAddOrUpdateCustomerForm(w http.ResponseWriter
 		}
 
 		cust := h.db.Get(id)
-		renderTemplate(w, r, "addOrUpdateCustomer", []string{"base"}, cust)
+		renderTemplate(w, r, "addOrUpdateCustomer", nil, cust)
 	} else {
-		renderTemplate(w, r, "addOrUpdateCustomer", []string{"base"}, nil)
+		renderTemplate(w, r, "addOrUpdateCustomer", nil, nil)
 	}
 }
 

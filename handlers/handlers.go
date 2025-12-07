@@ -10,12 +10,16 @@ import (
 
 func renderTemplate(writer http.ResponseWriter, r *http.Request, templateName string, prereqTemplates []string, data any) {
 	var err error
+
+	toRender := append([]string{templateName}, prereqTemplates...)
+	// If it's an HTMX request, we know only part of the page is being substituted.
+	// Otherwise, we're rendering the whole page
 	if r.Header.Get("HX-Request") == "true" {
 		log.Printf("Rendering template for htmx request (content only): %v\n", templateName)
-		template := getOrParse(templateName)
+		template := getOrParse(toRender...)
 		err = template.ExecuteTemplate(writer, "content", data)
 	} else {
-		toRender := append([]string{templateName}, prereqTemplates...)
+		toRender := append(toRender, "base")
 		log.Printf("Rendering template for non-htmx request (entire template): %v\n", toRender)
 		template := getOrParse(toRender...)
 		err = template.Execute(writer, data)
