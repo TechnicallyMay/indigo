@@ -4,7 +4,24 @@ import (
 	"database/sql"
 	"errors"
 	"log"
+	"strings"
 )
+
+type invoiceQuery struct {
+	BatchId         int64
+	CustomerId      int64
+	CustomerVersion int64
+	IsPaid          int64
+}
+
+func CreateInvoiceQuery() invoiceQuery {
+	return invoiceQuery{
+		BatchId:         -1,
+		CustomerId:      -1,
+		CustomerVersion: -1,
+		IsPaid:          -1,
+	}
+}
 
 type Invoice struct {
 	Id        int64
@@ -70,30 +87,74 @@ func (h *InvoiceTable) Get(id int64) (Invoice, error) {
 	return invoice, err
 }
 
+func (h *InvoiceTable) QueryRow(query invoiceQuery) (*Invoice, error) {
+	rows, err := h.Query(query)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(rows) > 1 {
+		return nil, errors.New("Found more than one row while querying for exactly one")
+	}
+
+	if len(rows) == 0 {
+		return nil, nil
+	}
+
+	return &rows[0], nil
+
+}
+
+func (h *InvoiceTable) Query(query invoiceQuery) ([]Invoice, error) {
+	filters := make([]string, 0)
+	params := make([]any, 0)
+
+	if query.BatchId != -1 {
+		filters = append(filters, "batch_id = (?)")
+		params = append(params, query.BatchId)
+	}
+
+	if query.CustomerId != -1 {
+		filters = append(filters, "customer_id = (?)")
+		params = append(params, query.CustomerId)
+	}
+
+	if query.CustomerVersion != -1 {
+		filters = append(filters, "customer_version = (?)")
+		params = append(params, query.CustomerVersion)
+	}
+
+	if query.IsPaid != -1 {
+		filters = append(filters, "is_paid = (?)")
+		params = append(params, query.CustomerVersion)
+	}
+
+	queryStr := `
+		SELECT id, created_at, batch_id, customer_id, customer_version, is_paid
+		FROM invoice
+	`
+
+	if len(filters) > 0 {
+		queryStr += " WHERE " + strings.Join(filters, " AND ")
+	}
+
+	rows, err := h.db.Query(queryStr, params...)
+	if err != nil {
+		return make([]Invoice, 0), err
+	}
+	return parseRows(rows)
+}
+
 func (h *InvoiceTable) List() ([]Invoice, error) {
 	rows, err := h.db.Query(`
 		SELECT id, created_at, batch_id, customer_id, customer_version, is_paid
 		FROM invoice;`)
 
-	invoices := make([]Invoice, 0)
 	if err != nil {
-		return invoices, err
+		return make([]Invoice, 0), err
 	}
 
-	for rows.Next() {
-		if rows.Err() != nil {
-			return invoices, rows.Err()
-		}
-
-		var invoice Invoice
-		if err := rows.Scan(&invoice.Id, &invoice.CreatedAt, &invoice.BatchId, &invoice.CustomerId, &invoice.CustomerVersion, &invoice.IsPaid); err != nil {
-			return invoices, err
-		}
-
-		invoices = append(invoices, invoice)
-	}
-
-	return invoices, nil
+	return parseRows(rows)
 }
 
 func (h *InvoiceTable) Add(invoice Invoice) (int64, error) {
@@ -140,4 +201,22 @@ func (h *InvoiceTable) Update(invoice Invoice) error {
 
 	log.Println("Successfully updated invoice.")
 	return nil
+}
+
+func parseRows(rows *sql.Rows) ([]Invoice, error) {
+	invoices := make([]Invoice, 0)
+	for rows.Next() {
+		if rows.Err() != nil {
+			return invoices, rows.Err()
+		}
+
+		var invoice Invoice
+		if err := rows.Scan(&invoice.Id, &invoice.CreatedAt, &invoice.BatchId, &invoice.CustomerId, &invoice.CustomerVersion, &invoice.IsPaid); err != nil {
+			return invoices, err
+		}
+
+		invoices = append(invoices, invoice)
+	}
+
+	return invoices, nil
 }

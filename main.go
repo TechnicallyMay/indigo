@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"regexp"
@@ -47,11 +46,9 @@ func main() {
 	invoiceBatchTable := db.InitInvoiceBatchTable(pool)
 	invoiceTable := db.InitInvoiceTable(pool)
 
-	invoices, _ := invoiceTable.List()
-	fmt.Println(invoices)
-
 	customerHandler := handlers.NewCustomerHandler(*custTable)
 	billingHandler := handlers.NewBillingHandler(*invoiceBatchTable)
+	invoiceHandler := handlers.NewInvoiceHandler(*invoiceTable)
 
 	mux := http.NewServeMux()
 	mux.Handle("GET /js/", http.StripPrefix("/js/", http.FileServer(http.Dir("./static/js"))))
@@ -69,6 +66,9 @@ func main() {
 	mux.HandleFunc("GET /customers/new/{id}", customerHandler.HandleGetAddOrUpdateCustomerForm)
 	mux.HandleFunc("POST /customers", customerHandler.HandlePostCustomer)
 	mux.HandleFunc("PUT /customers/{id}", customerHandler.HandlePutCustomer)
+
+	mux.HandleFunc("GET /invoice", invoiceHandler.HandleGetInvoice)
+	// mux.HandleFunc("GET /invoices/{id}", invoiceHandler.HandleGetInvoice)
 
 	mux.HandleFunc("GET /products/", handlers.HandleGetProducts)
 

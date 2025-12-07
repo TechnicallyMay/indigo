@@ -13,8 +13,8 @@ type BillingHandler struct {
 }
 
 type billingData struct {
-	Batch     db.InvoiceBatch
-	Customers []db.Customer
+	Batch             db.InvoiceBatch
+	IncludedCustomers []db.Customer
 }
 
 var billingHandlerInstance *BillingHandler
@@ -29,7 +29,7 @@ func NewBillingHandler(db db.InvoiceBatchTable) *BillingHandler {
 
 func (h *BillingHandler) HandleGetBilling(w http.ResponseWriter, r *http.Request) {
 	batches := h.db.List()
-	renderTemplate(w, r, "billingHome", []string{"base"}, batches)
+	renderTemplate(w, r, "billingHome", []string{"customerList"}, batches)
 }
 
 func (h *BillingHandler) HandleGetNewBilling(w http.ResponseWriter, r *http.Request) {
@@ -37,7 +37,6 @@ func (h *BillingHandler) HandleGetNewBilling(w http.ResponseWriter, r *http.Requ
 	newId := h.db.Add(newBatch)
 
 	dest := fmt.Sprintf("/billing/%d", newId)
-	// HtmxSoftRedirect(w, dest, "#main-content")
 	HtmxHardRedirect(w, dest)
 }
 
@@ -62,7 +61,7 @@ func (h *BillingHandler) HandleGetInvoiceBatch(w http.ResponseWriter, r *http.Re
 	//TODO: Correctly populate this data
 	data := &billingData{
 		Batch: batch,
-		Customers: []db.Customer{
+		IncludedCustomers: []db.Customer{
 			db.Customer{
 				Id:        1,
 				Version:   1,
