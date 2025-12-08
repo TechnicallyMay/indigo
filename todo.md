@@ -1,7 +1,9 @@
 # Indigo
 
 ## Todo
-- [ ] Invoice Table
+- [ ] Some CSS container for scrolling the main content while still having footer
+  - [ ] Maybe need to split into body/footer instead of just content template
+     - [ ] Would need to define in each page
 - [ ] Billing Tab
     - [ ] `Billing/{id}` page
         - [x] Customer list
@@ -21,7 +23,6 @@
       - Maybe just check if there already exists an empty batch
     - [x] Create new Button => Goes to `Billing/{id}`
 
-- [x] Figure out major data structures
 - [ ] Customers Tweaks
   - [ ] I think I need a "enabled" flag
   - [ ] Delete button (soft delete obvs)
@@ -33,6 +34,8 @@
   - [ ] Error handling
   - [ ] Rename things to make more sense (handlers)
   - [ ] println vs log
+- [x] Figure out major data structures
+- [x] Invoice Table
 
 ## Notes
 ### Invoice Batch States

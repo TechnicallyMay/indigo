@@ -1,19 +1,21 @@
 {{ define "customerPicker" }}
-    <div class="flex-column" id="customer-picker">
+    <div class="flex-column flex-start stretch-children full-height pad-lg-r" id="customer-picker">
         {{ range .IncludedCustomers }}
-            <div class="flex-row">
+            <div class="flex-row space-between">
                 <div>
                     {{ .FirstName }} {{ .LastName }}
                 </div>
-                <button
+                <a
                     hx-get="/invoice?batchId={{ $.Batch.Id }}&customerId={{ .Id }}"
                     hx-target="#invoice-display"
                     hx-swap="innerHTML"
                     hx-replace-url="false">
-                    Click me
-                </button>
+                    Invoice
+                </a>
             </div>
         {{ end }}
+
+        <div class="flex-spacer"></div>
 
         <details class="dropdown">
             <summary>Add a new Customer</summary>

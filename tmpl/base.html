@@ -18,7 +18,7 @@
     <body hx-boost="true">
         <main class="container-fluid">
 
-            <div id="header">
+            <header>
                 <nav id="global-nav">
                     <ul>
                         <li><a href="/" hx-target="#main-content"><h2>Indigo</h2></a></li>
@@ -29,7 +29,7 @@
                         <li><a href="/settings" hx-target="#main-content">Settings</a></li>
                     </ul>
                 </nav>
-            </div>
+            </header>
 
             <div id="main-content">
                 {{ template "content" . }}
