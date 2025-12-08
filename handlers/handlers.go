@@ -8,21 +8,35 @@ import (
 	"time"
 )
 
-func renderTemplate(writer http.ResponseWriter, r *http.Request, templateName string, prereqTemplates []string, data any) {
+type renderOpts struct {
+	templateName    string
+	prereqTemplates []string
+	data            any
+}
+
+func newRenderOpts(name string, data any) renderOpts {
+	return renderOpts{
+		templateName:    name,
+		prereqTemplates: make([]string, 0),
+		data:            data,
+	}
+}
+
+func renderTemplate(writer http.ResponseWriter, r *http.Request, opts renderOpts) {
 	var err error
 
-	toRender := append([]string{templateName}, prereqTemplates...)
+	toRender := append([]string{opts.templateName}, opts.prereqTemplates...)
 	// If it's an HTMX request, we know only part of the page is being substituted.
 	// Otherwise, we're rendering the whole page
 	if r.Header.Get("HX-Request") == "true" {
-		log.Printf("Rendering template for htmx request (content only): %v\n", templateName)
+		log.Printf("Rendering template for htmx request (content only): %v\n", opts.templateName)
 		template := getOrParse(toRender...)
-		err = template.ExecuteTemplate(writer, "content", data)
+		err = template.ExecuteTemplate(writer, "content", opts.data)
 	} else {
 		toRender := append(toRender, "base")
 		log.Printf("Rendering template for non-htmx request (entire template): %v\n", toRender)
 		template := getOrParse(toRender...)
-		err = template.Execute(writer, data)
+		err = template.Execute(writer, opts.data)
 	}
 
 	if err != nil {

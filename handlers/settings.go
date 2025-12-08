@@ -3,5 +3,5 @@ package handlers
 import "net/http"
 
 func HandleGetSettings(w http.ResponseWriter, r *http.Request) {
-	renderTemplate(w, r, "settings", nil, nil)
+	renderTemplate(w, r, newRenderOpts("settings", nil))
 }

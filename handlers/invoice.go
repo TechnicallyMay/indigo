@@ -63,5 +63,5 @@ func (h *InvoiceHandler) HandleGetInvoice(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	renderTemplate(w, r, "invoice", nil, invoice)
+	renderTemplate(w, r, newRenderOpts("invoice", invoice))
 }
