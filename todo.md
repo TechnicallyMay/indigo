@@ -4,9 +4,12 @@
 - [ ] Invoice Table
 - [ ] Billing Tab
     - [ ] `Billing/{id}` page
-        - [ ] Customer list
-        - [ ] Show each included customer
+        - [x] Customer list
+        - [x] Show each included customer
         - [ ] Edit each invoice
+        - [ ] Remove invoice
+        - [ ] Add all customers
+        - [ ] Use pico modal for confirmation
     - [x] Billing page list existing sessions
     - [ ] Ability to delete draft batches
     - [x] Properly redirect from billing/new to billing/{new-id}

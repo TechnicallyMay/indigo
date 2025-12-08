@@ -67,6 +67,25 @@ func (h *CustomerTable) Get(id int64) Customer {
 	return cust
 }
 
+func (h *CustomerTable) GetByInvoiceBatch(bId int64) []Customer {
+	rows, err := h.db.Query(`
+		SELECT customer.id, customer.version, customer.created_at, customer.first_name, customer.last_name, customer.email
+		FROM customer
+		INNER JOIN (
+			SELECT id as innerId, MAX(version) as maxVersion
+			FROM customer
+			GROUP BY id
+		) ON customer.id = innerId
+		INNER JOIN invoice ON customer.id = customer_id
+		WHERE customer.version = maxVersion AND invoice.batch_id = (?);`, bId)
+
+	if err != nil {
+		log.Fatal("Error when listing customers.", err)
+	}
+
+	return parseCustomerRows(rows)
+}
+
 func (h *CustomerTable) List() []Customer {
 	rows, err := h.db.Query(`
 		SELECT id, version, created_at, first_name, last_name, email
@@ -78,24 +97,12 @@ func (h *CustomerTable) List() []Customer {
 		) ON id = innerId
 		WHERE version = maxVersion;
 		`)
+
 	if err != nil {
 		log.Fatal("Error when listing customers.", err)
 	}
 
-	customers := make([]Customer, 0)
-	for rows.Next() {
-		if rows.Err() != nil {
-			log.Fatal("Error when listing customers.", err)
-		}
-		var cust Customer
-		if err := rows.Scan(&cust.Id, &cust.Version, &cust.CreatedAt, &cust.FirstName, &cust.LastName, &cust.Email); err != nil {
-			log.Fatal("Error when listing customers.", err)
-		}
-
-		customers = append(customers, cust)
-	}
-
-	return customers
+	return parseCustomerRows(rows)
 }
 
 func (h *CustomerTable) Add(cust Customer) int64 {
@@ -149,4 +156,21 @@ func (h *CustomerTable) Update(cust Customer) int64 {
 	log.Println("Successfully updated customer.")
 
 	return cust.Id
+}
+
+func parseCustomerRows(rows *sql.Rows) []Customer {
+	customers := make([]Customer, 0)
+	for rows.Next() {
+		if rows.Err() != nil {
+			log.Fatal("Error when listing customers.", rows.Err())
+		}
+		var cust Customer
+		if err := rows.Scan(&cust.Id, &cust.Version, &cust.CreatedAt, &cust.FirstName, &cust.LastName, &cust.Email); err != nil {
+			log.Fatal("Error when listing customers.", err)
+		}
+
+		customers = append(customers, cust)
+	}
+
+	return customers
 }

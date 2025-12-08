@@ -1,5 +1,5 @@
 {{ define "customerPicker" }}
-    <div class="flex-column">
+    <div class="flex-column" id="customer-picker">
         {{ range .IncludedCustomers }}
             <div class="flex-row">
                 <div>
@@ -14,11 +14,20 @@
                 </button>
             </div>
         {{ end }}
-        <select name="customer" id="customer">
-            <option value="" disabled="true" selected="selected">Add a new Customer</option>
-            {{ range .AvailableCustomers }}
-                <option value="{{ .Id }}">{{ .FirstName }} {{ .LastName }}</option>
-            {{ end }}
-        </select>
+
+        <details class="dropdown">
+            <summary>Add a new Customer</summary>
+            <ul>
+                {{ range .AvailableCustomers }}
+                <li>
+                    <a hx-put="/billing/{{ $.Batch.Id }}/invoice?customerId={{ .Id }}"
+                       hx-target="#customer-picker"
+                       hx-swap="outerHTML">
+                        {{ .FirstName }} {{ .LastName }}
+                    </a>
+                </li>
+                {{ end }}
+            </ul>
+        </details>
     </div>
 {{ end }}

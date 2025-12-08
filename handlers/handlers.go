@@ -12,6 +12,7 @@ type renderOpts struct {
 	templateName    string
 	prereqTemplates []string
 	data            any
+	entrypoint      string
 }
 
 func newRenderOpts(name string, data any) renderOpts {
@@ -19,6 +20,7 @@ func newRenderOpts(name string, data any) renderOpts {
 		templateName:    name,
 		prereqTemplates: make([]string, 0),
 		data:            data,
+		entrypoint:      "content",
 	}
 }
 
@@ -31,7 +33,7 @@ func renderTemplate(writer http.ResponseWriter, r *http.Request, opts renderOpts
 	if r.Header.Get("HX-Request") == "true" {
 		log.Printf("Rendering template for htmx request (content only): %v\n", opts.templateName)
 		template := getOrParse(toRender...)
-		err = template.ExecuteTemplate(writer, "content", opts.data)
+		err = template.ExecuteTemplate(writer, opts.entrypoint, opts.data)
 	} else {
 		toRender := append(toRender, "base")
 		log.Printf("Rendering template for non-htmx request (entire template): %v\n", toRender)

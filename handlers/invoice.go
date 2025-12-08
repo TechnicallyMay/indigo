@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 	"strconv"
 
@@ -22,14 +23,6 @@ func NewInvoiceHandler(db db.InvoiceTable) *InvoiceHandler {
 }
 
 func (h *InvoiceHandler) HandleGetInvoice(w http.ResponseWriter, r *http.Request) {
-	// id := r.PathValue("id")
-	// fmt.Println("Invoice with id", id)
-
-	// idInt, err := strconv.ParseInt(id, 10, 64)
-	// if err != nil {
-	// 	http.Error(w, "Error while retrieving invoice: Id couldn't be parsed as an int.", 400)
-	// 	return
-	// }
 	params := r.URL.Query()
 
 	query := db.CreateInvoiceQuery()
@@ -41,14 +34,16 @@ func (h *InvoiceHandler) HandleGetInvoice(w http.ResponseWriter, r *http.Request
 
 	if berr == nil {
 		query.BatchId = batchFilter
+		log.Println("batch id", query.BatchId)
 	}
-	if cerr != nil {
+	if cerr == nil {
 		query.CustomerId = customerIdFilter
+		log.Println("customer id", query.CustomerId)
 	}
-	if verr != nil {
+	if verr == nil {
 		query.CustomerVersion = customerVersionFilter
 	}
-	if perr != nil {
+	if perr == nil {
 		if isPaidFilter {
 			query.IsPaid = 1
 		} else {
@@ -62,6 +57,7 @@ func (h *InvoiceHandler) HandleGetInvoice(w http.ResponseWriter, r *http.Request
 		http.Error(w, "Error while querying invoice", 400)
 		return
 	}
+	log.Println("Found an invoice with id", invoice.Id)
 
 	renderTemplate(w, r, newRenderOpts("invoice", invoice))
 }

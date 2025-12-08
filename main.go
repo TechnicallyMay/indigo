@@ -47,7 +47,7 @@ func main() {
 	invoiceTable := db.InitInvoiceTable(pool)
 
 	customerHandler := handlers.NewCustomerHandler(*custTable)
-	billingHandler := handlers.NewBillingHandler(*invoiceBatchTable)
+	billingHandler := handlers.NewBillingHandler(*invoiceBatchTable, *invoiceTable, *custTable)
 	invoiceHandler := handlers.NewInvoiceHandler(*invoiceTable)
 
 	mux := http.NewServeMux()
@@ -60,6 +60,7 @@ func main() {
 	mux.HandleFunc("GET /billing/", billingHandler.HandleGetBilling)
 	mux.HandleFunc("GET /billing/new", billingHandler.HandleGetNewBilling)
 	mux.HandleFunc("GET /billing/{id}", billingHandler.HandleGetInvoiceBatch)
+	mux.HandleFunc("PUT /billing/{id}/invoice", billingHandler.HandleAddInvoiceToBatch)
 
 	mux.HandleFunc("GET /customers/", customerHandler.HandleGetCustomers)
 	mux.HandleFunc("GET /customers/new", customerHandler.HandleGetAddOrUpdateCustomerForm)
