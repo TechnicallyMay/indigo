@@ -1,6 +1,7 @@
 # Indigo
 
 ## Todo
+- [ ] Move the "Add a new Customer" button on the invoice page to the header
 - [ ] Some CSS container for scrolling the main content while still having footer
   - [ ] Maybe need to split into body/footer instead of just content template
      - [ ] Would need to define in each page
