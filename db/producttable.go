@@ -105,6 +105,11 @@ func (h *ProductTable) Query(query productQuery) ([]Product, error) {
 	queryStr := `
 		SELECT id, version, created_at, name, description, unit_price
 		FROM product
+		INNER JOIN (
+			SELECT id as innerId, MAX(version) as maxVersion
+			FROM product as p2
+			GROUP BY id
+		) ON id = innerId AND version = maxVersion
 	`
 
 	if len(filters) > 0 {

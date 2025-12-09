@@ -2,10 +2,10 @@
 
 ## Todo
 - [ ] Deleted flags for versioned records
-- [ ] Move the "Add a new Customer" button on the invoice page to the header
-- [ ] Some CSS container for scrolling the main content while still having footer
-  - [ ] Maybe need to split into body/footer instead of just content template
-     - [ ] Would need to define in each page
+- [x] Move the "Add a new Customer" button on the invoice page to the header
+- [x] Some CSS container for scrolling the main content while still having footer
+  - [x] Maybe need to split into body/footer instead of just content template
+     - [x] Would need to define in each page
 - [ ] Billing Tab
     - [ ] `Billing/{id}` page
         - [x] Customer list

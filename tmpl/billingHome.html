@@ -34,7 +34,7 @@
                     <td>{{ if gt .CreatedAt 0 }} {{ convertLocalTimestamp .CreatedAt }} {{ end }}</td>
                     <td>{{ if gt .DueDate 0 }} {{ convertLocalTimestamp .DueDate }} {{ end }}</td>
                     <td>
-                        <a href="/billing/{{ .Id }}" hx-target="#main-content" hx-swap="outerHTML">Edit</a>
+                        <a href="/billing/{{ .Id }}" hx-target="#main-content">Edit</a>
                     </td>
                 </tr>
                 {{ end }}
