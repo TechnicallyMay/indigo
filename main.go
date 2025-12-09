@@ -45,10 +45,12 @@ func main() {
 	custTable := db.InitCustomerTable(pool)
 	invoiceBatchTable := db.InitInvoiceBatchTable(pool)
 	invoiceTable := db.InitInvoiceTable(pool)
+	productsTable := db.InitProductTable(pool)
 
 	customerHandler := handlers.NewCustomerHandler(*custTable)
 	billingHandler := handlers.NewBillingHandler(*invoiceBatchTable, *invoiceTable, *custTable)
 	invoiceHandler := handlers.NewInvoiceHandler(*invoiceTable)
+	productsHandler := handlers.NewProductHandler(*productsTable)
 
 	mux := http.NewServeMux()
 	mux.Handle("GET /js/", http.StripPrefix("/js/", http.FileServer(http.Dir("./static/js"))))
@@ -71,7 +73,7 @@ func main() {
 	mux.HandleFunc("GET /invoice", invoiceHandler.HandleGetInvoice)
 	// mux.HandleFunc("GET /invoices/{id}", invoiceHandler.HandleGetInvoice)
 
-	mux.HandleFunc("GET /products/", handlers.HandleGetProducts)
+	mux.HandleFunc("GET /products/", productsHandler.HandleGetProducts)
 
 	mux.HandleFunc("GET /records/", handlers.HandleGetRecords)
 
