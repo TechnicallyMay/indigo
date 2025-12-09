@@ -142,19 +142,11 @@ func (h *InvoiceTable) Query(query invoiceQuery) ([]Invoice, error) {
 	if err != nil {
 		return make([]Invoice, 0), err
 	}
-	return parseRows(rows)
+	return parseInvoiceRows(rows)
 }
 
 func (h *InvoiceTable) List() ([]Invoice, error) {
-	rows, err := h.db.Query(`
-		SELECT id, created_at, batch_id, customer_id, customer_version, is_paid
-		FROM invoice;`)
-
-	if err != nil {
-		return make([]Invoice, 0), err
-	}
-
-	return parseRows(rows)
+	return h.Query(CreateInvoiceQuery())
 }
 
 func (h *InvoiceTable) Add(invoice Invoice) (int64, error) {
@@ -203,7 +195,7 @@ func (h *InvoiceTable) Update(invoice Invoice) error {
 	return nil
 }
 
-func parseRows(rows *sql.Rows) ([]Invoice, error) {
+func parseInvoiceRows(rows *sql.Rows) ([]Invoice, error) {
 	invoices := make([]Invoice, 0)
 	for rows.Next() {
 		if rows.Err() != nil {
