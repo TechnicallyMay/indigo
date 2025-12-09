@@ -4,4 +4,40 @@
 <h1>
     Products!
 </h1>
+<table>
+    <thead>
+        <tr>
+            <th scope="col">Id</th>
+            <th scope="col">Name</th>
+            <th scope="col">Description</th>
+            <th scope="col">Unit Price</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{ range . }}
+        <tr id="product-table-{{ .Id }}">
+            <td>{{ .Id }}</td>
+            <td>{{ .Name }}</td>
+            <td>{{ .Description }}</td>
+            <td>{{ .UnitPrice }}</td>
+            <td>
+                <a href="/products/new/{{ .Id }}" hx-target="#product-table-{{ .Id }}" hx-swap="outerHTML" hx-replace-url="false">Edit</a>
+            </td>
+        </tr>
+        {{ end }}
+        <tr id="new-product">
+            <div>
+                <td colspan="5">
+                    <button
+                        hx-get="/products/new"
+                        hx-target="#new-product"
+                        hx-swap="outerHTML"
+                        hx-replace-url="false">
+                        New Product
+                    </button>
+                </td>
+            </div>
+        </tr>
+    </tbody>
+</table>
 {{ end }}

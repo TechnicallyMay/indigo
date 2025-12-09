@@ -74,6 +74,10 @@ func main() {
 	// mux.HandleFunc("GET /invoices/{id}", invoiceHandler.HandleGetInvoice)
 
 	mux.HandleFunc("GET /products/", productsHandler.HandleGetProducts)
+	mux.HandleFunc("GET /products/new", productsHandler.HandleGetAddOrUpdateProductForm)
+	mux.HandleFunc("GET /products/new/{id}", productsHandler.HandleGetAddOrUpdateProductForm)
+	mux.HandleFunc("POST /products", productsHandler.HandlePostProduct)
+	mux.HandleFunc("PUT /products/{id}", productsHandler.HandlePutProduct)
 
 	mux.HandleFunc("GET /records/", handlers.HandleGetRecords)
 
