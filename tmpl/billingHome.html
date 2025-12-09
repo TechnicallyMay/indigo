@@ -1,43 +1,46 @@
 {{ template "base" . }}
 
 {{ define "content" }}
-<div class="flex-column full-height flex-start">
-    <h1>
-        Billing!
-    </h1>
+<div class="full-height flex-column">
+    <div class="flex-row full-width space-between">
+        <h5>
+            Billing!
+        </h5>
+        <button hx-get="/billing/new" hx-target="#main-content" type="button">
+            New Invoice Batch
+        </button>
+    </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th scope="col">Id</th>
-                <th scope="col">State</th>
-                <th scope="col">Finished Sending</th>
+    <div class="scroll-container">
+        <table>
+            <thead>
+                <tr>
+                    <th scope="col">Id</th>
+                    <th scope="col">State</th>
+                    <th scope="col">Finished Sending</th>
 
-                <th scope="col">Created</th>
-                <th scope="col" scope="col">Due</th>
-            </tr>
-        </thead>
-        <tbody>
-            {{ range . }}
-            <tr id="billing-table-{{ .Id }}">
-                <td>{{ .Id }}</td>
+                    <th scope="col">Created</th>
+                    <th scope="col">Due</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {{ range . }}
+                <tr id="billing-table-{{ .Id }}">
+                    <td>{{ .Id }}</td>
 
-                <td>{{ .State }}</td>
-                <td>{{ if gt .FinishedSendingAt 0 }} {{ convertLocalTimestamp .FinishedSendingAt }} {{ end }}</td>
-                <td>{{ if gt .CreatedAt 0 }} {{ convertLocalTimestamp .CreatedAt }} {{ end }}</td>
-                <td>{{ if gt .DueDate 0 }} {{ convertLocalTimestamp .DueDate }} {{ end }}</td>
-                <td>
-                    <a href="/billing/{{ .Id }}" hx-target="#main-content" hx-swap="outerHTML">Edit</a>
-                </td>
-            </tr>
-            {{ end }}
-        </tbody>
-    </table>
-
-    <button hx-get="/billing/new" hx-target="#main-content" type="button">
-        Start New
-    </button>
+                    <td>{{ .State }}</td>
+                    <td>{{ if gt .FinishedSendingAt 0 }} {{ convertLocalTimestamp .FinishedSendingAt }} {{ end }}</td>
+                    <td>{{ if gt .CreatedAt 0 }} {{ convertLocalTimestamp .CreatedAt }} {{ end }}</td>
+                    <td>{{ if gt .DueDate 0 }} {{ convertLocalTimestamp .DueDate }} {{ end }}</td>
+                    <td>
+                        <a href="/billing/{{ .Id }}" hx-target="#main-content" hx-swap="outerHTML">Edit</a>
+                    </td>
+                </tr>
+                {{ end }}
+            </tbody>
+        </table>
+    </div>
 
 </div>
-
 {{ end }}

@@ -5,18 +5,13 @@ html, body {
 
 main {
     height: 100%;
-    overflow-y: none;
-    display: flex;
-    flex-direction: column;
-}
-
-header {
-    flex-basis: 80px;
-    flex-grow: 0;
+    display: grid;
+    grid-template-rows:
+        [header] 80px [content] auto
 }
 
 #main-content {
-    flex-grow: 100;
+    overflow-y: hidden;
 }
 
 .flex-row {
@@ -62,9 +57,12 @@ header {
     max-height: 100%;
 }
 
+.scroll-container {
+    overflow-y: auto;
+}
+
 .main-content-with-sidebar {
-    flex-grow: 100;
     display: grid;
-    grid-template:
-        "a b" / 1fr 3fr;
+    grid-template-columns:
+         1fr 3fr
 }

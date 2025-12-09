@@ -1,16 +1,13 @@
 {{ template "base" . }}
 
 {{ define "content" }}
-<div class="flex-column full-height flex-start">
-    <h4>
-        Invoice Batch #{{ .Batch.Id }}
-    </h4>
-    <div class="main-content-with-sidebar">
-        {{ template "customerPicker" . }}
-        <div id="invoice-display">
-            <strong>Select a customer on the left to view & modify their invoice</strong>
-        </div>
+<h4>
+    Invoice Batch #{{ .Batch.Id }}
+</h4>
+<div class="main-content-with-sidebar">
+    {{ template "customerPicker" . }}
+    <div id="invoice-display">
+        <strong>Select a customer on the left to view & modify their invoice</strong>
     </div>
 </div>
-
 {{ end }}
