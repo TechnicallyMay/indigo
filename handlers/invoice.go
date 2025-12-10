@@ -9,14 +9,25 @@ import (
 )
 
 type InvoiceHandler struct {
-	db db.InvoiceTable
+	invDb     db.InvoiceTable
+	custDb    db.CustomerTable
+	invItemDb db.InvoiceItemTable
+	prodDb    db.ProductTable
+}
+
+// Data required to populate the invoice template
+type invoiceData struct {
+	Invoice  db.Invoice
+	Customer db.Customer
+	Items    []db.InvoiceItem
+	Products map[int64]db.Product
 }
 
 var invoiceHandlerInstance *InvoiceHandler
 
-func NewInvoiceHandler(db db.InvoiceTable) *InvoiceHandler {
+func NewInvoiceHandler(invDb db.InvoiceTable, custDb db.CustomerTable, invItemDb db.InvoiceItemTable, prodDb db.ProductTable) *InvoiceHandler {
 	if invoiceHandlerInstance == nil {
-		invoiceHandlerInstance = &InvoiceHandler{db: db}
+		invoiceHandlerInstance = &InvoiceHandler{invDb: invDb, custDb: custDb, invItemDb: invItemDb, prodDb: prodDb}
 	}
 
 	return invoiceHandlerInstance
@@ -51,13 +62,26 @@ func (h *InvoiceHandler) HandleGetInvoice(w http.ResponseWriter, r *http.Request
 		}
 	}
 
-	invoice, err := h.db.QueryRow(query)
+	invoice, err := h.invDb.QueryRow(query)
+	handleHttpError(w, err, 500)
+	items, err := h.invItemDb.List(invoice.Id)
+	handleHttpError(w, err, 500)
+	products, err := h.prodDb.List()
+	handleHttpError(w, err, 500)
+	customer, err := h.custDb.Get(invoice.CustomerId)
+	handleHttpError(w, err, 500)
 
-	if err != nil {
-		http.Error(w, "Error while querying invoice", 400)
-		return
+	productMap := make(map[int64]db.Product, 0)
+	for _, prod := range products {
+		productMap[prod.Id] = prod
 	}
-	log.Println("Found an invoice with id", invoice.Id)
 
-	renderTemplate(w, r, newRenderOpts("invoice", invoice))
+	data := &invoiceData{
+		Invoice:  *invoice,
+		Items:    items,
+		Products: productMap,
+		Customer: customer,
+	}
+
+	renderTemplate(w, r, newRenderOpts("invoice", data))
 }

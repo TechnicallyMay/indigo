@@ -94,7 +94,8 @@ func (h *BillingHandler) HandleAddInvoiceToBatch(w http.ResponseWriter, r *http.
 
 	batch, err := h.batchDb.Get(bId)
 	handleHttpError(w, err, 500)
-	addedCust := h.custDb.Get(cId)
+	addedCust, err := h.custDb.Get(cId)
+	handleHttpError(w, err, 500)
 
 	inv := db.Invoice{
 		BatchId:         bId,

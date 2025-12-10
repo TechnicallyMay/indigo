@@ -1,6 +1,7 @@
 # Indigo
 
 ## Todo
+- [ ] When invoices are sent, need to finalize the invoice item version
 - [ ] Deleted flags for versioned records
 - [x] Move the "Add a new Customer" button on the invoice page to the header
 - [x] Some CSS container for scrolling the main content while still having footer

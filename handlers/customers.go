@@ -36,7 +36,8 @@ func (h *CustomerHandler) HandleGetAddOrUpdateCustomerForm(w http.ResponseWriter
 			http.Error(w, "Customer id '%v' could not be parsed to an Int64", 400)
 		}
 
-		cust := h.db.Get(id)
+		cust, err := h.db.Get(id)
+		handleHttpError(w, err, 500)
 		renderTemplate(w, r, newRenderOpts("addOrUpdateCustomer", cust))
 	} else {
 		renderTemplate(w, r, newRenderOpts("addOrUpdateCustomer", nil))

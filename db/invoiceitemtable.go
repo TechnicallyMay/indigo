@@ -65,6 +65,7 @@ func (t *InvoiceItemTable) Update(item InvoiceItem) error {
 	return err
 }
 
+// TODO: When finalizing an invoice, batch update the "product_version" to the latest
 func (t *InvoiceItemTable) List(invoiceId int64) ([]InvoiceItem, error) {
 	rows, err := t.db.Query(`
 		SELECT invoice_id, product_id, product_version, quantity

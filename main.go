@@ -45,11 +45,12 @@ func main() {
 	custTable := db.InitCustomerTable(pool)
 	invoiceBatchTable := db.InitInvoiceBatchTable(pool)
 	invoiceTable := db.InitInvoiceTable(pool)
+	invoiceItemTable := db.InitInvoiceItemTable(pool)
 	productsTable := db.InitProductTable(pool)
 
 	customerHandler := handlers.NewCustomerHandler(*custTable)
 	billingHandler := handlers.NewBillingHandler(*invoiceBatchTable, *invoiceTable, *custTable)
-	invoiceHandler := handlers.NewInvoiceHandler(*invoiceTable)
+	invoiceHandler := handlers.NewInvoiceHandler(*invoiceTable, *custTable, *invoiceItemTable, *productsTable)
 	productsHandler := handlers.NewProductHandler(*productsTable)
 
 	mux := http.NewServeMux()

@@ -51,7 +51,7 @@ func InitCustomerTable(db *sql.DB) *CustomerTable {
 	return customerTableInstance
 }
 
-func (h *CustomerTable) Get(id int64) Customer {
+func (h *CustomerTable) Get(id int64) (Customer, error) {
 	row := h.db.QueryRow(`
 		SELECT id, version, created_at, first_name, last_name, email 
 		FROM customer 
@@ -61,10 +61,10 @@ func (h *CustomerTable) Get(id int64) Customer {
 
 	var cust Customer
 	if err := row.Scan(&cust.Id, &cust.Version, &cust.CreatedAt, &cust.FirstName, &cust.LastName, &cust.Email); err != nil {
-		log.Fatal("Error when getting customer.", err)
+		return cust, err
 	}
 
-	return cust
+	return cust, nil
 }
 
 func (h *CustomerTable) GetByInvoiceBatch(bId int64) []Customer {

@@ -1,3 +1,31 @@
 {{ define "content" }}
-<div> I'm an invoice with id {{ .Id }}</div>
+<div id="invoice-{{ .Invoice.Id }}">
+    <p> I'm an invoice with id {{ .Invoice.Id }}</p>
+    <p> My customer's name is {{ .Customer.FirstName }} </p>
+
+    <ul>
+    {{ range .Items }}
+    <li>
+        I have an item with name {{ (index $.Products .ProductId).Name }}
+    </li>
+
+    {{ end }}
+    </ul>
+
+    <details class="dropdown">
+        <summary>Add a new Item</summary>
+        <ul>
+            {{ range .Products }}
+            <li>
+                <a hx-put=""
+                   hx-target="#customer-picker"
+                   hx-swap="outerHTML">
+                    {{ .Name }}
+                </a>
+            </li>
+            {{ end }}
+        </ul>
+    </details>
+</div>
+
 {{ end }}
