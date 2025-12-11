@@ -8,7 +8,7 @@ import (
 type InvoiceItem struct {
 	InvoiceId      int64
 	ProductId      int64
-	ProductVersion int64
+	ProductVersion *int64
 	Quantity       int64
 }
 

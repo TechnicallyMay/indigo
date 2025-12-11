@@ -3,23 +3,20 @@
     <p> I'm an invoice with id {{ .Invoice.Id }}</p>
     <p> My customer's name is {{ .Customer.FirstName }} </p>
 
-    <ul>
-    {{ range .Items }}
-    <li>
-        I have an item with name {{ (index $.Products .ProductId).Name }}
-    </li>
-
-    {{ end }}
-    </ul>
+    <div id="invoice-items-{{ .Invoice.Id }}">
+        {{ range .Items }}
+            {{ template "invoiceItem" $.GetInvoiceItemData . }}
+        {{ end }}
+    </div>
 
     <details class="dropdown">
         <summary>Add a new Item</summary>
         <ul>
             {{ range .Products }}
             <li>
-                <a hx-put=""
-                   hx-target="#customer-picker"
-                   hx-swap="outerHTML">
+                <a hx-post="/invoiceItem?invoiceId={{ $.Invoice.Id }}&productId={{ .Id }}"
+                   hx-target="#invoice-items-{{ $.Invoice.Id }}"
+                   hx-swap="afterend">
                     {{ .Name }}
                 </a>
             </li>

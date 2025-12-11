@@ -51,6 +51,7 @@ func main() {
 	customerHandler := handlers.NewCustomerHandler(*custTable)
 	billingHandler := handlers.NewBillingHandler(*invoiceBatchTable, *invoiceTable, *custTable)
 	invoiceHandler := handlers.NewInvoiceHandler(*invoiceTable, *custTable, *invoiceItemTable, *productsTable)
+	invoiceItemHandler := handlers.NewInvoiceItemHandler(*invoiceItemTable, *productsTable)
 	productsHandler := handlers.NewProductHandler(*productsTable)
 
 	mux := http.NewServeMux()
@@ -72,7 +73,8 @@ func main() {
 	mux.HandleFunc("PUT /customers/{id}", customerHandler.HandlePutCustomer)
 
 	mux.HandleFunc("GET /invoice", invoiceHandler.HandleGetInvoice)
-	// mux.HandleFunc("GET /invoices/{id}", invoiceHandler.HandleGetInvoice)
+
+	mux.HandleFunc("POST /invoiceItem", invoiceItemHandler.HandleNewInvoiceItem)
 
 	mux.HandleFunc("GET /products/", productsHandler.HandleGetProducts)
 	mux.HandleFunc("GET /products/new", productsHandler.HandleGetAddOrUpdateProductForm)

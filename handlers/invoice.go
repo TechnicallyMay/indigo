@@ -23,6 +23,14 @@ type invoiceData struct {
 	Products map[int64]db.Product
 }
 
+func (d *invoiceData) GetInvoiceItemData(item db.InvoiceItem) invoiceItemData {
+	product := d.Products[item.ProductId]
+	return invoiceItemData{
+		InvoiceItem: item,
+		Product:     product,
+	}
+}
+
 var invoiceHandlerInstance *InvoiceHandler
 
 func NewInvoiceHandler(invDb db.InvoiceTable, custDb db.CustomerTable, invItemDb db.InvoiceItemTable, prodDb db.ProductTable) *InvoiceHandler {
@@ -83,5 +91,7 @@ func (h *InvoiceHandler) HandleGetInvoice(w http.ResponseWriter, r *http.Request
 		Customer: customer,
 	}
 
-	renderTemplate(w, r, newRenderOpts("invoice", data))
+	opts := newRenderOpts("invoice", data)
+	opts.prereqTemplates = []string{"invoiceItem"}
+	renderTemplate(w, r, opts)
 }
