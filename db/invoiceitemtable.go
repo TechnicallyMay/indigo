@@ -5,7 +5,7 @@ import (
 	"log"
 )
 
-type InvoiceItem struct {
+type IvoiceItem struct {
 	InvoiceId      int64
 	ProductId      int64
 	ProductVersion *int64

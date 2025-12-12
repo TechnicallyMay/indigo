@@ -1,18 +1,20 @@
 {{ define "content" }}
 <div id="invoice-{{ .Invoice.Id }}">
-    <p> I'm an invoice with id {{ .Invoice.Id }}</p>
-    <p> My customer's name is {{ .Customer.FirstName }} </p>
+    <h5> I'm an invoice with id {{ .Invoice.Id }}</h5>
+    <h5> My customer's name is {{ .Customer.FirstName }} </h5>
 
-    <div id="invoice-items-{{ .Invoice.Id }}">
+    <table id="invoice-items-{{ .Invoice.Id }}">
+        <tbody>
         {{ range .Items }}
             {{ template "invoiceItem" $.GetInvoiceItemData . }}
         {{ end }}
-    </div>
+        </tbody>
+    </table>
 
     <details class="dropdown">
         <summary>Add a new Item</summary>
         <ul>
-            {{ range .Products }}
+            {{ range .GetUnusedProducts }}
             <li>
                 <a hx-post="/invoiceItem?invoiceId={{ $.Invoice.Id }}&productId={{ .Id }}"
                    hx-target="#invoice-items-{{ $.Invoice.Id }}"

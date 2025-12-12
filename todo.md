@@ -9,6 +9,7 @@
      - [x] Would need to define in each page
 - [ ] Billing Tab
     - [ ] `Billing/{id}` page
+        - [ ] Product dropdown properly re-filter after adding item
         - [x] Customer list
         - [x] Show each included customer
         - [ ] Edit each invoice

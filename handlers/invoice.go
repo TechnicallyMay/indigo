@@ -31,6 +31,26 @@ func (d *invoiceData) GetInvoiceItemData(item db.InvoiceItem) invoiceItemData {
 	}
 }
 
+func (d *invoiceData) GetUnusedProducts() []db.Product {
+	res := make([]db.Product, 0)
+
+	for _, product := range d.Products {
+		canUse := true
+		for _, item := range d.Items {
+			if item.ProductId == product.Id {
+				canUse = false
+				break
+			}
+		}
+
+		if canUse {
+			res = append(res, product)
+		}
+	}
+
+	return res
+}
+
 var invoiceHandlerInstance *InvoiceHandler
 
 func NewInvoiceHandler(invDb db.InvoiceTable, custDb db.CustomerTable, invItemDb db.InvoiceItemTable, prodDb db.ProductTable) *InvoiceHandler {

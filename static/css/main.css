@@ -28,6 +28,10 @@ main {
     justify-content: flex-start;
 }
 
+.flex-center {
+    align-items: middle;
+}
+
 .flex-spacer {
     flex-grow: 1000;
 }
