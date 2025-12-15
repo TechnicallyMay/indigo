@@ -4,6 +4,14 @@
     <h5> My customer's name is {{ .Customer.FirstName }} </h5>
 
     <table id="invoice-items-{{ .Invoice.Id }}">
+        <thead>
+            <tr>
+                <th scope="col">Product</th>
+                <th scope="col">Unit Price</th>
+                <th scope="col">Quantity</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
         <tbody>
         {{ range .Items }}
             {{ template "invoiceItem" $.GetInvoiceItemData . }}
@@ -17,7 +25,7 @@
             {{ range .GetUnusedProducts }}
             <li>
                 <a hx-post="/invoiceItem?invoiceId={{ $.Invoice.Id }}&productId={{ .Id }}"
-                   hx-target="#invoice-items-{{ $.Invoice.Id }}"
+                   hx-target="#invoice-items-{{ $.Invoice.Id }} tbody"
                    hx-swap="afterend">
                     {{ .Name }}
                 </a>

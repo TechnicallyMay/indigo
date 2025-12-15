@@ -1,0 +1,17 @@
+{{ define "invoiceItem" }}
+
+<tr id="invoice-item-table-{{ .InvoiceItem.InvoiceId }}-{{ .InvoiceItem.ProductId }}">
+    <td>{{ .Product.Name }}</td>
+    <td>${{ .Product.UnitPrice }}</td>
+    <td>x{{ .InvoiceItem.Quantity }}</td>
+    <td>
+        <a href="/invoiceItem/edit/{{ .InvoiceItem.InvoiceId }}/{{ .InvoiceItem.ProductId }}"
+            hx-target="#invoice-item-table-{{ .InvoiceItem.InvoiceId }}-{{ .InvoiceItem.ProductId }}"
+            hx-swap="outerHTML"
+            hx-replace-url="false">
+            Edit
+        </a>
+    </td>
+</tr>
+
+{{ end }}

@@ -1,6 +1,7 @@
 # Indigo
 
 ## Todo
+- [ ] Add a route for rendering viewInvoiceItem
 - [ ] When invoices are sent, need to finalize the invoice item version
 - [ ] Deleted flags for versioned records
 - [x] Move the "Add a new Customer" button on the invoice page to the header

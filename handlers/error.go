@@ -10,5 +10,6 @@ func handleHttpError(w http.ResponseWriter, err error, code int) {
 		return
 	}
 	log.Println("ERROR:", err)
+	panic("")
 	http.Error(w, err.Error(), code)
 }

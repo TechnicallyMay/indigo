@@ -54,7 +54,91 @@ func (h *InvoiceItemHandler) HandleNewInvoiceItem(w http.ResponseWriter, r *http
 		InvoiceItem: item,
 		Product:     product,
 	}
-	opts := newRenderOpts("invoiceItem", data)
+	opts := newRenderOpts("viewInvoiceItem", data)
 	opts.entrypoint = "invoiceItem"
 	renderTemplate(w, r, opts)
+}
+
+func (h *InvoiceItemHandler) HandleUpdateInvoiceItem(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	handleHttpError(w, err, 500)
+
+	invId := r.FormValue("invoiceId")
+	prodId := r.FormValue("productId")
+	qty := r.FormValue("quantity")
+
+	parsedInvId, err := strconv.ParseInt(invId, 10, 64)
+	handleHttpError(w, err, 500)
+	parsedProdId, err := strconv.ParseInt(prodId, 10, 64)
+	handleHttpError(w, err, 500)
+	parsedQty, err := strconv.ParseInt(qty, 10, 64)
+	handleHttpError(w, err, 500)
+
+	product, err := h.prodDb.Get(parsedProdId)
+	handleHttpError(w, err, 500)
+
+	item := db.InvoiceItem{
+		InvoiceId: parsedInvId,
+		ProductId: parsedProdId,
+		Quantity:  parsedQty,
+	}
+
+	err = h.invItemDb.Update(item)
+	handleHttpError(w, err, 500)
+
+	data := invoiceItemData{
+		InvoiceItem: item,
+		Product:     product,
+	}
+	opts := newRenderOpts("viewInvoiceItem", data)
+	opts.entrypoint = "invoiceItem"
+	renderTemplate(w, r, opts)
+}
+
+func (h *InvoiceItemHandler) HandleGetInvoiceItem(w http.ResponseWriter, r *http.Request) {
+	invIdStr := r.PathValue("invoiceId")
+	prodIdStr := r.PathValue("productId")
+
+	invId, err := strconv.ParseInt(invIdStr, 10, 64)
+	handleHttpError(w, err, 500)
+	prodId, err := strconv.ParseInt(prodIdStr, 10, 64)
+	handleHttpError(w, err, 500)
+
+	item, err := h.invItemDb.Get(invId, prodId)
+	handleHttpError(w, err, 500)
+
+	product, err := h.prodDb.Get(prodId)
+	handleHttpError(w, err, 500)
+
+	data := invoiceItemData{
+		InvoiceItem: *item,
+		Product:     product,
+	}
+
+	opts := newRenderOpts("viewInvoiceItem", data)
+	opts.entrypoint = "invoiceItem"
+	renderTemplate(w, r, opts)
+}
+
+func (h *InvoiceItemHandler) HandleGetInvoiceItemEditForm(w http.ResponseWriter, r *http.Request) {
+	invIdStr := r.PathValue("invoiceId")
+	prodIdStr := r.PathValue("productId")
+
+	invId, err := strconv.ParseInt(invIdStr, 10, 64)
+	handleHttpError(w, err, 500)
+	prodId, err := strconv.ParseInt(prodIdStr, 10, 64)
+	handleHttpError(w, err, 500)
+
+	item, err := h.invItemDb.Get(invId, prodId)
+	handleHttpError(w, err, 500)
+
+	product, err := h.prodDb.Get(prodId)
+	handleHttpError(w, err, 500)
+
+	data := invoiceItemData{
+		InvoiceItem: *item,
+		Product:     product,
+	}
+
+	renderTemplate(w, r, newRenderOpts("editInvoiceItem", data))
 }

@@ -1,0 +1,33 @@
+{{ define "content" }}
+<tr id="invoice-item-table-{{ .InvoiceItem.InvoiceId }}-{{ .InvoiceItem.ProductId }}">
+    <td>
+        <form
+                id="product-form-{{ .InvoiceItem.InvoiceId }}-{{ .InvoiceItem.ProductId }}"
+                hx-put="/invoiceItem/{{ .InvoiceItem.InvoiceId }}/{{ .InvoiceItem.ProductId }}"
+                hx-target="#invoice-item-table-{{ .InvoiceItem.InvoiceId }}-{{ .InvoiceItem.ProductId }}"
+                hx-swap="outerHTML">
+            <input type="hidden" name="invoiceId" value="{{ .InvoiceItem.InvoiceId }}" />
+            <input type="hidden" name="productId" value="{{ .InvoiceItem.ProductId }}" />
+            <div>{{ .Product.Name }}</div>
+        </form>
+    </td>
+    <td>${{ .Product.UnitPrice }}</td>
+    <td>
+        <input form="product-form-{{ .InvoiceItem.InvoiceId }}-{{ .InvoiceItem.ProductId }}"
+               type="number"
+               name="quantity"
+               value="{{ .InvoiceItem.Quantity }}" required></input></td>
+    <td>
+        <div class="flex-row flex-gap-sm">
+            <input form="product-form-{{ .InvoiceItem.InvoiceId }}-{{ .InvoiceItem.ProductId }}" type="submit" value="Update">
+            <input class="secondary"
+                   type="button"
+                   value="Cancel"
+                   hx-get="/invoiceItem/{{ .InvoiceItem.InvoiceId }}/{{ .InvoiceItem.ProductId }}"
+                   hx-swap="outerHTML"
+                   hx-target="#invoice-item-table-{{ .InvoiceItem.InvoiceId }}-{{ .InvoiceItem.ProductId }}">
+        </div>
+    </td>
+</tr>
+
+{{ end }}

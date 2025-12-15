@@ -49,6 +49,24 @@ func InitInvoiceItemTable(db *sql.DB) *InvoiceItemTable {
 	return invoiceItemInstance
 }
 
+func (t *InvoiceItemTable) Get(invId int64, prodId int64) (*InvoiceItem, error) {
+	row := t.db.QueryRow(`
+		SELECT invoice_id, product_id, product_version, quantity
+		FROM invoice_item
+		WHERE invoice_id = (?) AND product_id = (?);`, invId, prodId)
+
+	if row.Err() != nil {
+		return nil, row.Err()
+	}
+
+	var item InvoiceItem
+	if err := row.Scan(&item.InvoiceId, &item.ProductId, &item.ProductVersion, &item.Quantity); err != nil {
+		return nil, err
+	}
+
+	return &item, nil
+}
+
 func (t *InvoiceItemTable) Add(item InvoiceItem) error {
 	_, err := t.db.Exec(`
 	    INSERT INTO invoice_item(invoice_id, product_id, quantity)
@@ -60,7 +78,7 @@ func (t *InvoiceItemTable) Add(item InvoiceItem) error {
 func (t *InvoiceItemTable) Update(item InvoiceItem) error {
 	_, err := t.db.Exec(`
 	    UPDATE invoice_item SET quantity = (?)
-		WHERE invoice_id = (?) AND product_id = (?)`, item.Quantity, item.ProductId)
+		WHERE invoice_id = (?) AND product_id = (?)`, item.Quantity, item.InvoiceId, item.ProductId)
 
 	return err
 }
