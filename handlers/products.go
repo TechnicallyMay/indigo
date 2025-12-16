@@ -29,7 +29,7 @@ func (h *ProductHandler) HandleGetProducts(w http.ResponseWriter, r *http.Reques
 	renderTemplate(w, r, newRenderOpts("products", products))
 }
 
-func (h *ProductHandler) HandleGetAddOrUpdateProductForm(w http.ResponseWriter, r *http.Request) {
+func (h *ProductHandler) HandleGetEditProductForm(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 
 	if id != "" {
@@ -40,9 +40,9 @@ func (h *ProductHandler) HandleGetAddOrUpdateProductForm(w http.ResponseWriter, 
 
 		prod, err := h.db.Get(id)
 		handleHttpError(w, err, 500)
-		renderTemplate(w, r, newRenderOpts("addOrUpdateProduct", prod))
+		renderTemplate(w, r, newRenderOpts("editProduct", prod))
 	} else {
-		renderTemplate(w, r, newRenderOpts("addOrUpdateProduct", nil))
+		renderTemplate(w, r, newRenderOpts("editProduct", nil))
 	}
 }
 

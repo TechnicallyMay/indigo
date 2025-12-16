@@ -27,7 +27,7 @@ func (h *CustomerHandler) HandleGetCustomers(w http.ResponseWriter, r *http.Requ
 	renderTemplate(w, r, newRenderOpts("customers", customers))
 }
 
-func (h *CustomerHandler) HandleGetAddOrUpdateCustomerForm(w http.ResponseWriter, r *http.Request) {
+func (h *CustomerHandler) HandleGetEditCustomerForm(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 
 	if id != "" {
@@ -38,9 +38,9 @@ func (h *CustomerHandler) HandleGetAddOrUpdateCustomerForm(w http.ResponseWriter
 
 		cust, err := h.db.Get(id)
 		handleHttpError(w, err, 500)
-		renderTemplate(w, r, newRenderOpts("addOrUpdateCustomer", cust))
+		renderTemplate(w, r, newRenderOpts("editCustomer", cust))
 	} else {
-		renderTemplate(w, r, newRenderOpts("addOrUpdateCustomer", nil))
+		renderTemplate(w, r, newRenderOpts("editCustomer", nil))
 	}
 }
 

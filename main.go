@@ -67,8 +67,8 @@ func main() {
 	mux.HandleFunc("PUT /billing/{id}/invoice", billingHandler.HandleAddInvoiceToBatch)
 
 	mux.HandleFunc("GET /customers/", customerHandler.HandleGetCustomers)
-	mux.HandleFunc("GET /customers/new", customerHandler.HandleGetAddOrUpdateCustomerForm)
-	mux.HandleFunc("GET /customers/new/{id}", customerHandler.HandleGetAddOrUpdateCustomerForm)
+	mux.HandleFunc("GET /customers/new", customerHandler.HandleGetEditCustomerForm)
+	mux.HandleFunc("GET /customers/edit/{id}", customerHandler.HandleGetEditCustomerForm)
 	mux.HandleFunc("POST /customers", customerHandler.HandlePostCustomer)
 	mux.HandleFunc("PUT /customers/{id}", customerHandler.HandlePutCustomer)
 
@@ -77,8 +77,8 @@ func main() {
 	mux.HandleFunc("POST /invoiceItem", invoiceItemHandler.HandleNewInvoiceItem)
 
 	mux.HandleFunc("GET /products/", productsHandler.HandleGetProducts)
-	mux.HandleFunc("GET /products/new", productsHandler.HandleGetAddOrUpdateProductForm)
-	mux.HandleFunc("GET /products/new/{id}", productsHandler.HandleGetAddOrUpdateProductForm)
+	mux.HandleFunc("GET /products/new", productsHandler.HandleGetEditProductForm)
+	mux.HandleFunc("GET /products/edit/{id}", productsHandler.HandleGetEditProductForm)
 	mux.HandleFunc("POST /products", productsHandler.HandlePostProduct)
 	mux.HandleFunc("PUT /products/{id}", productsHandler.HandlePutProduct)
 

@@ -112,6 +112,6 @@ func (h *InvoiceHandler) HandleGetInvoice(w http.ResponseWriter, r *http.Request
 	}
 
 	opts := newRenderOpts("invoice", data)
-	opts.prereqTemplates = []string{"invoiceItem"}
+	opts.prereqTemplates = []string{"viewInvoiceItem"}
 	renderTemplate(w, r, opts)
 }

@@ -21,7 +21,7 @@
             <td>{{ .Description }}</td>
             <td>{{ .UnitPrice }}</td>
             <td>
-                <a href="/products/new/{{ .Id }}" hx-target="#product-table-{{ .Id }}" hx-swap="outerHTML" hx-replace-url="false">Edit</a>
+                <a href="/products/edit/{{ .Id }}" hx-target="#product-table-{{ .Id }}" hx-swap="outerHTML" hx-replace-url="false">Edit</a>
             </td>
         </tr>
         {{ end }}
