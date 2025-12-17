@@ -61,7 +61,19 @@ func NewInvoiceHandler(invDb db.InvoiceTable, custDb db.CustomerTable, invItemDb
 	return invoiceHandlerInstance
 }
 
-func (h *InvoiceHandler) HandleGetInvoice(w http.ResponseWriter, r *http.Request) {
+func (h *InvoiceHandler) HandleDeleteInvoice(w http.ResponseWriter, r *http.Request) {
+	idStr := r.PathValue("id")
+
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	handleHttpError(w, err, 400)
+
+	err = h.invDb.Delete(id)
+	handleHttpError(w, err, 500)
+
+	HtmxRefresh(w)
+}
+
+func (h *InvoiceHandler) HandleQueryInvoice(w http.ResponseWriter, r *http.Request) {
 	params := r.URL.Query()
 
 	query := db.CreateInvoiceQuery()

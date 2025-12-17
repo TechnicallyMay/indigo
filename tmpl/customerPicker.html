@@ -22,7 +22,7 @@
             <ul>
                 {{ range .AvailableCustomers }}
                 <li>
-                    <a hx-put="/billing/{{ $.Batch.Id }}/invoice?customerId={{ .Id }}"
+                    <a hx-post="/billing/{{ $.Batch.Id }}/invoice/{{ .Id }}"
                        hx-target="#customer-picker"
                        hx-swap="outerHTML">
                         {{ .FirstName }} {{ .LastName }}

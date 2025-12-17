@@ -14,3 +14,7 @@ func HtmxSoftRedirect(w http.ResponseWriter, location string, target string) {
 func HtmxHardRedirect(w http.ResponseWriter, location string) {
 	w.Header().Add("Hx-Redirect", location)
 }
+
+func HtmxRefresh(w http.ResponseWriter) {
+	w.Header().Add("Hx-Refresh", "true")
+}

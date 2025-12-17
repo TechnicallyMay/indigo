@@ -74,13 +74,58 @@ func (h *BillingHandler) HandleGetInvoiceBatch(w http.ResponseWriter, r *http.Re
 	renderTemplate(w, r, renderOpts)
 }
 
-func (h *BillingHandler) HandleAddInvoiceToBatch(w http.ResponseWriter, r *http.Request) {
+func (h *BillingHandler) HandleDeleteInvoiceFromBatch(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id")
 	bId, err := strconv.ParseInt(idStr, 10, 64)
 	handleHttpError(w, err, 400)
 
 	params := r.URL.Query()
 	cId, err := strconv.ParseInt(params.Get("customerId"), 10, 64)
+	handleHttpError(w, err, 400)
+
+	incCusts := h.custDb.GetByInvoiceBatch(bId)
+
+	for _, cust := range incCusts {
+		if cust.Id == cId {
+			handleHttpError(w, errors.New("The customer is already included in this batch"), 400)
+			return
+		}
+	}
+
+	batch, err := h.batchDb.Get(bId)
+	handleHttpError(w, err, 500)
+	addedCust, err := h.custDb.Get(cId)
+	handleHttpError(w, err, 500)
+
+	inv := db.Invoice{
+		BatchId:         bId,
+		CustomerId:      cId,
+		CustomerVersion: addedCust.Version,
+		IsPaid:          false,
+	}
+
+	h.invDb.Add(inv)
+	newIncludedCusts := append(incCusts, addedCust)
+
+	data := &billingData{
+		Batch:              batch,
+		IncludedCustomers:  newIncludedCusts,
+		AvailableCustomers: h.getNonIncludedCustomers(newIncludedCusts),
+	}
+	fmt.Println(data.AvailableCustomers)
+
+	rOpts := newRenderOpts("customerPicker", data)
+	rOpts.entrypoint = "customerPicker"
+	renderTemplate(w, r, rOpts)
+}
+func (h *BillingHandler) HandleAddInvoiceToBatch(w http.ResponseWriter, r *http.Request) {
+	idStr := r.PathValue("id")
+	custStr := r.PathValue("customerId")
+
+	bId, err := strconv.ParseInt(idStr, 10, 64)
+	handleHttpError(w, err, 400)
+
+	cId, err := strconv.ParseInt(custStr, 10, 64)
 	handleHttpError(w, err, 400)
 
 	incCusts := h.custDb.GetByInvoiceBatch(bId)

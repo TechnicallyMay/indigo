@@ -195,6 +195,30 @@ func (h *InvoiceTable) Update(invoice Invoice) error {
 	return nil
 }
 
+func (h InvoiceTable) Delete(id int64) error {
+	// TODO: Soft delete needed if a notification has already been sent
+	// TODO: For now don't allow deleting if state is not draft
+	res, err := h.db.Exec(`
+		DELETE FROM invoice
+		WHERE id = (?)`, id)
+
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := res.RowsAffected()
+
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return errors.New("Attempted update didn't modify any rows for id.")
+	}
+
+	return nil
+}
+
 func parseInvoiceRows(rows *sql.Rows) ([]Invoice, error) {
 	invoices := make([]Invoice, 0)
 	for rows.Next() {

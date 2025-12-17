@@ -60,7 +60,7 @@ func main() {
 	mux.HandleFunc("GET /billing/", billingHandler.HandleGetBilling)
 	mux.HandleFunc("GET /billing/new", billingHandler.HandleGetNewBilling)
 	mux.HandleFunc("GET /billing/{id}", billingHandler.HandleGetInvoiceBatch)
-	mux.HandleFunc("PUT /billing/{id}/invoice", billingHandler.HandleAddInvoiceToBatch)
+	mux.HandleFunc("POST /billing/{id}/invoice/{customerId}", billingHandler.HandleAddInvoiceToBatch)
 
 	mux.HandleFunc("GET /customers/", customerHandler.HandleGetCustomers)
 	mux.HandleFunc("GET /customers/new", customerHandler.HandleGetEditCustomerForm)
@@ -68,7 +68,8 @@ func main() {
 	mux.HandleFunc("POST /customers", customerHandler.HandlePostCustomer)
 	mux.HandleFunc("PUT /customers/{id}", customerHandler.HandlePutCustomer)
 
-	mux.HandleFunc("GET /invoice", invoiceHandler.HandleGetInvoice)
+	mux.HandleFunc("GET /invoice", invoiceHandler.HandleQueryInvoice)
+	mux.HandleFunc("DELETE /invoice/{id}", invoiceHandler.HandleDeleteInvoice)
 
 	mux.HandleFunc("POST /invoiceItem/{invoiceId}/{productId}", invoiceItemHandler.HandleNewInvoiceItem)
 	mux.HandleFunc("PUT /invoiceItem/{invoiceId}/{productId}", invoiceItemHandler.HandleUpdateInvoiceItem)
