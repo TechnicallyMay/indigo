@@ -33,8 +33,11 @@ type InvoiceBatch struct {
 	Id        int64
 	CreatedAt int64
 
+	DueDate                 int64 // Default to whatever invoice sender does (next 15th?), can add some fanciness later
+	NotificationSubject     string
+	NotificationDescription string
+
 	State             InvoiceBatchState
-	DueDate           int64 // Default to whatever invoice sender does (next 15th?), can add some fanciness later
 	FinishedSendingAt int64 // When the last invoice notification in the batch was sent successfully
 }
 
@@ -58,8 +61,11 @@ func InitInvoiceBatchTable(db *sql.DB) *InvoiceBatchTable {
             id INTEGER PRIMARY KEY,
 			created_at INTEGER NOT NULL,
 
-			state INTEGER NOT NULL DEFAULT 0,
             due_date INTEGER NOT NULL,
+			notification_subject TEXT,
+			notification_description TEXT,
+
+			state INTEGER NOT NULL DEFAULT 0,
 			finished_sending_at INTEGER
         );
     `)
@@ -74,19 +80,19 @@ func InitInvoiceBatchTable(db *sql.DB) *InvoiceBatchTable {
 
 func (h *InvoiceBatchTable) Get(id int64) (InvoiceBatch, error) {
 	row := h.db.QueryRow(`
-		SELECT id, created_at, state, due_date, finished_sending_at
+		SELECT id, created_at, due_date, notification_subject, notification_description, state, finished_sending_at
 		FROM invoice_batch 
 		WHERE id = (?);`, id)
 
 	var batch InvoiceBatch
-	err := row.Scan(&batch.Id, &batch.CreatedAt, &batch.State, &batch.DueDate, &batch.FinishedSendingAt)
+	err := row.Scan(&batch.Id, &batch.CreatedAt, &batch.DueDate, &batch.NotificationSubject, &batch.NotificationDescription, &batch.State, &batch.FinishedSendingAt)
 
 	return batch, err
 }
 
 func (h *InvoiceBatchTable) List() []InvoiceBatch {
 	rows, err := h.db.Query(`
-		SELECT id, created_at, state, due_date, finished_sending_at 
+		SELECT id, created_at, due_date, notification_subject, notification_description, state, finished_sending_at
 		FROM invoice_batch;`)
 	if err != nil {
 		log.Fatal("Error when listing invoice batches.", err)
@@ -98,7 +104,7 @@ func (h *InvoiceBatchTable) List() []InvoiceBatch {
 			log.Fatal("Error when listing invoice batches.", err)
 		}
 		var batch InvoiceBatch
-		if err := rows.Scan(&batch.Id, &batch.CreatedAt, &batch.State, &batch.DueDate, &batch.FinishedSendingAt); err != nil {
+		if err := rows.Scan(&batch.Id, &batch.CreatedAt, &batch.DueDate, &batch.NotificationSubject, &batch.NotificationDescription, &batch.State, &batch.FinishedSendingAt); err != nil {
 			log.Fatal("Error when listing invoice batches.", err)
 		}
 
@@ -115,8 +121,8 @@ func (h *InvoiceBatchTable) Add(batch InvoiceBatch) int64 {
 	}
 
 	res, err := h.db.Exec(`
-		INSERT INTO invoice_batch(created_at, state, due_date, finished_sending_at) 
-		VALUES (strftime('%s', 'now'), ?, ?, ?)`, batch.State, batch.DueDate, batch.FinishedSendingAt)
+		INSERT INTO invoice_batch(created_at, due_date, notification_subject, notification_description, state, finished_sending_at) 
+		VALUES (strftime('%s', 'now'), ?, ?, ?, ?, ?)`, batch.DueDate, batch.NotificationSubject, batch.NotificationDescription, batch.State, batch.FinishedSendingAt)
 
 	if err != nil {
 		log.Fatal("Error when inserting new invoice batch. ", err)
@@ -136,8 +142,8 @@ func (h *InvoiceBatchTable) Update(batch InvoiceBatch) int64 {
 	log.Printf("Updating existing invoice batch with id %v.\n", batch.Id)
 
 	res, err := h.db.Exec(`
-		UPDATE invoice_batch SET created_at = (?), state = (?), due_date = (?), finished_sending_at = (?)
-		WHERE id = (?);`, batch.Id, batch.CreatedAt, batch.State, batch.DueDate, batch.FinishedSendingAt)
+		UPDATE invoice_batch SET due_date = (?), notification_subject = (?), notification_description = (?), state = (?), finished_sending_at = (?)
+		WHERE id = (?);`, batch.DueDate, batch.NotificationSubject, batch.NotificationDescription, batch.State, batch.FinishedSendingAt, batch.Id)
 
 	if err != nil {
 		log.Fatal("Error when updating invoice batch.", err)
