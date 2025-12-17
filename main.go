@@ -3,13 +3,10 @@ package main
 import (
 	"log"
 	"net/http"
-	"regexp"
 
 	"github.com/TechnicallyMay/indigo/db"
 	"github.com/TechnicallyMay/indigo/handlers"
 )
-
-var validPath = regexp.MustCompile("^(/[a-zA-Z0-9]+/{0,1}?)*$")
 
 func main() {
 	log.Println("Starting!")
@@ -59,7 +56,6 @@ func main() {
 	mux.Handle("GET /css/", http.StripPrefix("/css/", http.FileServer(http.Dir("./static/css"))))
 
 	mux.HandleFunc("GET /{$}", handlers.GetRootHandler)
-	mux.HandleFunc("GET /home/", handlers.GetHomeHandler)
 
 	mux.HandleFunc("GET /billing/", billingHandler.HandleGetBilling)
 	mux.HandleFunc("GET /billing/new", billingHandler.HandleGetNewBilling)
