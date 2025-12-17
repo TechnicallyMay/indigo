@@ -70,7 +70,7 @@ func main() {
 
 	mux.HandleFunc("GET /invoice", invoiceHandler.HandleGetInvoice)
 
-	mux.HandleFunc("POST /invoiceItem", invoiceItemHandler.HandleNewInvoiceItem)
+	mux.HandleFunc("POST /invoiceItem/{invoiceId}/{productId}", invoiceItemHandler.HandleNewInvoiceItem)
 	mux.HandleFunc("PUT /invoiceItem/{invoiceId}/{productId}", invoiceItemHandler.HandleUpdateInvoiceItem)
 	mux.HandleFunc("GET /invoiceItem/{invoiceId}/{productId}", invoiceItemHandler.HandleGetInvoiceItem)
 	mux.HandleFunc("GET /invoiceItem/edit/{invoiceId}/{productId}", invoiceItemHandler.HandleGetInvoiceItemEditForm)

@@ -24,7 +24,7 @@
         <ul>
             {{ range .GetUnusedProducts }}
             <li>
-                <a hx-post="/invoiceItem?invoiceId={{ $.Invoice.Id }}&productId={{ .Id }}"
+                <a hx-post="/invoiceItem/{{ $.Invoice.Id }}/{{ .Id }}"
                    hx-target="#invoice-items-{{ $.Invoice.Id }} tbody"
                    hx-swap="afterend">
                     {{ .Name }}

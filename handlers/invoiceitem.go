@@ -29,9 +29,8 @@ func NewInvoiceItemHandler(invItemDb db.InvoiceItemTable, prodDb db.ProductTable
 }
 
 func (h *InvoiceItemHandler) HandleNewInvoiceItem(w http.ResponseWriter, r *http.Request) {
-	query := r.URL.Query()
-	invId := query.Get("invoiceId")
-	prodId := query.Get("productId")
+	invId := r.PathValue("invoiceId")
+	prodId := r.PathValue("productId")
 
 	parsedInvId, err := strconv.ParseInt(invId, 10, 64)
 	handleHttpError(w, err, 500)
