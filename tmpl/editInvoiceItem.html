@@ -18,7 +18,7 @@
                name="quantity"
                value="{{ .InvoiceItem.Quantity }}" required></input></td>
     <td>
-        <div class="flex-row flex-gap-sm">
+        <div class="flex-row gap-sm">
             <input form="product-form-{{ .InvoiceItem.InvoiceId }}-{{ .InvoiceItem.ProductId }}" type="submit" value="Update">
             <input class="secondary"
                    type="button"

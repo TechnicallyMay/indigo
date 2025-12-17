@@ -1,29 +1,37 @@
 {{ template "base" . }}
 
+{{ define "header" }}
+<div id="main-header" hx-swap-oob="true" class="flex-row full-width space-between flex-center">
+    <h4>Billing</h4>
+    <button type="button">
+        Send
+    </button>
+</div>
+{{ end }}
+
 {{ define "content" }}
-<div class="flex-column full-height">
-    <div id="invoice-batch-details" class="flex-column gap-sm widget">
-        <div class="flex-row gap-sm grow-children">
-            <label>
-                Email Subject
-                <input name="subject" placeholder="Subject..."></input>
-            </label>
-            <label>
-                Due Date
-                <input type="date" name="dueDate" placeholder="Due Date..."></input>
-            </label>
-            <button>
-                Send
-            </button>
-        </div>
-
+<div id="invoice-batch-details" class="flex-column gap-sm widget">
+    <h5>Settings</h5>
+    <div class="flex-row gap-sm grow-children">
         <label>
-            Email Body
-            <textarea name="body" placeholder="Email Body..."></textarea>
+            Email Subject
+            <input name="subject" placeholder="Subject..."></input>
         </label>
-
+        <label>
+            Due Date
+            <input type="date" name="dueDate" placeholder="Due Date..."></input>
+        </label>
     </div>
-    <div class="main-content-with-sidebar widget grow">
+
+    <label>
+        Email Body
+        <textarea name="body" placeholder="Email Body..."></textarea>
+    </label>
+
+</div>
+<div class="flex-column widget">
+    <h5>Invoices</h5>
+    <div class="main-content-with-sidebar grow">
         {{ template "customerPicker" . }}
 
         <div id="invoice-display">

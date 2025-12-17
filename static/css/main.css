@@ -1,13 +1,30 @@
-html, body {
+html, body {main.cs
     min-height: 100vh;
     height: 100%;
+    background-color: #e0dee5;
 }
 
 main {
     height: 100%;
     display: grid;
-    grid-template-rows:
-        [header] 80px [content] auto
+    padding: 20px;
+}
+
+#main-sidebar {
+    width: 250px;
+    background-color: var(--pico-background-color);
+    box-shadow: 0 5px 2px 0px var(--pico-secondary-background);
+    padding: var(--pico-spacing);
+}
+
+#main-header {
+    background-color: var(--pico-background-color);
+    box-shadow: 5px 0 2px 0px var(--pico-secondary-background);
+    padding: var(--pico-spacing);
+}
+
+#main-header > * {
+    margin-bottom: 0;
 }
 
 #main-content {
@@ -33,7 +50,7 @@ main {
 }
 
 .flex-center {
-    align-items: middle;
+    align-items: center;
 }
 
 .flex-spacer {
@@ -42,6 +59,28 @@ main {
 
 .space-between {
     justify-content: space-between;
+}
+
+.grow-children * {
+    flex-grow: 1;
+}
+
+.grow {
+    flex-grow: 1;
+}
+
+.gap-sm {
+    gap: 8px;
+}
+
+.widget {
+    background-color: white;
+
+	inset: -1px;
+	border-radius: 8px;
+
+    padding: 16px;
+    margin: 8px;
 }
 
 .pad-sm-r {
@@ -72,5 +111,5 @@ main {
 .main-content-with-sidebar {
     display: grid;
     grid-template-columns:
-         1fr 3fr
+         350px auto
 }

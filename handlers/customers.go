@@ -24,7 +24,7 @@ func NewCustomerHandler(db db.CustomerTable) *CustomerHandler {
 
 func (h *CustomerHandler) HandleGetCustomers(w http.ResponseWriter, r *http.Request) {
 	customers := h.db.List()
-	renderTemplate(w, r, newRenderOpts("customers", customers))
+	renderTemplate(w, r, newRenderOpts("customers", customers, "content", "header"))
 }
 
 func (h *CustomerHandler) HandleGetEditCustomerForm(w http.ResponseWriter, r *http.Request) {

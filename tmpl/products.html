@@ -1,43 +1,44 @@
 {{ template "base" . }}
 
+{{ define "header" }}
+<div id="main-header" hx-swap-oob="true" class="flex-row full-width space-between flex-center">
+    <h4>Products</h4>
+    <button
+        type="button"
+        hx-get="/products/new"
+        hx-target="#product-table tbody"
+        hx-swap="afterend"
+        hx-replace-url="false">
+        New Product
+    </button>
+</div>
+{{ end }}
+
 {{ define "content" }}
-<h1>
-    Products!
-</h1>
-<table>
-    <thead>
-        <tr>
-            <th scope="col">Id</th>
-            <th scope="col">Name</th>
-            <th scope="col">Description</th>
-            <th scope="col">Unit Price</th>
-        </tr>
-    </thead>
-    <tbody>
-        {{ range . }}
-        <tr id="product-table-{{ .Id }}">
-            <td>{{ .Id }}</td>
-            <td>{{ .Name }}</td>
-            <td>{{ .Description }}</td>
-            <td>{{ .UnitPrice }}</td>
-            <td>
-                <a href="/products/edit/{{ .Id }}" hx-target="#product-table-{{ .Id }}" hx-swap="outerHTML" hx-replace-url="false">Edit</a>
-            </td>
-        </tr>
-        {{ end }}
-        <tr id="new-product">
-            <div>
-                <td colspan="5">
-                    <button
-                        hx-get="/products/new"
-                        hx-target="#new-product"
-                        hx-swap="outerHTML"
-                        hx-replace-url="false">
-                        New Product
-                    </button>
+<div class="scroll-container widget">
+    <table id="product-table">
+        <thead>
+            <tr>
+                <th scope="col">Id</th>
+                <th scope="col">Name</th>
+                <th scope="col">Description</th>
+                <th scope="col">Unit Price</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {{ range . }}
+            <tr id="product-table-{{ .Id }}">
+                <td>{{ .Id }}</td>
+                <td>{{ .Name }}</td>
+                <td>{{ .Description }}</td>
+                <td>{{ .UnitPrice }}</td>
+                <td>
+                    <a href="/products/edit/{{ .Id }}" hx-target="#product-table-{{ .Id }}" hx-swap="outerHTML" hx-replace-url="false">Edit</a>
                 </td>
-            </div>
-        </tr>
-    </tbody>
-</table>
+            </tr>
+            {{ end }}
+        </tbody>
+    </table>
+</div>
 {{ end }}

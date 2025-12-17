@@ -33,7 +33,7 @@ func NewBillingHandler(batchDb db.InvoiceBatchTable, invDb db.InvoiceTable, cust
 
 func (h *BillingHandler) HandleGetBilling(w http.ResponseWriter, r *http.Request) {
 	batches := h.batchDb.List()
-	renderTemplate(w, r, newRenderOpts("billingHome", batches))
+	renderTemplate(w, r, newRenderOpts("billingHome", batches, "content", "header"))
 }
 
 func (h *BillingHandler) HandleGetNewBilling(w http.ResponseWriter, r *http.Request) {
@@ -114,9 +114,7 @@ func (h *BillingHandler) HandleDeleteInvoiceFromBatch(w http.ResponseWriter, r *
 	}
 	fmt.Println(data.AvailableCustomers)
 
-	rOpts := newRenderOpts("customerPicker", data)
-	rOpts.entrypoint = "customerPicker"
-	renderTemplate(w, r, rOpts)
+	renderTemplate(w, r, newRenderOpts("customerPicker", data, "customerPicker"))
 }
 func (h *BillingHandler) HandleAddInvoiceToBatch(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id")
@@ -159,9 +157,7 @@ func (h *BillingHandler) HandleAddInvoiceToBatch(w http.ResponseWriter, r *http.
 	}
 	fmt.Println(data.AvailableCustomers)
 
-	rOpts := newRenderOpts("customerPicker", data)
-	rOpts.entrypoint = "customerPicker"
-	renderTemplate(w, r, rOpts)
+	renderTemplate(w, r, newRenderOpts("customerPicker", data, "customerPicker"))
 }
 
 func (h *BillingHandler) getNonIncludedCustomers(incCusts []db.Customer) []db.Customer {

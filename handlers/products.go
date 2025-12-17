@@ -26,7 +26,7 @@ func NewProductHandler(db db.ProductTable) *ProductHandler {
 func (h *ProductHandler) HandleGetProducts(w http.ResponseWriter, r *http.Request) {
 	products, err := h.db.List()
 	handleHttpError(w, err, 500)
-	renderTemplate(w, r, newRenderOpts("products", products))
+	renderTemplate(w, r, newRenderOpts("products", products, "content", "header"))
 }
 
 func (h *ProductHandler) HandleGetEditProductForm(w http.ResponseWriter, r *http.Request) {

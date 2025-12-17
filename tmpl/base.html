@@ -7,33 +7,41 @@
         <title>Indigo</title>
         <meta name="author" content="Mason Wells" />
         <meta
-        name="description"
-        content="Indigo is a new, lightweight Invoice Sender that can be accessed
-        via the web instead of as a desktop application" />
+                name="description"
+                content="Indigo is a new, lightweight Invoice Sender that can be accessed
+                         via the web instead of as a desktop application" />
         <!-- <link rel="icon" href="./favicon.ico" type="image/x-icon"> -->
-        <link rel="stylesheet" href="/css/pico-main/css/pico.min.css">
+        <link rel="stylesheet" href="/css/pico-main/css/pico.indigo.min.css">
         <link rel="stylesheet" href="/css/main.css">
         <script src="/js/htmx.js"></script>
     </head>
     <body hx-boost="true">
-        <main class="container-fluid">
-
-            <header>
-                <nav id="global-nav">
-                    <ul>
-                        <li><a href="/billing" hx-target="#main-content"><h2>Indigo</h2></a></li>
-                        <li><a href="/billing" hx-target="#main-content">Billing</a></li>
-                        <li><a href="/products" hx-target="#main-content">Products</a></li>
-                        <li><a href="/customers" hx-target="#main-content">Customers</a></li>
-                    </ul>
-                </nav>
-            </header>
-
-            <div id="main-content">
-                {{ template "content" . }}
+        <div class="flex-row full-height full-width">
+            <div id="main-sidebar">
+                <aside>
+                    <nav>
+                        <ul>
+                            <li><a href="/billing" hx-target="#main-content"><h2>Indigo</h2></a></li>
+                            <li><a href="/billing" hx-target="#main-content">Billing</a></li>
+                            <li><a href="/products" hx-target="#main-content">Products</a></li>
+                            <li><a href="/customers" hx-target="#main-content">Customers</a></li>
+                        </ul>
+                    </nav>
+                <aside>
             </div>
 
-        </main>
+            <div class="flex-column full-width">
+                {{ template "header" . }}
+
+                <main class="container-fluid">
+                    <div id="main-content" class="grow">
+                        {{ template "content" . }}
+                    </div>
+                </main>
+
+            </div>
+
+        </div>
     </body>
 </html>
 {{ end }}

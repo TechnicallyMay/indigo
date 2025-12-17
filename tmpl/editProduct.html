@@ -11,10 +11,10 @@
     <td><input form="update-form-{{ .Id }}" type="text" name="description" placeholder="Description..." value="{{ .Description }}"></td>
     <td><input form="update-form-{{ .Id }}" type="number" step="0.01" name="unitPrice" placeholder="Unit Price..." value="{{ .UnitPrice }}"></td>
     <td>
-        <input form="update-form-{{ .Id }}" type="submit" value={{ if .Id }} "Update" {{ else }} "Create" {{ end }}>
-    </td>
-    <td>
-        <input class="secondary" type="button" value="Cancel" hx-get="/products" hx-target="#main-content">
+        <div class="flex-row gap-sm">
+            <input form="update-form-{{ .Id }}" type="submit" value={{ if .Id }} "Update" {{ else }} "Create" {{ end }}>
+            <input class="secondary" type="button" value="Cancel" hx-get="/products" hx-target="#main-content">
+        </div>
     </td>
 </tr>
 {{ end }}

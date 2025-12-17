@@ -53,9 +53,7 @@ func (h *InvoiceItemHandler) HandleNewInvoiceItem(w http.ResponseWriter, r *http
 		InvoiceItem: item,
 		Product:     product,
 	}
-	opts := newRenderOpts("viewInvoiceItem", data)
-	opts.entrypoint = "invoiceItem"
-	renderTemplate(w, r, opts)
+	renderTemplate(w, r, newRenderOpts("viewInvoiceItem", data, "invoiceItem"))
 }
 
 func (h *InvoiceItemHandler) HandleDeleteInvoiceItem(w http.ResponseWriter, r *http.Request) {
@@ -104,9 +102,7 @@ func (h *InvoiceItemHandler) HandleUpdateInvoiceItem(w http.ResponseWriter, r *h
 		InvoiceItem: item,
 		Product:     product,
 	}
-	opts := newRenderOpts("viewInvoiceItem", data)
-	opts.entrypoint = "invoiceItem"
-	renderTemplate(w, r, opts)
+	renderTemplate(w, r, newRenderOpts("viewInvoiceItem", data, "invoiceItem"))
 }
 
 func (h *InvoiceItemHandler) HandleGetInvoiceItem(w http.ResponseWriter, r *http.Request) {
@@ -129,9 +125,7 @@ func (h *InvoiceItemHandler) HandleGetInvoiceItem(w http.ResponseWriter, r *http
 		Product:     product,
 	}
 
-	opts := newRenderOpts("viewInvoiceItem", data)
-	opts.entrypoint = "invoiceItem"
-	renderTemplate(w, r, opts)
+	renderTemplate(w, r, newRenderOpts("viewInvoiceItem", data, "invoiceItem"))
 }
 
 func (h *InvoiceItemHandler) HandleGetInvoiceItemEditForm(w http.ResponseWriter, r *http.Request) {
