@@ -1,44 +1,58 @@
 # Indigo
 
 ## Todo
-- [ ] Add a route for rendering viewInvoiceItem
+### In Progress
+
+### Short List
+- [ ] Select Due Date
+- [ ] Write invoice subject & body
+- [ ] Send email to actual customers
+
+### Must
 - [ ] When invoices are sent, need to finalize the invoice item version
 - [ ] Deleted flags for versioned records
-- [x] Move the "Add a new Customer" button on the invoice page to the header
-- [x] Some CSS container for scrolling the main content while still having footer
-  - [x] Maybe need to split into body/footer instead of just content template
-     - [x] Would need to define in each page
-- [ ] Billing Tab
-    - [ ] `Billing/{id}` page
-        - [ ] Product dropdown properly re-filter after adding item
-        - [x] Customer list
-        - [x] Show each included customer
-        - [ ] Edit each invoice
-        - [ ] Remove invoice
-        - [ ] Add all customers
-        - [ ] Use pico modal for confirmation
-    - [x] Billing page list existing sessions
-    - [ ] Ability to delete draft batches
-    - [x] Properly redirect from billing/new to billing/{new-id}
-    - [x] Do invoice batches need a state?
-      - Maybe invoice notifications also have a state. If they error, we have to create a new notification. Error column added to notification
-    - [x] Add states for invoice batches
-    - [x] Billing database handler
-    - [ ] Don't create a new batch every time you navigate to `/new`
-      - Maybe just check if there already exists an empty batch
-    - [x] Create new Button => Goes to `Billing/{id}`
+- [ ] Product dropdown properly re-filter after adding item
+- [ ] Add all customers to batch in a single action
+- [ ] Ability to delete draft batches
+- [ ] Don't create a new batch every time you navigate to `/new`
+  - Maybe just check if there already exists an empty batch
+* [ ] Config file
 
+### Should
 - [ ] Customers Tweaks
   - [ ] I think I need a "enabled" flag
   - [ ] Delete button (soft delete obvs)
-* [ ] Send email to actual customers
-* [ ] Config file
-* [ ] Docker?
+- [ ] Delete an invoice batch (if in draft status)
 * [ ] nixpkg
 - [ ] Cleanup
   - [ ] Error handling
   - [ ] Rename things to make more sense (handlers)
   - [ ] println vs log
+
+### Could
+- [ ] Use pico modal for confirmation
+* [ ] Docker?
+
+### Archive
+- [x] Add a route for rendering viewInvoiceItem
+- [x] Move the "Add a new Customer" button on the invoice page to the header
+- [x] Some CSS container for scrolling the main content while still having footer
+  - [x] Maybe need to split into body/footer instead of just content template
+     - [x] Would need to define in each page
+- [x] Billing Tab
+    - [x] `Billing/{id}` page
+        - [x] Customer list
+        - [x] Show each included customer
+        - [x] Edit each invoice
+        - [x] Remove invoice
+    - [x] Billing page list existing sessions
+    - [x] Properly redirect from billing/new to billing/{new-id}
+    - [x] Do invoice batches need a state?
+      - Maybe invoice notifications also have a state. If they error, we have to create a new notification. Error column added to notification
+    - [x] Add states for invoice batches
+    - [x] Billing database handler
+    - [x] Create new Button => Goes to `Billing/{id}`
+
 - [x] Figure out major data structures
 - [x] Invoice Table
 
