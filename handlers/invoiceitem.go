@@ -58,6 +58,21 @@ func (h *InvoiceItemHandler) HandleNewInvoiceItem(w http.ResponseWriter, r *http
 	renderTemplate(w, r, opts)
 }
 
+func (h *InvoiceItemHandler) HandleDeleteInvoiceItem(w http.ResponseWriter, r *http.Request) {
+	invId := r.PathValue("invoiceId")
+	prodId := r.PathValue("productId")
+
+	parsedInvId, err := strconv.ParseInt(invId, 10, 64)
+	handleHttpError(w, err, 500)
+	parsedProdId, err := strconv.ParseInt(prodId, 10, 64)
+	handleHttpError(w, err, 500)
+
+	err = h.invItemDb.Delete(parsedInvId, parsedProdId)
+	handleHttpError(w, err, 500)
+
+	renderTemplate(w, r, newRenderOpts("empty", nil))
+}
+
 func (h *InvoiceItemHandler) HandleUpdateInvoiceItem(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	handleHttpError(w, err, 500)

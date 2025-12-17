@@ -11,6 +11,13 @@
             hx-replace-url="false">
             Edit
         </a>
+
+        <a hx-delete="/invoiceItem/{{ .InvoiceItem.InvoiceId }}/{{ .InvoiceItem.ProductId }}"
+            hx-target="#invoice-item-table-{{ .InvoiceItem.InvoiceId }}-{{ .InvoiceItem.ProductId }}"
+            hx-swap="outerHTML"
+            hx-replace-url="false">
+            Delete
+        </a>
     </td>
 </tr>
 

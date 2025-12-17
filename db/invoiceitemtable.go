@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"errors"
 	"log"
 )
 
@@ -109,4 +110,27 @@ func (t *InvoiceItemTable) List(invoiceId int64) ([]InvoiceItem, error) {
 	}
 
 	return items, nil
+}
+
+func (t InvoiceItemTable) Delete(invId int64, prodId int64) error {
+	res, err := t.db.Exec(`
+		DELETE FROM invoice_item
+		WHERE invoice_id = (?)
+		AND product_id = (?);`, invId, prodId)
+
+	if err != nil {
+		return err
+	}
+
+	cnt, err := res.RowsAffected()
+
+	if err != nil {
+		return err
+	}
+
+	if cnt != 1 {
+		return errors.New("When deleting an invoice item, " + string(cnt) + " rows were effected. 1 was expected")
+	}
+
+	return nil
 }
