@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/TechnicallyMay/indigo/db"
 )
@@ -19,6 +20,11 @@ type billingData struct {
 	Batch              db.InvoiceBatch
 	IncludedCustomers  []db.Customer
 	AvailableCustomers []db.Customer
+}
+
+func (d *billingData) GetDueDateStr() string {
+	dueDate := time.Unix(d.Batch.DueDate, 0)
+	return dueDate.Format(time.DateOnly)
 }
 
 var billingHandlerInstance *BillingHandler
@@ -116,6 +122,7 @@ func (h *BillingHandler) HandleDeleteInvoiceFromBatch(w http.ResponseWriter, r *
 
 	renderTemplate(w, r, newRenderOpts("customerPicker", data, "customerPicker"))
 }
+
 func (h *BillingHandler) HandleAddInvoiceToBatch(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id")
 	custStr := r.PathValue("customerId")
@@ -158,6 +165,37 @@ func (h *BillingHandler) HandleAddInvoiceToBatch(w http.ResponseWriter, r *http.
 	fmt.Println(data.AvailableCustomers)
 
 	renderTemplate(w, r, newRenderOpts("customerPicker", data, "customerPicker"))
+}
+
+func (h *BillingHandler) HandleUpdateInvoiceBatch(w http.ResponseWriter, r *http.Request) {
+	idStr := r.PathValue("id")
+
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	handleHttpError(w, err, 400)
+
+	batch, err := h.batchDb.Get(id)
+	handleHttpError(w, err, 500)
+
+	if batch.State != db.Draft {
+		handleHttpError(w, errors.New("Tried to update an invoice not in draft state"), 400)
+	}
+
+	err = r.ParseForm()
+	handleHttpError(w, err, 400)
+
+	subj := r.FormValue("subject")
+	body := r.FormValue("body")
+	dueDateStr := r.FormValue("dueDate")
+	dueDate, err := time.Parse(time.DateOnly, dueDateStr)
+	handleHttpError(w, err, 400)
+
+	batch.NotificationSubject = subj
+	batch.NotificationDescription = body
+	batch.DueDate = dueDate.UnixMilli() / 1000
+
+	h.batchDb.Update(batch)
+
+	HtmxSoftRedirect(w, "/billing/"+idStr, "#main-content")
 }
 
 func (h *BillingHandler) getNonIncludedCustomers(incCusts []db.Customer) []db.Customer {

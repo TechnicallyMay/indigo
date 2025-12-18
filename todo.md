@@ -2,10 +2,9 @@
 
 ## Todo
 ### In Progress
-
+- [ ] Save invoice batch metadata
 ### Short List
-- [ ] Select Due Date
-- [ ] Write invoice subject & body
+
 - [ ] Send email to actual customers
 
 ### Must
@@ -19,10 +18,14 @@
 * [ ] Config file
 
 ### Should
+- [ ] Remove weird save button from invocie batch
+- [ ] Save when starting an invoice batch?
 - [ ] Customers Tweaks
   - [ ] I think I need a "enabled" flag
   - [ ] Delete button (soft delete obvs)
+- [ ] Fix content scrolling main screen. Limit widgets to bottom padding, scroll widget
 - [ ] Delete an invoice batch (if in draft status)
+- [ ] Account for timezone of browser
 * [ ] nixpkg
 - [ ] Cleanup
   - [ ] Error handling
@@ -34,6 +37,8 @@
 * [ ] Docker?
 
 ### Archive
+- [x] Select Due Date
+- [x] Write invoice subject & body
 - [x] Add a route for rendering viewInvoiceItem
 - [x] Move the "Add a new Customer" button on the invoice page to the header
 - [x] Some CSS container for scrolling the main content while still having footer

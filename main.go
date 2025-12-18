@@ -60,6 +60,7 @@ func main() {
 	mux.HandleFunc("GET /billing/", billingHandler.HandleGetBilling)
 	mux.HandleFunc("GET /billing/new", billingHandler.HandleGetNewBilling)
 	mux.HandleFunc("GET /billing/{id}", billingHandler.HandleGetInvoiceBatch)
+	mux.HandleFunc("PUT /billing/{id}", billingHandler.HandleUpdateInvoiceBatch)
 	mux.HandleFunc("POST /billing/{id}/invoice/{customerId}", billingHandler.HandleAddInvoiceToBatch)
 
 	mux.HandleFunc("GET /customers/", customerHandler.HandleGetCustomers)

@@ -12,22 +12,24 @@
 {{ define "content" }}
 <div id="invoice-batch-details" class="flex-column gap-sm widget">
     <h5>Settings</h5>
-    <div class="flex-row gap-sm grow-children">
-        <label>
-            Email Subject
-            <input name="subject" placeholder="Subject..."></input>
-        </label>
-        <label>
-            Due Date
-            <input type="date" name="dueDate" placeholder="Due Date..."></input>
-        </label>
-    </div>
+    <form hx-put="/billing/{{ .Batch.Id }}">
+        <div class="flex-row gap-sm grow-children">
+            <label>
+                Email Subject
+                <input name="subject" placeholder="Subject..." value="{{ .Batch.NotificationSubject }}"></input>
+            </label>
+            <label>
+                Due Date
+                <input type="date" name="dueDate" placeholder="Due Date..." value="{{ .GetDueDateStr }}"></input>
+            </label>
+        </div>
 
-    <label>
-        Email Body
-        <textarea name="body" placeholder="Email Body..."></textarea>
-    </label>
-
+        <label>
+            Email Body
+            <textarea name="body" placeholder="Email Body...">{{ .Batch.NotificationDescription }}</textarea>
+        </label>
+        <button type="submit">Save</button>
+    </form>
 </div>
 <div class="flex-column widget">
     <h5>Invoices</h5>
