@@ -59,24 +59,33 @@ func (h *BillingHandler) HandleGetInvoiceBatch(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	batch, err := h.batchDb.Get(id)
-
+	data, err := h.getBatchData(id)
 	if err != nil {
-		http.Error(w, "Invoice batch id '%v' couldn't be parsed to an integer", 400)
+		http.Error(w, "Invoice batch id "+idStr+" couldn't be parsed to an integer", 400)
 		return
 	}
 
-	incCusts := h.custDb.GetByInvoiceBatch(id)
-	allCusts := h.getNonIncludedCustomers(incCusts)
+	renderOpts := newRenderOpts("billingById", data, "content", "header")
+	renderOpts.prereqTemplates = []string{"customerPicker"}
+	renderTemplate(w, r, renderOpts)
+}
 
-	data := &billingData{
-		Batch:              batch,
-		IncludedCustomers:  incCusts,
-		AvailableCustomers: allCusts,
+func (h *BillingHandler) HandleGetSendInvoiceBatch(w http.ResponseWriter, r *http.Request) {
+	idStr := r.PathValue("id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+
+	if err != nil {
+		http.Error(w, "Invoice batch id "+idStr+" couldn't be parsed to an integer", 400)
+		return
 	}
 
-	renderOpts := newRenderOpts("billingById", data)
-	renderOpts.prereqTemplates = []string{"customerPicker"}
+	data, err := h.getBatchData(id)
+	if err != nil {
+		http.Error(w, "Invoice batch id "+idStr+" couldn't be parsed to an integer", 400)
+		return
+	}
+
+	renderOpts := newRenderOpts("sendInvoiceBatch", data, "content", "header")
 	renderTemplate(w, r, renderOpts)
 }
 
@@ -215,4 +224,21 @@ func (h *BillingHandler) getNonIncludedCustomers(incCusts []db.Customer) []db.Cu
 		}
 	}
 	return nonIncluded
+}
+
+func (h *BillingHandler) getBatchData(id int64) (*billingData, error) {
+	batch, err := h.batchDb.Get(id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	incCusts := h.custDb.GetByInvoiceBatch(id)
+	allCusts := h.getNonIncludedCustomers(incCusts)
+
+	return &billingData{
+		Batch:              batch,
+		IncludedCustomers:  incCusts,
+		AvailableCustomers: allCusts,
+	}, nil
 }

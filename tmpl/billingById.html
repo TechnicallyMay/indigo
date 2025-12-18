@@ -1,10 +1,10 @@
 {{ template "base" . }}
 
 {{ define "header" }}
-<div id="main-header" hx-swap-oob="true" class="flex-row full-width space-between flex-center">
-    <h4>Billing</h4>
-    <button type="button">
-        Send
+<div id="main-header" hx-swap-oob="outerHTML" class="flex-row full-width space-between flex-center">
+    <h4>Billing - (Batch {{ .Batch.Id }})</h4>
+    <button type="button" hx-get="/billing/send/{{ .Batch.Id }}" hx-target="#main-content" hx-push-url="true">
+        Ready
     </button>
 </div>
 {{ end }}
