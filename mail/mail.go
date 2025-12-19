@@ -11,6 +11,25 @@ import (
 	"strings"
 )
 
+type Mail struct {
+	To                 []string
+	From               string
+	Subject            string
+	Body               string
+	AttachmentFilePath string
+}
+
+type SmtpClient struct {
+	Host string
+	Port int
+	Auth smtp.Auth
+}
+
+func (client SmtpClient) SendMail(mail Mail) error {
+	mailData := buildMailData(mail)
+	return smtp.SendMail(client.getFullAddress(), client.Auth, mail.From, mail.To, mailData)
+}
+
 func readFile(fileName string) []byte {
 	data, err := os.ReadFile(fileName)
 	if err != nil {
@@ -48,25 +67,6 @@ func buildMailData(mail Mail) []byte {
 	buf.WriteString("--")
 
 	return buf.Bytes()
-}
-
-type Mail struct {
-	To                 []string
-	From               string
-	Subject            string
-	Body               string
-	AttachmentFilePath string
-}
-
-type SmtpClient struct {
-	Host string
-	Port int
-	Auth smtp.Auth
-}
-
-func (client SmtpClient) SendMail(mail Mail) error {
-	mailData := buildMailData(mail)
-	return smtp.SendMail(client.getFullAddress(), client.Auth, mail.From, mail.To, mailData)
 }
 
 func (client SmtpClient) getFullAddress() string {

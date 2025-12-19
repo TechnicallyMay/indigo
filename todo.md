@@ -2,10 +2,9 @@
 
 ## Todo
 ### In Progress
-- [ ] Save invoice batch metadata
-### Short List
-
+- [x] Save invoice batch metadata
 - [ ] Send email to actual customers
+### Short List
 
 ### Must
 - [ ] When invoices are sent, need to finalize the invoice item version

@@ -2,11 +2,13 @@
 
 {{ define "header" }}
 <div id="main-header" hx-swap-oob="outerHTML" class="flex-row full-width space-between flex-center">
-    <h4>Billing - (Batch {{ .Batch.Id }})</h4>
+    <h4>Billing - (Batch {{ .Batch.Id }}) - {{ .Batch.State.String }}</h4>
 
     <div class="flex-row gap-sm">
         <button type="button" class="secondary" hx-get="/billing/{{ .Batch.Id }}" hx-target="#main-content" hx-push-url="true">Back</button>
-        <button type="button" hx-confirm="Yeah baby" hx-post="/TODO">Send</button>
+        {{ if eq .Batch.State.String "Draft" }}
+        <button type="button" hx-confirm="Send notifications?" hx-post="/billing/send/{{ .Batch.Id }}">Send</button>
+        {{ end }}
     </div>
 </div>
 {{ end }}

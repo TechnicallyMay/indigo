@@ -15,7 +15,6 @@ func MakeInvoicePdf() (string, error) {
 
 	filename := randFileName(".pdf")
 	err := pdf.OutputFileAndClose(filename)
-	fmt.Println("Initialized file with name ", filename)
 	return filename, err
 }
 

@@ -8,12 +8,16 @@ import (
 	"time"
 
 	"github.com/TechnicallyMay/indigo/db"
+	"github.com/TechnicallyMay/indigo/sender"
 )
 
 type BillingHandler struct {
 	batchDb db.InvoiceBatchTable
 	invDb   db.InvoiceTable
 	custDb  db.CustomerTable
+	prodDb  db.ProductTable
+	itemDb  db.InvoiceItemTable
+	sender  sender.InvoiceSender
 }
 
 type billingData struct {
@@ -22,16 +26,11 @@ type billingData struct {
 	AvailableCustomers []db.Customer
 }
 
-func (d *billingData) GetDueDateStr() string {
-	dueDate := time.Unix(d.Batch.DueDate, 0)
-	return dueDate.Format(time.DateOnly)
-}
-
 var billingHandlerInstance *BillingHandler
 
-func NewBillingHandler(batchDb db.InvoiceBatchTable, invDb db.InvoiceTable, custDb db.CustomerTable) *BillingHandler {
+func NewBillingHandler(batchDb db.InvoiceBatchTable, invDb db.InvoiceTable, custDb db.CustomerTable, prodDb db.ProductTable, itemDb db.InvoiceItemTable, sender sender.InvoiceSender) *BillingHandler {
 	if billingHandlerInstance == nil {
-		billingHandlerInstance = &BillingHandler{batchDb: batchDb, invDb: invDb, custDb: custDb}
+		billingHandlerInstance = &BillingHandler{batchDb: batchDb, invDb: invDb, custDb: custDb, prodDb: prodDb, itemDb: itemDb, sender: sender}
 	}
 
 	return billingHandlerInstance
@@ -62,6 +61,12 @@ func (h *BillingHandler) HandleGetInvoiceBatch(w http.ResponseWriter, r *http.Re
 	data, err := h.getBatchData(id)
 	if err != nil {
 		http.Error(w, "Invoice batch id "+idStr+" couldn't be parsed to an integer", 400)
+		return
+	}
+
+	if data.Batch.State != db.Draft {
+		// Can't edit the batch anymore
+		HtmxHardRedirect(w, "/billing/send/"+idStr)
 		return
 	}
 
@@ -207,6 +212,27 @@ func (h *BillingHandler) HandleUpdateInvoiceBatch(w http.ResponseWriter, r *http
 	HtmxSoftRedirect(w, "/billing/"+idStr, "#main-content")
 }
 
+func (h *BillingHandler) HandleSendBatch(w http.ResponseWriter, r *http.Request) {
+	idStr := r.PathValue("id")
+
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	handleHttpError(w, err, 400)
+
+	batch, err := h.batchDb.Get(id)
+	handleHttpError(w, err, 500)
+
+	if batch.State != db.Draft {
+		handleHttpError(w, errors.New("Invoice batches can only be sent from draft state currently."), 400)
+	}
+
+	batch.State = db.Sending
+	h.batchDb.Update(batch)
+
+	go h.sendInvoices(batch)
+
+	HtmxRefresh(w)
+}
+
 func (h *BillingHandler) getNonIncludedCustomers(incCusts []db.Customer) []db.Customer {
 	allCusts := h.custDb.List()
 	nonIncluded := make([]db.Customer, 0)
@@ -241,4 +267,61 @@ func (h *BillingHandler) getBatchData(id int64) (*billingData, error) {
 		IncludedCustomers:  incCusts,
 		AvailableCustomers: allCusts,
 	}, nil
+}
+
+func (h *BillingHandler) sendInvoices(batch db.InvoiceBatch) error {
+	time.Sleep(10 * time.Second)
+	query := db.CreateInvoiceQuery()
+	query.BatchId = batch.Id
+
+	invs, err := h.invDb.Query(query)
+	if err != nil {
+		return err
+	}
+
+	customers := h.custDb.List()
+	custMap := make(map[int64]db.Customer, 0)
+
+	for _, cust := range customers {
+		custMap[cust.Id] = cust
+	}
+
+	products, err := h.prodDb.List()
+	if err != nil {
+		return err
+	}
+
+	prodMap := make(map[int64]db.Product, 0)
+	for _, prod := range products {
+		prodMap[prod.Id] = prod
+	}
+
+	var errs error
+	failCount := 0
+	for _, inv := range invs {
+		items, err := h.itemDb.List(inv.Id)
+		errs = errors.Join(errs, err)
+		if err != nil {
+			// TODO: Save to DB that this one failed
+			failCount++
+			continue
+		}
+		err = h.sender.SendInvoice(batch, custMap[inv.CustomerId], items, prodMap)
+		errs = errors.Join(errs, err)
+		if err != nil {
+			failCount++
+		}
+	}
+
+	if failCount == len(invs) {
+		batch.State = db.Failed
+	} else if failCount > 0 {
+		batch.State = db.PartialFailure
+	} else {
+		batch.State = db.Sent
+	}
+
+	h.batchDb.Update(batch)
+
+	return errs
 }

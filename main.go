@@ -1,11 +1,16 @@
 package main
 
 import (
+	"bufio"
 	"log"
 	"net/http"
+	"net/smtp"
+	"os"
 
 	"github.com/TechnicallyMay/indigo/db"
 	"github.com/TechnicallyMay/indigo/handlers"
+	"github.com/TechnicallyMay/indigo/mail"
+	"github.com/TechnicallyMay/indigo/sender"
 )
 
 func main() {
@@ -21,12 +26,22 @@ func main() {
 	// // MAIL
 	// log.Println("Sending an email")
 	//
-	// var smtpPass string
-	// fmt.Println("Enter the smtp pass")
-	// fmt.Scan(&smtpPass)
-	//
-	// auth := smtp.PlainAuth("", "postmaster@sandbox6799805213174515aa97c14ef663c50e.mailgun.org", smtpPass, "smtp.mailgun.org")
-	// client := mail.SmtpClient{Host: "smtp.mailgun.org", Port: 587, Auth: auth}
+	var smtpPass string
+	passBuf, err := os.Open("/home/mason/smtppass.txt")
+
+	scanner := bufio.NewScanner(passBuf)
+	scanner.Scan()
+	// TODO: Config file
+	smtpPass = scanner.Text()
+
+	passBuf.Close()
+	if err != nil {
+		panic(err)
+	}
+
+	auth := smtp.PlainAuth("", "postmaster@sandbox6799805213174515aa97c14ef663c50e.mailgun.org", smtpPass, "smtp.mailgun.org")
+	client := mail.SmtpClient{Host: "smtp.mailgun.org", Port: 587, Auth: auth}
+	sender := sender.InvoiceSender{MailClient: &client}
 	//
 	// msg := mail.Mail{From: "mail@chickpea-home.duckdns.org", To: []string{"masonwells01@gmail.com"}, Subject: "Test Mail", Body: "Test Message Body", AttachmentFilePath: pdfPath}
 	// err = client.SendMail(msg)
@@ -46,7 +61,7 @@ func main() {
 	productsTable := db.InitProductTable(pool)
 
 	customerHandler := handlers.NewCustomerHandler(*custTable)
-	billingHandler := handlers.NewBillingHandler(*invoiceBatchTable, *invoiceTable, *custTable)
+	billingHandler := handlers.NewBillingHandler(*invoiceBatchTable, *invoiceTable, *custTable, *productsTable, *invoiceItemTable, sender)
 	invoiceHandler := handlers.NewInvoiceHandler(*invoiceTable, *custTable, *invoiceItemTable, *productsTable)
 	invoiceItemHandler := handlers.NewInvoiceItemHandler(*invoiceItemTable, *productsTable)
 	productsHandler := handlers.NewProductHandler(*productsTable)
@@ -62,6 +77,7 @@ func main() {
 	mux.HandleFunc("GET /billing/{id}", billingHandler.HandleGetInvoiceBatch)
 	mux.HandleFunc("PUT /billing/{id}", billingHandler.HandleUpdateInvoiceBatch)
 	mux.HandleFunc("GET /billing/send/{id}", billingHandler.HandleGetSendInvoiceBatch)
+	mux.HandleFunc("POST /billing/send/{id}", billingHandler.HandleSendBatch)
 	mux.HandleFunc("POST /billing/{id}/invoice/{customerId}", billingHandler.HandleAddInvoiceToBatch)
 
 	mux.HandleFunc("GET /customers/", customerHandler.HandleGetCustomers)

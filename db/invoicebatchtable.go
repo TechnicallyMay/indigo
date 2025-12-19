@@ -3,12 +3,14 @@ package db
 import (
 	"database/sql"
 	"log"
+	"time"
 )
 
 type InvoiceBatchState int
 
 const (
 	Draft InvoiceBatchState = iota
+	Sending
 	Sent
 	Failed
 	PartialFailure
@@ -18,6 +20,8 @@ func (state InvoiceBatchState) String() string {
 	switch state {
 	case Draft:
 		return "Draft"
+	case Sending:
+		return "Sending"
 	case Sent:
 		return "Sent"
 	case Failed:
@@ -39,6 +43,11 @@ type InvoiceBatch struct {
 
 	State             InvoiceBatchState
 	FinishedSendingAt int64 // When the last invoice notification in the batch was sent successfully
+}
+
+func (b *InvoiceBatch) GetDueDateStr() string {
+	dueDate := time.Unix(b.DueDate, 0)
+	return dueDate.Format(time.DateOnly)
 }
 
 type InvoiceBatchTable struct {
