@@ -8,6 +8,7 @@ main {
     height: 100%;
     display: grid;
     padding: 20px;
+    overflow-y: hidden;
 }
 
 #main-sidebar {
@@ -36,10 +37,6 @@ main {
     flex-direction: row;
 }
 
-.flex-gap-sm {
-    flex-gap: 4px;
-}
-
 .flex-column {
     display: flex;
     flex-direction: column;
@@ -47,6 +44,10 @@ main {
 
 .flex-start {
     justify-content: flex-start;
+}
+
+.flex-end {
+    justify-content: flex-end;
 }
 
 .flex-center {
@@ -71,6 +72,14 @@ main {
 
 .gap-sm {
     gap: 8px;
+}
+
+.gap-md {
+    gap: 12px;
+}
+
+.gap-lg {
+    gap: 16px;
 }
 
 .widget {
@@ -112,4 +121,12 @@ main {
     display: grid;
     grid-template-columns:
          350px auto
+}
+
+.button-md {
+    width: 200px !important;
+}
+
+.float-right {
+    float: right;
 }

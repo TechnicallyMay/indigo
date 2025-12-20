@@ -3,6 +3,9 @@
 ## Todo
 ### In Progress
 - [x] Save invoice batch metadata
+- [x] Join billing page into 1 page, edit vs not-edit
+- [ ] oob button rendering when not Htmx-request
+- [ ] Invoice notifications
 - [ ] Send email to actual customers
 ### Short List
 
@@ -145,7 +148,7 @@ type InvoiceNotification struct {
     Id        int64
     CreatedAt int64
 
-    IsSent    bool
+    State     State
     SentAt    int64
     InvoiceId int64
     DueDate   int64 // Should be the same as the invoice batch, but keeping it flexible
@@ -153,7 +156,7 @@ type InvoiceNotification struct {
 ```
 
 ```go
-type InvoiceBatch struct {
+tpe InvoiceBatch struct {
     Id                     int64
     CreatedAt              int64
 

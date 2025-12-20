@@ -34,7 +34,12 @@
                 <td>{{ .LastName }}</td>
                 <td>{{ .Email }}</td>
                 <td>
-                    <a href="/customers/edit/{{ .Id }}" hx-target="#customer-table-{{ .Id }}" hx-swap="outerHTML" hx-replace-url="false">Edit</a>
+                    <a hx-get="/customers/edit/{{ .Id }}"
+                       hx-target="#customer-table-{{ .Id }}"
+                       hx-swap="outerHTML"
+                       hx-replace-url="false">
+                       Edit
+                    </a>
                 </td>
             </tr>
             {{ end }}

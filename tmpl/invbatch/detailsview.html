@@ -1,0 +1,24 @@
+{{ define "invBatchDetailsView" }}
+<button id="send-invoice-button" hx-swap-oob="outerHTML" type="button" hx-confirm="Send notifications?" hx-post="/billing/send/{{ .Id }}">Send</button>
+<div id="inv-batch-details">
+    <div class="flex-row gap-sm">
+        <h5>Details</h5>
+        {{ if eq .State.String "Draft" }}
+        <a hx-get="/billing/edit/{{ .Id }}"
+           hx-target="#inv-batch-details"
+           hx-swap="outerHTML"
+           hx-replace-url="false">
+           Edit
+        </a>
+        {{ end }}
+    </div>
+
+    <div class="flex-row gap-lg">
+        <hgroup>
+            <h6>{{ if eq .NotificationSubject "" }} (Empty Subject) {{ else }} {{ .NotificationSubject }} {{ end }} - <strong>Due {{ .GetDueDateStr }}</strong></h6>
+
+            <blockquote style="white-space: pre-line">{{ if eq .NotificationDescription "" }} (Empty Message) {{ else }} {{ .NotificationDescription }} {{ end }} </blockquote>
+        </hgroup>
+    </div>
+</div>
+{{ end }}

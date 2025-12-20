@@ -1,9 +1,11 @@
 package handlers
 
 import (
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
+	"path"
 	"strings"
 	"time"
 )
@@ -70,17 +72,18 @@ func getOrParse(templateNames ...string) template.Template {
 		templateFiles[i] = "tmpl/" + tmp + ".html"
 	}
 
-	tmpl := template.New(templateNames[0] + ".html")
+	tmpl := template.New(path.Base(templateFiles[0]))
 	addCustomFuncs(tmpl)
 	template := *template.Must(tmpl.ParseFiles(templateFiles...))
+	fmt.Println(templateFiles)
 	templates[templateKey] = template
 	return templates[templateKey]
 }
 
 func addCustomFuncs(templ *template.Template) {
 	templ.Funcs(template.FuncMap{
-		"convertLocalTimestamp": func(secSinceEpoch int64) time.Time {
-			return time.Unix(secSinceEpoch, 0)
+		"convertLocalTimestamp": func(secSinceEpoch int64) string {
+			return time.Unix(secSinceEpoch, 0).Format(time.DateOnly)
 		},
 	})
 }

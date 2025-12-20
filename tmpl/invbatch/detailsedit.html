@@ -1,0 +1,35 @@
+{{ define "invBatchDetailsEdit" }}
+<button id="send-invoice-button"
+    hx-swap-oob="outerHTML" type="button"
+    hx-confirm="Send notifications?"
+    hx-post="/billing/send/{{ .Id }}"
+    data-tooltip="Please save all fields before sending."
+    disabled="true">
+    Send
+</button>
+
+<div id="inv-batch-details">
+    <h5>Details</h5>
+    <form id="inv-batch-details" hx-put="/billing/{{ .Id }}" hx-swap="outerHTML" hx-target="#inv-batch-details">
+        <div class="flex-row gap-sm grow-children">
+            <label>
+                Email Subject
+                <input name="subject" placeholder="Subject..." value="{{ .NotificationSubject }}"></input>
+            </label>
+            <label>
+                Due Date
+                <input type="date" name="dueDate" placeholder="Due Date..." value="{{ .GetDueDateStr }}"></input>
+            </label>
+        </div>
+
+        <label>
+            Email Body
+            <textarea name="body" placeholder="Email Body..." style="height: 9em">{{ .NotificationDescription }}</textarea>
+        </label>
+        <div class="flex-row gap-sm flex-end">
+            <button type="button" class="secondary button-md" hx-get="/billing/details/{{ .Id }}" hx-target="#inv-batch-details" hx-swap="outerHTML">Cancel</button>
+            <button type="submit" class="button-md">Save</button>
+        </div>
+    </form>
+</div>
+{{ end }}

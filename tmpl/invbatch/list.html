@@ -16,12 +16,12 @@
         <table>
             <thead>
                 <tr>
-                    <th scope="col">Id</th>
+                    <th scope="col">Batch #</th>
                     <th scope="col">State</th>
+                    <th scope="col">Due Date</th>
+                    <th scope="col">Subject</th>
                     <th scope="col">Finished Sending</th>
-
                     <th scope="col">Created</th>
-                    <th scope="col">Due</th>
                     <th scope="col"></th>
                 </tr>
             </thead>
@@ -29,13 +29,20 @@
                 {{ range . }}
                 <tr id="billing-table-{{ .Id }}">
                     <td>{{ .Id }}</td>
-
                     <td>{{ .State }}</td>
+                    <td>{{ if gt .DueDate 0 }} {{ convertLocalTimestamp .DueDate }} {{ end }}</td>
+                    <td>{{ .NotificationSubject }}</td>
+
                     <td>{{ if gt .FinishedSendingAt 0 }} {{ convertLocalTimestamp .FinishedSendingAt }} {{ end }}</td>
                     <td>{{ if gt .CreatedAt 0 }} {{ convertLocalTimestamp .CreatedAt }} {{ end }}</td>
-                    <td>{{ if gt .DueDate 0 }} {{ convertLocalTimestamp .DueDate }} {{ end }}</td>
                     <td>
-                        <a href="/billing/{{ .Id }}" hx-target="#main-content">Edit</a>
+                        <a href="/billing/{{ .Id }}" hx-target="#main-content">
+                        {{ if eq .State.String "Draft" }}
+                            Edit
+                        {{ else }}
+                            View
+                        {{ end }}
+                        </a>
                     </td>
                 </tr>
                 {{ end }}

@@ -38,11 +38,19 @@ func NewBillingHandler(batchDb db.InvoiceBatchTable, invDb db.InvoiceTable, cust
 
 func (h *BillingHandler) HandleGetBilling(w http.ResponseWriter, r *http.Request) {
 	batches := h.batchDb.List()
-	renderTemplate(w, r, newRenderOpts("billingHome", batches, "content", "header"))
+	renderTemplate(w, r, newRenderOpts("invbatch/list", batches, "content", "header"))
 }
 
 func (h *BillingHandler) HandleGetNewBilling(w http.ResponseWriter, r *http.Request) {
-	newBatch := db.InvoiceBatch{State: db.Draft, DueDate: 0, FinishedSendingAt: 0}
+	due := time.Now()
+	if due.Day() >= 15 {
+		due = due.AddDate(0, 1, 0)
+	}
+	due = time.Date(due.Year(), due.Month(), 15, 0, 0, 0, 0, due.Location())
+	subj := "Invoice for " + due.Month().String()
+	desc := "Hello,\n\nThis is the invoice for " + due.Month().String()
+
+	newBatch := db.InvoiceBatch{State: db.Draft, DueDate: due.Unix(), FinishedSendingAt: 0, NotificationSubject: subj, NotificationDescription: desc}
 	newId := h.batchDb.Add(newBatch)
 
 	dest := fmt.Sprintf("/billing/%d", newId)
@@ -64,18 +72,12 @@ func (h *BillingHandler) HandleGetInvoiceBatch(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	if data.Batch.State != db.Draft {
-		// Can't edit the batch anymore
-		HtmxHardRedirect(w, "/billing/send/"+idStr)
-		return
-	}
-
-	renderOpts := newRenderOpts("billingById", data, "content", "header")
-	renderOpts.prereqTemplates = []string{"customerPicker"}
+	renderOpts := newRenderOpts("invbatch/batch", data, "content", "header")
+	renderOpts.prereqTemplates = []string{"invbatch/customerPicker", "invbatch/detailsview"}
 	renderTemplate(w, r, renderOpts)
 }
 
-func (h *BillingHandler) HandleGetSendInvoiceBatch(w http.ResponseWriter, r *http.Request) {
+func (h *BillingHandler) HandleEditBatchDetails(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 
@@ -84,14 +86,29 @@ func (h *BillingHandler) HandleGetSendInvoiceBatch(w http.ResponseWriter, r *htt
 		return
 	}
 
-	data, err := h.getBatchData(id)
+	batch, err := h.batchDb.Get(id)
+	handleHttpError(w, err, 404)
+
+	if batch.State == db.Draft {
+		renderTemplate(w, r, newRenderOpts("invbatch/detailsedit", &batch, "invBatchDetailsEdit"))
+	} else {
+		handleHttpError(w, errors.New("Can't edit details of a non-draft batch"), 400)
+	}
+}
+
+func (h *BillingHandler) HandleViewBatchDetails(w http.ResponseWriter, r *http.Request) {
+	idStr := r.PathValue("id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+
 	if err != nil {
 		http.Error(w, "Invoice batch id "+idStr+" couldn't be parsed to an integer", 400)
 		return
 	}
 
-	renderOpts := newRenderOpts("sendInvoiceBatch", data, "content", "header")
-	renderTemplate(w, r, renderOpts)
+	batch, err := h.batchDb.Get(id)
+	handleHttpError(w, err, 404)
+
+	renderTemplate(w, r, newRenderOpts("invbatch/detailsview", &batch, "invBatchDetailsView"))
 }
 
 func (h *BillingHandler) HandleDeleteInvoiceFromBatch(w http.ResponseWriter, r *http.Request) {
@@ -134,7 +151,7 @@ func (h *BillingHandler) HandleDeleteInvoiceFromBatch(w http.ResponseWriter, r *
 	}
 	fmt.Println(data.AvailableCustomers)
 
-	renderTemplate(w, r, newRenderOpts("customerPicker", data, "customerPicker"))
+	renderTemplate(w, r, newRenderOpts("invbatch/customerPicker", data, "customerPicker"))
 }
 
 func (h *BillingHandler) HandleAddInvoiceToBatch(w http.ResponseWriter, r *http.Request) {
@@ -178,7 +195,7 @@ func (h *BillingHandler) HandleAddInvoiceToBatch(w http.ResponseWriter, r *http.
 	}
 	fmt.Println(data.AvailableCustomers)
 
-	renderTemplate(w, r, newRenderOpts("customerPicker", data, "customerPicker"))
+	renderTemplate(w, r, newRenderOpts("invbatch/customerPicker", data, "customerPicker"))
 }
 
 func (h *BillingHandler) HandleUpdateInvoiceBatch(w http.ResponseWriter, r *http.Request) {
@@ -209,7 +226,7 @@ func (h *BillingHandler) HandleUpdateInvoiceBatch(w http.ResponseWriter, r *http
 
 	h.batchDb.Update(batch)
 
-	HtmxSoftRedirect(w, "/billing/"+idStr, "#main-content")
+	renderTemplate(w, r, newRenderOpts("invbatch/detailsview", &batch, "invBatchDetailsView"))
 }
 
 func (h *BillingHandler) HandleSendBatch(w http.ResponseWriter, r *http.Request) {
@@ -319,6 +336,7 @@ func (h *BillingHandler) sendInvoices(batch db.InvoiceBatch) error {
 		batch.State = db.PartialFailure
 	} else {
 		batch.State = db.Sent
+		batch.FinishedSendingAt = time.Now().Unix()
 	}
 
 	h.batchDb.Update(batch)

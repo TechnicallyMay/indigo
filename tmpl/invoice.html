@@ -1,16 +1,6 @@
 {{ define "content" }}
 <div id="invoice-{{ .Invoice.Id }}">
-    <h5> I'm an invoice with id {{ .Invoice.Id }}</h5>
-    <h5> My customer's name is {{ .Customer.FirstName }} </h5>
-
-    <button
-        hx-delete="/invoice/{{ .Invoice.Id }}"
-        hx-target="#invoice-display"
-        hx-swap="innerHTML"
-        hx-confirm="Are you sure you want to delete the invoice for {{ .Customer.FirstName }} {{ .Customer.LastName }}?"
-        hx-replace-url="false">
-        Delete
-    </button>
+    <h5> Invoice for {{ .Customer.FirstName }} {{ .Customer.LastName }}</h5>
 
     <table id="invoice-items-{{ .Invoice.Id }}">
         <thead>
@@ -42,6 +32,16 @@
             {{ end }}
         </ul>
     </details>
+
+    <button class="button-md float-right"
+        hx-delete="/invoice/{{ .Invoice.Id }}"
+        hx-target="#invoice-display"
+        hx-swap="innerHTML"
+        hx-confirm="Are you sure you want to delete the invoice for {{ .Customer.FirstName }} {{ .Customer.LastName }}?"
+        hx-replace-url="false">
+        Delete
+    </button>
+
 </div>
 
 {{ end }}

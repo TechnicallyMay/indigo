@@ -1,0 +1,35 @@
+{{ define "customerPicker" }}
+<div class="flex-column flex-start stretch-children full-height pad-lg-r" id="customer-picker">
+    {{ range .IncludedCustomers }}
+            <div id="customer-picker-{{ .Id }}" class="flex-row space-between">
+            <div>
+                {{ .FirstName }} {{ .LastName }}
+            </div>
+            <a
+                hx-get="/invoice?batchId={{ $.Batch.Id }}&customerId={{ .Id }}"
+                hx-target="#invoice-display"
+                hx-swap="innerHTML"
+                hx-replace-url="false">
+                Invoice
+            </a>
+        </div>
+    {{ end }}
+
+    <div class="flex-spacer"></div>
+
+    <details class="dropdown">
+        <summary>Add a new Customer</summary>
+        <ul>
+            {{ range .AvailableCustomers }}
+            <li>
+                <a hx-post="/billing/{{ $.Batch.Id }}/invoice/{{ .Id }}"
+                   hx-target="#customer-picker"
+                   hx-swap="outerHTML">
+                    {{ .FirstName }} {{ .LastName }}
+                </a>
+            </li>
+            {{ end }}
+        </ul>
+    </details>
+</div>
+{{ end }}

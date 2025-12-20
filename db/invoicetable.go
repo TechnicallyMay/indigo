@@ -199,8 +199,13 @@ func (h InvoiceTable) Delete(id int64) error {
 	// TODO: Soft delete needed if a notification has already been sent
 	// TODO: For now don't allow deleting if state is not draft
 	res, err := h.db.Exec(`
+		BEGIN TRANSACTION;
+
+		DELETE FROM invoice_item
+		WHERE invoice_id = (?);
+
 		DELETE FROM invoice
-		WHERE id = (?)`, id)
+		WHERE id = (?);`, id, id)
 
 	if err != nil {
 		return err
