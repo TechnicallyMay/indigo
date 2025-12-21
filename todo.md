@@ -4,6 +4,8 @@
 ### In Progress
 - [x] Save invoice batch metadata
 - [x] Join billing page into 1 page, edit vs not-edit
+- [ ] Settings page
+- [ ] Fill in invoice with actual info
 - [ ] oob button rendering when not Htmx-request
 - [ ] Invoice notifications
 - [ ] Send email to actual customers

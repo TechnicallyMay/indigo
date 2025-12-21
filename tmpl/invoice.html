@@ -33,14 +33,22 @@
         </ul>
     </details>
 
-    <button class="button-md float-right"
-        hx-delete="/invoice/{{ .Invoice.Id }}"
-        hx-target="#invoice-display"
-        hx-swap="innerHTML"
-        hx-confirm="Are you sure you want to delete the invoice for {{ .Customer.FirstName }} {{ .Customer.LastName }}?"
-        hx-replace-url="false">
-        Delete
-    </button>
+    <div class="flex-row flex-end flex-center gap-sm">
+        <a href="/invoice/preview/{{ .Invoice.Id }}"
+           download="invoice.pdf"
+           target="_blank">
+          Preview
+        </a>
+
+        <button class="button-md"
+            hx-delete="/invoice/{{ .Invoice.Id }}"
+            hx-target="#invoice-display"
+            hx-swap="innerHTML"
+            hx-confirm="Are you sure you want to delete the invoice for {{ .Customer.FirstName }} {{ .Customer.LastName }}?"
+            hx-replace-url="false">
+            Delete
+        </button>
+    </div>
 
 </div>
 

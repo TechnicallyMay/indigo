@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"html/template"
+	"io"
 	"log"
 	"net/http"
 	"path"
@@ -30,7 +31,7 @@ func newRenderOpts(name string, data any, entrypoints ...string) renderOpts {
 	}
 }
 
-func renderTemplate(writer http.ResponseWriter, r *http.Request, opts renderOpts) {
+func renderTemplate(writer io.Writer, r *http.Request, opts renderOpts) {
 	var err error
 
 	toRender := append([]string{opts.templateName}, opts.prereqTemplates...)
@@ -52,7 +53,7 @@ func renderTemplate(writer http.ResponseWriter, r *http.Request, opts renderOpts
 	}
 
 	if err != nil {
-		http.Error(writer, err.Error(), http.StatusInternalServerError)
+		panic(err)
 	}
 }
 

@@ -1,4 +1,4 @@
-html, body {main.cs
+html, body {
     min-height: 100vh;
     height: 100%;
     background-color: #e0dee5;
@@ -8,7 +8,6 @@ main {
     height: 100%;
     display: grid;
     padding: 20px;
-    overflow-y: hidden;
 }
 
 #main-sidebar {
@@ -19,6 +18,7 @@ main {
 }
 
 #main-header {
+    z-index: 2;
     background-color: var(--pico-background-color);
     box-shadow: 5px 0 2px 0px var(--pico-secondary-background);
     padding: var(--pico-spacing);
@@ -26,10 +26,6 @@ main {
 
 #main-header > * {
     margin-bottom: 0;
-}
-
-#main-content {
-    overflow-y: hidden;
 }
 
 .flex-row {
@@ -129,4 +125,20 @@ main {
 
 .float-right {
     float: right;
+}
+
+#invoice-preview {
+    background: white;
+    display: block;
+    margin: 0 auto;
+    margin-bottom: 0.5cm;
+    box-shadow: 0 0 0.5cm rgba(0,0,0,0.5);
+    overflow: auto;
+
+    height: 11in;
+    width: 8.5in;
+}
+
+#invoice-preview * {
+    all: unset;
 }

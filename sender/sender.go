@@ -21,5 +21,6 @@ func (s *InvoiceSender) SendInvoice(batch db.InvoiceBatch, cust db.Customer, ite
 	}
 	fmt.Println()
 
+	// pdf.MakeInvoicePdf()
 	return nil
 }

@@ -3,19 +3,44 @@ package pdf
 import (
 	"fmt"
 	"math/rand"
+	"os"
 
 	"codeberg.org/go-pdf/fpdf"
+	"github.com/TechnicallyMay/indigo/db"
+	"github.com/dustin/go-humanize"
 )
 
-func MakeInvoicePdf() (string, error) {
-	pdf := fpdf.New("P", "mm", "A4", "")
-	pdf.AddPage()
-	pdf.SetFont("Arial", "B", 16)
-	pdf.Cell(40, 10, "you owe me so much money")
+// A4 = 210 x 297 mm
+var pageH float64 = 297
+var pageW float64 = 210
 
+var paddingY float64 = 5
+
+func MakeInvoicePdf(batch db.InvoiceBatch, cust db.Customer, items []db.InvoiceItem, allProducts map[int64]db.Product) (string, error) {
+	grandTotal := 0.0
+	for _, it := range items {
+		grandTotal += float64(it.Quantity) * allProducts[it.ProductId].UnitPrice
+	}
+	totalStr := "$" + humanize.FormatFloat("#,###.##", grandTotal)
+
+	pdf := fpdf.New("P", "mm", "A4", "")
+	pdf.SetHeaderFunc(func() { header(pdf, totalStr) })
+	pdf.SetFooterFunc(func() { footer(pdf) })
+	pdf.AliasNbPages("")
+
+	pdf.AddPage()
+	invItems(pdf, items, allProducts, totalStr)
+
+	// fmt.Println("Due Date", batch.DueDate)
+	// for _, item := range items {
+	// 	fmt.Println("\t", allProducts[item.ProductId].Name, "x"+fmt.Sprint(item.Quantity))
+	// }
+	//
 	filename := randFileName(".pdf")
-	err := pdf.OutputFileAndClose(filename)
-	return filename, err
+	file, err := os.CreateTemp(os.TempDir(), filename)
+	err = pdf.OutputAndClose(file)
+
+	return file.Name(), err
 }
 
 func randFileName(extension string) string {
@@ -26,4 +51,81 @@ func randFileName(extension string) string {
 		b[i] = letters[rand.Intn(len(letters))]
 	}
 	return string(b) + extension
+}
+
+func header(pdf *fpdf.Fpdf, grandTotal string) {
+	pdf.SetFillColor(237, 229, 149)
+	pdf.Rect(0, 0, 1000, 40, "F")
+
+	// Left header (business details)
+	pdf.SetY(paddingY)
+	pdf.SetFont("Arial", "B", 14)
+	pdf.CellFormat(40, 10, "Your Business", "0", 2, "0", false, 0, "0")
+	pdf.SetFont("Arial", "", 12)
+	pdf.CellFormat(40, 5, "(555) 555-555", "0", 2, "0", false, 0, "0")
+	pdf.CellFormat(40, 5, "123 N. Main Street", "0", 2, "0", false, 0, "0")
+	pdf.CellFormat(40, 5, "City ST, 55555", "0", 2, "0", false, 0, "0")
+
+	// Right header (invoice details)
+	right := pageW * 0.5
+	pdf.SetY(paddingY + 10)
+	pdf.SetX(right)
+	pdf.CellFormat(0, 5, "Invoice #:", "0", 0, "L", false, 0, "0")
+	pdf.CellFormat(0, 5, "12345", "0", 1, "R", false, 0, "0")
+
+	pdf.SetX(right)
+	pdf.CellFormat(0, 5, "Payment Due:", "0", 0, "L", false, 0, "0")
+	pdf.CellFormat(0, 5, "Saturday, December 15 2025", "0", 1, "R", false, 0, "0")
+
+	pdf.SetX(right)
+	pdf.SetFont("Arial", "B", 12)
+	pdf.CellFormat(0, 5, "Invoice Total:", "0", 0, "L", false, 0, "0")
+	pdf.CellFormat(0, 5, grandTotal, "0", 2, "R", false, 0, "0")
+
+	pdf.SetY(50)
+}
+
+func invItems(pdf *fpdf.Fpdf, items []db.InvoiceItem, allProducts map[int64]db.Product, grandTotal string) {
+	colWidths := []float64{pageW * .3, pageW * .2, pageW * .2, pageW * .2}
+	cols := []string{"Item", "Unit Price", "Quantity", "Total"}
+	alignment := []string{"L", "R", "R", "R"}
+
+	pdf.SetFont("Arial", "B", 12)
+	for i := range colWidths {
+		pdf.CellFormat(colWidths[i], 10, cols[i], "TB", 0, alignment[i], false, 0, "0")
+	}
+	pdf.Ln(-1)
+
+	pdf.SetFont("Arial", "", 12)
+	for _, item := range items {
+		product := allProducts[item.ProductId]
+
+		for i := range colWidths {
+			var content string
+
+			switch cols[i] {
+			case "Item":
+				content = product.Name
+			case "Unit Price":
+				content = "$" + humanize.FormatFloat("#,###.##", product.UnitPrice)
+			case "Quantity":
+				content = fmt.Sprintf("x%v", item.Quantity)
+			case "Total":
+				total := product.UnitPrice * float64(item.Quantity)
+				content = "$" + humanize.FormatFloat("#,###.##", total)
+			}
+
+			pdf.CellFormat(colWidths[i], 8, content, "", 0, alignment[i], false, 0, "0")
+		}
+		pdf.Ln(-1)
+	}
+
+	pdf.SetFont("Arial", "B", 12)
+	pdf.CellFormat(0, 10, grandTotal, "T", 0, "R", false, 0, "0")
+}
+
+func footer(pdf *fpdf.Fpdf) {
+	pdf.SetY(-15)
+	pdf.SetFont("Arial", "", 12)
+	pdf.Write(5, "Please make checks payable to Business Owner. Payment is due on the date listed on this document. Payments received after the listed date will be charged a $10 late fee.")
 }

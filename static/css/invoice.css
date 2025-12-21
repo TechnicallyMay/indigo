@@ -1,0 +1,22 @@
+#invoice {
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+    font-size: 0.16666in;
+}
+
+#header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+#business-data {
+    display: flex;
+    flex-direction: column;
+}
+
+#invoice-data {
+    border: none;
+    border-collapse: collapse;
+}

@@ -62,7 +62,7 @@ func main() {
 
 	customerHandler := handlers.NewCustomerHandler(*custTable)
 	billingHandler := handlers.NewBillingHandler(*invoiceBatchTable, *invoiceTable, *custTable, *productsTable, *invoiceItemTable, sender)
-	invoiceHandler := handlers.NewInvoiceHandler(*invoiceTable, *custTable, *invoiceItemTable, *productsTable)
+	invoiceHandler := handlers.NewInvoiceHandler(*invoiceTable, *custTable, *invoiceItemTable, *productsTable, *invoiceBatchTable)
 	invoiceItemHandler := handlers.NewInvoiceItemHandler(*invoiceItemTable, *productsTable)
 	productsHandler := handlers.NewProductHandler(*productsTable)
 
@@ -88,7 +88,9 @@ func main() {
 	mux.HandleFunc("PUT /customers/{id}", customerHandler.HandlePutCustomer)
 
 	mux.HandleFunc("GET /invoice", invoiceHandler.HandleQueryInvoice)
+	mux.HandleFunc("GET /invoice/{id}", invoiceHandler.HandleGetInvoice)
 	mux.HandleFunc("DELETE /invoice/{id}", invoiceHandler.HandleDeleteInvoice)
+	mux.HandleFunc("GET /invoice/preview/{id}", invoiceHandler.HandlePreviewInvoicePdf)
 
 	mux.HandleFunc("POST /invoiceItem/{invoiceId}/{productId}", invoiceItemHandler.HandleNewInvoiceItem)
 	mux.HandleFunc("PUT /invoiceItem/{invoiceId}/{productId}", invoiceItemHandler.HandleUpdateInvoiceItem)
