@@ -2,13 +2,13 @@
 
 ## Todo
 ### In Progress
-- [x] Save invoice batch metadata
-- [x] Join billing page into 1 page, edit vs not-edit
+- [x] Invoice notifications
+- [ ] Send email to actual customers
 - [ ] Settings page
 - [ ] Fill in invoice with actual info
 - [ ] oob button rendering when not Htmx-request
-- [ ] Invoice notifications
-- [ ] Send email to actual customers
+- [ ] Config file
+
 ### Short List
 
 ### Must
@@ -41,6 +41,8 @@
 * [ ] Docker?
 
 ### Archive
+- [x] Save invoice batch metadata
+- [x] Join billing page into 1 page, edit vs not-edit
 - [x] Select Due Date
 - [x] Write invoice subject & body
 - [x] Add a route for rendering viewInvoiceItem
@@ -151,6 +153,8 @@ type InvoiceNotification struct {
     CreatedAt int64
 
     State     State
+    Error     string
+
     SentAt    int64
     InvoiceId int64
     DueDate   int64 // Should be the same as the invoice batch, but keeping it flexible

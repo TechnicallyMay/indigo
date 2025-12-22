@@ -17,6 +17,7 @@ type BillingHandler struct {
 	custDb  db.CustomerTable
 	prodDb  db.ProductTable
 	itemDb  db.InvoiceItemTable
+	notDb   db.InvoiceNotificationTable
 	sender  sender.InvoiceSender
 }
 
@@ -28,9 +29,15 @@ type billingData struct {
 
 var billingHandlerInstance *BillingHandler
 
-func NewBillingHandler(batchDb db.InvoiceBatchTable, invDb db.InvoiceTable, custDb db.CustomerTable, prodDb db.ProductTable, itemDb db.InvoiceItemTable, sender sender.InvoiceSender) *BillingHandler {
+func NewBillingHandler(batchDb db.InvoiceBatchTable,
+	invDb db.InvoiceTable,
+	custDb db.CustomerTable,
+	prodDb db.ProductTable,
+	itemDb db.InvoiceItemTable,
+	sender sender.InvoiceSender,
+	notDb db.InvoiceNotificationTable) *BillingHandler {
 	if billingHandlerInstance == nil {
-		billingHandlerInstance = &BillingHandler{batchDb: batchDb, invDb: invDb, custDb: custDb, prodDb: prodDb, itemDb: itemDb, sender: sender}
+		billingHandlerInstance = &BillingHandler{batchDb: batchDb, invDb: invDb, custDb: custDb, prodDb: prodDb, itemDb: itemDb, sender: sender, notDb: notDb}
 	}
 
 	return billingHandlerInstance
@@ -238,8 +245,8 @@ func (h *BillingHandler) HandleSendBatch(w http.ResponseWriter, r *http.Request)
 	batch, err := h.batchDb.Get(id)
 	handleHttpError(w, err, 500)
 
-	if batch.State != db.Draft {
-		handleHttpError(w, errors.New("Invoice batches can only be sent from draft state currently."), 400)
+	if batch.State != db.Draft && batch.State != db.Failed {
+		handleHttpError(w, errors.New("Invoice batches can only be sent from draft or failed state currently."), 400)
 	}
 
 	batch.State = db.Sending
@@ -287,7 +294,6 @@ func (h *BillingHandler) getBatchData(id int64) (*billingData, error) {
 }
 
 func (h *BillingHandler) sendInvoices(batch db.InvoiceBatch) error {
-	time.Sleep(10 * time.Second)
 	query := db.CreateInvoiceQuery()
 	query.BatchId = batch.Id
 
@@ -316,16 +322,8 @@ func (h *BillingHandler) sendInvoices(batch db.InvoiceBatch) error {
 	var errs error
 	failCount := 0
 	for _, inv := range invs {
-		items, err := h.itemDb.List(inv.Id)
-		errs = errors.Join(errs, err)
-		if err != nil {
-			// TODO: Save to DB that this one failed
-			failCount++
-			continue
-		}
-		err = h.sender.SendInvoice(batch, custMap[inv.CustomerId], items, prodMap)
-		errs = errors.Join(errs, err)
-		if err != nil {
+		sent, _ := h.sendInvoice(batch, inv, custMap[inv.CustomerId], prodMap)
+		if !sent {
 			failCount++
 		}
 	}
@@ -342,4 +340,33 @@ func (h *BillingHandler) sendInvoices(batch db.InvoiceBatch) error {
 	h.batchDb.Update(batch)
 
 	return errs
+}
+
+func (h *BillingHandler) sendInvoice(batch db.InvoiceBatch, inv db.Invoice, cust db.Customer, prodMap map[int64]db.Product) (sent bool, error error) {
+	items, error := h.itemDb.List(inv.Id)
+
+	if error != nil {
+		return
+	}
+
+	error = h.sender.SendInvoice(batch, cust, items, prodMap)
+
+	notification := db.InvoiceNotification{
+		InvoiceId:  inv.Id,
+		DueDate:    batch.DueDate,
+		Successful: true,
+		SentAt:     time.Now().Unix(),
+	}
+
+	if error != nil {
+		notification.Error = error.Error()
+		notification.Successful = false
+	} else {
+		sent = true
+	}
+
+	_, err := h.notDb.Add(notification)
+	error = errors.Join(err, error)
+
+	return
 }

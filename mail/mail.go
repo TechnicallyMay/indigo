@@ -7,15 +7,18 @@ import (
 	"log"
 	"net/smtp"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 )
 
 type Mail struct {
 	To                 []string
+	Bcc                []string
 	From               string
 	Subject            string
 	Body               string
+	AttachmentFileName string
 	AttachmentFilePath string
 }
 
@@ -27,7 +30,9 @@ type SmtpClient struct {
 
 func (client SmtpClient) SendMail(mail Mail) error {
 	mailData := buildMailData(mail)
-	return smtp.SendMail(client.getFullAddress(), client.Auth, mail.From, mail.To, mailData)
+	// Cc works by including the addresses in the SendMail call but not in the message headers
+	allRecipients := slices.Concat(mail.To, mail.Bcc)
+	return smtp.SendMail(client.getFullAddress(), client.Auth, mail.From, allRecipients, mailData)
 }
 
 func readFile(fileName string) []byte {
@@ -42,29 +47,29 @@ func readFile(fileName string) []byte {
 func buildMailData(mail Mail) []byte {
 	var buf bytes.Buffer
 
-	buf.WriteString(fmt.Sprintf("From: %s\r\n", mail.From))
-	buf.WriteString(fmt.Sprintf("To: %s\r\n", strings.Join(mail.To, ",")))
-	buf.WriteString(fmt.Sprintf("Subject: %s\r\n", mail.Subject))
+	fmt.Fprintf(&buf, "From: %s\r\n", mail.From)
+	fmt.Fprintf(&buf, "To: %s\r\n", strings.Join(mail.To, ","))
+	fmt.Fprintf(&buf, fmt.Sprintf("Subject: %s\r\n", mail.Subject))
 
 	boundary := "doesthismatter"
-	buf.WriteString("MIME-Version: 1.0\r\n")
-	buf.WriteString(fmt.Sprintf("Content-Type: multipart/mixed; boundary=%s\n", boundary))
-	buf.WriteString(fmt.Sprintf("\r\n--%s\r\n", boundary))
-	buf.WriteString("Content-Type: text/plain;\r\n")
-	buf.WriteString(fmt.Sprintf("\r\n%s", mail.Body))
+	fmt.Fprintf(&buf, "MIME-Version: 1.0\r\n")
+	fmt.Fprintf(&buf, fmt.Sprintf("Content-Type: multipart/mixed; boundary=%s\n", boundary))
+	fmt.Fprintf(&buf, fmt.Sprintf("\r\n--%s\r\n", boundary))
+	fmt.Fprintf(&buf, "Content-Type: text/plain;\r\n")
+	fmt.Fprintf(&buf, fmt.Sprintf("\r\n%s", mail.Body))
 
-	buf.WriteString(fmt.Sprintf("\r\n--%s\r\n", boundary))
-	buf.WriteString("Content-Type: text/plain;\r\n")
-	buf.WriteString("Content-Transfer-Encoding: base64\r\n")
-	buf.WriteString("Content-Disposition: attachment; filename=" + mail.AttachmentFilePath + "\r\n")
-	buf.WriteString("Content-ID: <" + mail.AttachmentFilePath + ">\r\n\r\n")
+	fmt.Fprintf(&buf, fmt.Sprintf("\r\n--%s\r\n", boundary))
+	fmt.Fprintf(&buf, "Content-Type: text/plain;\r\n")
+	fmt.Fprintf(&buf, "Content-Transfer-Encoding: base64\r\n")
+	fmt.Fprintf(&buf, "Content-Disposition: attachment; filename="+mail.AttachmentFileName+"\r\n")
+	fmt.Fprintf(&buf, "Content-ID: <"+mail.AttachmentFilePath+">\r\n\r\n")
 
 	data := readFile(mail.AttachmentFilePath)
 	b := make([]byte, base64.StdEncoding.EncodedLen(len(data)))
 	base64.StdEncoding.Encode(b, data)
 	buf.Write(b)
-	buf.WriteString(fmt.Sprintf("\r\n--%s", boundary))
-	buf.WriteString("--")
+	fmt.Fprintf(&buf, fmt.Sprintf("\r\n--%s", boundary))
+	fmt.Fprintf(&buf, "--")
 
 	return buf.Bytes()
 }

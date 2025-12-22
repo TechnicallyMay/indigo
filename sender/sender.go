@@ -1,10 +1,9 @@
 package sender
 
 import (
-	"fmt"
-
 	"github.com/TechnicallyMay/indigo/db"
 	"github.com/TechnicallyMay/indigo/mail"
+	"github.com/TechnicallyMay/indigo/pdf"
 )
 
 type InvoiceSender struct {
@@ -12,15 +11,25 @@ type InvoiceSender struct {
 }
 
 func (s *InvoiceSender) SendInvoice(batch db.InvoiceBatch, cust db.Customer, items []db.InvoiceItem, allProducts map[int64]db.Product) error {
-	fmt.Println("-----------------")
-	fmt.Println("Sending invoice to", cust.FirstName, "@", cust.Email)
-	fmt.Println("Due Date", batch.DueDate)
-	fmt.Println("Items")
-	for _, item := range items {
-		fmt.Println("\t", allProducts[item.ProductId].Name, "x"+fmt.Sprint(item.Quantity))
+	pdf, err := pdf.MakeInvoicePdf(batch, cust, items, allProducts)
+	if err != nil {
+		return err
 	}
-	fmt.Println()
 
-	// pdf.MakeInvoicePdf()
-	return nil
+	mail := mail.Mail{
+		To:  []string{cust.Email},
+		Bcc: []string{"masonwells01@pm.me"},
+
+		From: "postmaster@sandbox6799805213174515aa97c14ef663c50e.mailgun.org", // TODO
+
+		Subject: batch.NotificationSubject,
+		Body:    batch.NotificationDescription,
+
+		AttachmentFilePath: pdf,
+		AttachmentFileName: "invoice.pdf",
+	}
+
+	err = s.MailClient.SendMail(mail)
+
+	return err
 }

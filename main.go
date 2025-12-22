@@ -16,16 +16,6 @@ import (
 func main() {
 	log.Println("Starting!")
 
-	// // PDF
-	// log.Println("making example pdf")
-	// pdfPath, err := pdf.MakeInvoicePdf()
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	//
-	// // MAIL
-	// log.Println("Sending an email")
-	//
 	var smtpPass string
 	passBuf, err := os.Open("/home/mason/smtppass.txt")
 
@@ -42,14 +32,6 @@ func main() {
 	auth := smtp.PlainAuth("", "postmaster@sandbox6799805213174515aa97c14ef663c50e.mailgun.org", smtpPass, "smtp.mailgun.org")
 	client := mail.SmtpClient{Host: "smtp.mailgun.org", Port: 587, Auth: auth}
 	sender := sender.InvoiceSender{MailClient: &client}
-	//
-	// msg := mail.Mail{From: "mail@chickpea-home.duckdns.org", To: []string{"masonwells01@gmail.com"}, Subject: "Test Mail", Body: "Test Message Body", AttachmentFilePath: pdfPath}
-	// err = client.SendMail(msg)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// MAIN
 
 	pool := db.OpenDb()
 	defer pool.Close()
@@ -59,9 +41,10 @@ func main() {
 	invoiceTable := db.InitInvoiceTable(pool)
 	invoiceItemTable := db.InitInvoiceItemTable(pool)
 	productsTable := db.InitProductTable(pool)
+	notTable := db.InitInvoiceNotificationTable(pool)
 
 	customerHandler := handlers.NewCustomerHandler(*custTable)
-	billingHandler := handlers.NewBillingHandler(*invoiceBatchTable, *invoiceTable, *custTable, *productsTable, *invoiceItemTable, sender)
+	billingHandler := handlers.NewBillingHandler(*invoiceBatchTable, *invoiceTable, *custTable, *productsTable, *invoiceItemTable, sender, *notTable)
 	invoiceHandler := handlers.NewInvoiceHandler(*invoiceTable, *custTable, *invoiceItemTable, *productsTable, *invoiceBatchTable)
 	invoiceItemHandler := handlers.NewInvoiceItemHandler(*invoiceItemTable, *productsTable)
 	productsHandler := handlers.NewProductHandler(*productsTable)
