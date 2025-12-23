@@ -57,7 +57,7 @@ func (h *BillingHandler) HandleGetNewBilling(w http.ResponseWriter, r *http.Requ
 	}
 	due = time.Date(due.Year(), due.Month(), 15, 0, 0, 0, 0, due.Location())
 	subj := "Invoice for " + due.Month().String()
-	desc := "Hello,\n\nThis is the invoice for " + due.Month().String()
+	desc := "Hello,\n\nThis is the invoice for " + due.Month().String() + "."
 
 	newBatch := db.InvoiceBatch{State: db.Draft, DueDate: due.Unix(), FinishedSendingAt: 0, NotificationSubject: subj, NotificationDescription: desc}
 	newId := h.batchDb.Add(newBatch)
@@ -99,7 +99,9 @@ func (h *BillingHandler) HandleEditBatchDetails(w http.ResponseWriter, r *http.R
 	handleHttpError(w, err, 404)
 
 	if batch.State == db.Draft {
-		renderTemplate(w, r, newRenderOpts("invbatch/detailsedit", &batch, "invBatchDetailsEdit"))
+		opts := newRenderOpts("invbatch/detailsedit", &batch, "invBatchDetailsEdit")
+		opts.hasOobs = true
+		renderTemplate(w, r, opts)
 	} else {
 		handleHttpError(w, errors.New("Can't edit details of a non-draft batch"), 400)
 	}
@@ -117,7 +119,9 @@ func (h *BillingHandler) HandleViewBatchDetails(w http.ResponseWriter, r *http.R
 	batch, err := h.batchDb.Get(id)
 	handleHttpError(w, err, 404)
 
-	renderTemplate(w, r, newRenderOpts("invbatch/detailsview", &batch, "invBatchDetailsView"))
+	opts := newRenderOpts("invbatch/detailsview", &batch, "invBatchDetailsView")
+	opts.hasOobs = true
+	renderTemplate(w, r, opts)
 }
 
 func (h *BillingHandler) HandleDeleteInvoiceFromBatch(w http.ResponseWriter, r *http.Request) {

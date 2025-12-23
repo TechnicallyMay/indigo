@@ -6,10 +6,11 @@
 - [x] Send email to actual customers
 - [x] Settings page
 - [x] Fill in invoice with actual info
-- [ ] Fix invoice number rendering on pdf
-- [ ] New setting for invoice footer
-- [ ] oob button rendering when not Htmx-request
+- [x] Fix invoice number rendering on pdf
+- [x] New setting for invoice footer
+- [x] oob button rendering when not Htmx-request
 - [ ] Config file
+- [ ] Sums on batch page
 
 ### Short List
 

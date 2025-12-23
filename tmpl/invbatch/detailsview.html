@@ -1,5 +1,8 @@
-{{ define "invBatchDetailsView" }}
+{{ define "oobs" }}
 <button id="send-invoice-button" hx-swap-oob="outerHTML" type="button" hx-confirm="Send notifications?" hx-post="/billing/send/{{ .Id }}">Send</button>
+{{ end }}
+
+{{ define "invBatchDetailsView" }}
 <div id="inv-batch-details">
     <div class="flex-row gap-sm">
         <h5>Details</h5>

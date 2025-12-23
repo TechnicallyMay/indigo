@@ -16,6 +16,7 @@ type renderOpts struct {
 	prereqTemplates []string
 	data            any
 	entrypoints     []string
+	hasOobs         bool
 }
 
 func newRenderOpts(name string, data any, entrypoints ...string) renderOpts {
@@ -42,8 +43,11 @@ func renderTemplate(writer io.Writer, r *http.Request, opts renderOpts) {
 		template := getOrParse(toRender...)
 
 		for _, ep := range opts.entrypoints {
-			log.Println("Executing", ep)
 			err = template.ExecuteTemplate(writer, ep, opts.data)
+		}
+
+		if opts.hasOobs {
+			err = template.ExecuteTemplate(writer, "oobs", opts.data)
 		}
 	} else {
 		toRender := append(toRender, "base")

@@ -24,7 +24,7 @@ main {
     padding: var(--pico-spacing);
 }
 
-#main-header > * {
+#main-header * {
     margin-bottom: 0;
 }
 

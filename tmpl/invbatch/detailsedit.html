@@ -1,4 +1,4 @@
-{{ define "invBatchDetailsEdit" }}
+{{ define "oobs" }}
 <button id="send-invoice-button"
     hx-swap-oob="outerHTML" type="button"
     hx-confirm="Send notifications?"
@@ -7,7 +7,9 @@
     disabled="true">
     Send
 </button>
+{{ end }}
 
+{{ define "invBatchDetailsEdit" }}
 <div id="inv-batch-details">
     <h5>Details</h5>
     <form id="inv-batch-details" hx-put="/billing/{{ .Id }}" hx-swap="outerHTML" hx-target="#inv-batch-details">
