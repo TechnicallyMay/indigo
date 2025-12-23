@@ -2,7 +2,6 @@ package db
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 )
 
@@ -142,7 +141,6 @@ func (h *SettingsTable) SetMany(settings map[string]string) error {
 	stmnt, err := tx.Prepare(`
 		REPLACE INTO settings(key, value)
 		VALUES((?), (?));`)
-	fmt.Println("1a")
 
 	if err != nil {
 		return err

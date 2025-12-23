@@ -12,13 +12,14 @@ import (
 )
 
 type BillingHandler struct {
-	batchDb db.InvoiceBatchTable
-	invDb   db.InvoiceTable
-	custDb  db.CustomerTable
-	prodDb  db.ProductTable
-	itemDb  db.InvoiceItemTable
-	notDb   db.InvoiceNotificationTable
-	sender  sender.InvoiceSender
+	batchDb    db.InvoiceBatchTable
+	invDb      db.InvoiceTable
+	custDb     db.CustomerTable
+	prodDb     db.ProductTable
+	itemDb     db.InvoiceItemTable
+	notDb      db.InvoiceNotificationTable
+	sender     sender.InvoiceSender
+	settingsDb db.SettingsTable
 }
 
 type billingData struct {
@@ -35,9 +36,10 @@ func NewBillingHandler(batchDb db.InvoiceBatchTable,
 	prodDb db.ProductTable,
 	itemDb db.InvoiceItemTable,
 	sender sender.InvoiceSender,
-	notDb db.InvoiceNotificationTable) *BillingHandler {
+	notDb db.InvoiceNotificationTable,
+	settingsDb db.SettingsTable) *BillingHandler {
 	if billingHandlerInstance == nil {
-		billingHandlerInstance = &BillingHandler{batchDb: batchDb, invDb: invDb, custDb: custDb, prodDb: prodDb, itemDb: itemDb, sender: sender, notDb: notDb}
+		billingHandlerInstance = &BillingHandler{batchDb: batchDb, invDb: invDb, custDb: custDb, prodDb: prodDb, itemDb: itemDb, sender: sender, notDb: notDb, settingsDb: settingsDb}
 	}
 
 	return billingHandlerInstance
@@ -319,10 +321,15 @@ func (h *BillingHandler) sendInvoices(batch db.InvoiceBatch) error {
 		prodMap[prod.Id] = prod
 	}
 
+	settings, err := h.settingsDb.GetAll()
+	if err != nil {
+		return err
+	}
+
 	var errs error
 	failCount := 0
 	for _, inv := range invs {
-		sent, _ := h.sendInvoice(batch, inv, custMap[inv.CustomerId], prodMap)
+		sent, _ := h.sendInvoice(settings, batch, inv, custMap[inv.CustomerId], prodMap)
 		if !sent {
 			failCount++
 		}
@@ -342,14 +349,14 @@ func (h *BillingHandler) sendInvoices(batch db.InvoiceBatch) error {
 	return errs
 }
 
-func (h *BillingHandler) sendInvoice(batch db.InvoiceBatch, inv db.Invoice, cust db.Customer, prodMap map[int64]db.Product) (sent bool, error error) {
+func (h *BillingHandler) sendInvoice(settings db.IndigoSettings, batch db.InvoiceBatch, inv db.Invoice, cust db.Customer, prodMap map[int64]db.Product) (sent bool, error error) {
 	items, error := h.itemDb.List(inv.Id)
 
 	if error != nil {
 		return
 	}
 
-	error = h.sender.SendInvoice(batch, cust, items, prodMap)
+	error = h.sender.SendInvoice(settings, batch, inv, cust, items, prodMap)
 
 	notification := db.InvoiceNotification{
 		InvoiceId:  inv.Id,

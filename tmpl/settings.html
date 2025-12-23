@@ -89,7 +89,7 @@
         <label>
             Email Bccs
             <input type="text"
-                   name="invoiceBccs"
+                   name="emailBccs"
                    data-tooltip="Comma separated list of addresses to bcc in each invoice email"
                    placeholder="Emails to bcc on each invoice"
                    value="{{ .EmailBccs }}">
@@ -106,8 +106,12 @@
                    placeholder="Invoice Footer">{{ .InvoiceFooter }}</textarea>
         </label>
 
-        <div class="flex-row full-width gap-sm flex-end">
-            <button type="button" class="secondary button-md">Preview</button>
+        <div class="flex-row full-width gap-sm flex-end flex-center">
+            <a href="/invoice/preview/sample"
+               download="sample-invocie.pdf"
+               target="_blank">
+              Preview
+            </a>
             <input type="submit" class="button-md" value="Save"></input>
         </div>
     </form>

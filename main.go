@@ -45,7 +45,7 @@ func main() {
 	settingsTable := db.InitSettingsTable(pool)
 
 	customerHandler := handlers.NewCustomerHandler(*custTable)
-	billingHandler := handlers.NewBillingHandler(*invoiceBatchTable, *invoiceTable, *custTable, *productsTable, *invoiceItemTable, sender, *notTable)
+	billingHandler := handlers.NewBillingHandler(*invoiceBatchTable, *invoiceTable, *custTable, *productsTable, *invoiceItemTable, sender, *notTable, *settingsTable)
 	invoiceHandler := handlers.NewInvoiceHandler(*invoiceTable, *custTable, *invoiceItemTable, *productsTable, *invoiceBatchTable, *settingsTable)
 	invoiceItemHandler := handlers.NewInvoiceItemHandler(*invoiceItemTable, *productsTable)
 	productsHandler := handlers.NewProductHandler(*productsTable)
@@ -76,6 +76,7 @@ func main() {
 	mux.HandleFunc("GET /invoice/{id}", invoiceHandler.HandleGetInvoice)
 	mux.HandleFunc("DELETE /invoice/{id}", invoiceHandler.HandleDeleteInvoice)
 	mux.HandleFunc("GET /invoice/preview/{id}", invoiceHandler.HandlePreviewInvoicePdf)
+	mux.HandleFunc("GET /invoice/preview/sample", invoiceHandler.HandleSampleInvoicePdf)
 
 	mux.HandleFunc("POST /invoiceItem/{invoiceId}/{productId}", invoiceItemHandler.HandleNewInvoiceItem)
 	mux.HandleFunc("PUT /invoiceItem/{invoiceId}/{productId}", invoiceItemHandler.HandleUpdateInvoiceItem)

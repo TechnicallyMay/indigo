@@ -129,6 +129,7 @@ main {
 }
 
 .button-md {
+    margin-bottom: 0 !important;
     width: 200px !important;
 }
 

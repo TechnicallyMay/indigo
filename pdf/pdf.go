@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"os"
 	"strconv"
+	"strings"
 
 	"codeberg.org/go-pdf/fpdf"
 	"github.com/TechnicallyMay/indigo/db"
@@ -51,7 +52,7 @@ func randFileName(extension string) string {
 
 func header(pdf *fpdf.Fpdf, batch db.InvoiceBatch, inv db.Invoice, settings db.IndigoSettings, grandTotal string) {
 	r, g, b, err := hexToRgb(settings.InvoiceColor)
-	if err != nil {
+	if err == nil {
 		pdf.SetFillColor(r, g, b)
 	} else {
 		pdf.SetFillColor(237, 229, 149)
@@ -72,7 +73,7 @@ func header(pdf *fpdf.Fpdf, batch db.InvoiceBatch, inv db.Invoice, settings db.I
 	pdf.SetY(paddingY + 10)
 	pdf.SetX(right)
 	pdf.CellFormat(0, 5, "Invoice #:", "0", 0, "L", false, 0, "0")
-	pdf.CellFormat(0, 5, string(inv.Id), "0", 1, "R", false, 0, "0")
+	pdf.CellFormat(0, 5, fmt.Sprint(inv.Id), "0", 1, "R", false, 0, "0")
 
 	pdf.SetX(right)
 	pdf.CellFormat(0, 5, "Payment Due:", "0", 0, "L", false, 0, "0")
@@ -132,6 +133,7 @@ func footer(pdf *fpdf.Fpdf, settings db.IndigoSettings) {
 }
 
 func hexToRgb(hex string) (r, g, b int, error error) {
+	hex = strings.TrimLeft(hex, "#")
 	values, error := strconv.ParseInt(hex, 16, 64)
 
 	if error != nil {

@@ -3,9 +3,11 @@
 ## Todo
 ### In Progress
 - [x] Invoice notifications
-- [ ] Send email to actual customers
-- [ ] Settings page
-- [ ] Fill in invoice with actual info
+- [x] Send email to actual customers
+- [x] Settings page
+- [x] Fill in invoice with actual info
+- [ ] Fix invoice number rendering on pdf
+- [ ] New setting for invoice footer
 - [ ] oob button rendering when not Htmx-request
 - [ ] Config file
 

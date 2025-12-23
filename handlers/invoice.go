@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/TechnicallyMay/indigo/db"
 	"github.com/TechnicallyMay/indigo/pdf"
@@ -142,6 +143,76 @@ func (h *InvoiceHandler) HandlePreviewInvoicePdf(w http.ResponseWriter, r *http.
 	settings, err := h.settingsDb.GetAll()
 	handleHttpError(w, err, 500)
 	path, err := pdf.MakeInvoicePdf(settings, batch, data.Invoice, data.Customer, data.Items, data.Products)
+	handleHttpError(w, err, 500)
+	AddAttachment(w, path, "invoice.pdf")
+}
+
+func (h *InvoiceHandler) HandleSampleInvoicePdf(w http.ResponseWriter, r *http.Request) {
+	now := time.Now()
+
+	batch := db.InvoiceBatch{
+		Id:                      -1,
+		CreatedAt:               now.Unix(),
+		DueDate:                 now.AddDate(0, 0, 15).Unix(),
+		NotificationSubject:     "Test Batch",
+		NotificationDescription: "This is a test invoice batch",
+		State:                   db.Draft,
+	}
+
+	customer := db.Customer{
+		Id:        -1,
+		Version:   1,
+		CreatedAt: now.Unix(),
+		FirstName: "Jane",
+		LastName:  "Doe",
+		Email:     "jane.doe@email.com",
+	}
+
+	invoice := db.Invoice{
+		Id:              12345,
+		CreatedAt:       now.Unix(),
+		BatchId:         batch.Id,
+		CustomerId:      customer.Id,
+		CustomerVersion: customer.Version,
+	}
+
+	prod1 := db.Product{
+		Id:          1,
+		Version:     1,
+		CreatedAt:   now.Unix(),
+		Name:        "Apple",
+		Description: "A juicy apple",
+		UnitPrice:   2.96,
+	}
+
+	prod2 := db.Product{
+		Id:          2,
+		Version:     1,
+		CreatedAt:   now.Unix(),
+		Name:        "1 hr Lawn Mowing",
+		Description: "Mowed your lawn for 1 hour",
+		UnitPrice:   50,
+	}
+
+	products := make(map[int64]db.Product, 0)
+	products[prod1.Id] = prod1
+	products[prod2.Id] = prod2
+
+	items := make([]db.InvoiceItem, 0)
+	items = append(items, db.InvoiceItem{
+		InvoiceId: invoice.Id,
+		ProductId: prod1.Id,
+		Quantity:  15,
+	})
+	items = append(items, db.InvoiceItem{
+		InvoiceId: invoice.Id,
+		ProductId: prod2.Id,
+		Quantity:  2,
+	})
+
+	settings, err := h.settingsDb.GetAll()
+	handleHttpError(w, err, 500)
+	path, err := pdf.MakeInvoicePdf(settings, batch, invoice, customer, items, products)
 	handleHttpError(w, err, 500)
 	AddAttachment(w, path, "invoice.pdf")
 }
