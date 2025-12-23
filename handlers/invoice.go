@@ -10,11 +10,12 @@ import (
 )
 
 type InvoiceHandler struct {
-	batchDb   db.InvoiceBatchTable
-	invDb     db.InvoiceTable
-	custDb    db.CustomerTable
-	invItemDb db.InvoiceItemTable
-	prodDb    db.ProductTable
+	batchDb    db.InvoiceBatchTable
+	invDb      db.InvoiceTable
+	custDb     db.CustomerTable
+	invItemDb  db.InvoiceItemTable
+	prodDb     db.ProductTable
+	settingsDb db.SettingsTable
 }
 
 // Data required to populate the invoice template
@@ -55,9 +56,9 @@ func (d *invoiceData) GetUnusedProducts() []db.Product {
 
 var invoiceHandlerInstance *InvoiceHandler
 
-func NewInvoiceHandler(invDb db.InvoiceTable, custDb db.CustomerTable, invItemDb db.InvoiceItemTable, prodDb db.ProductTable, batchDb db.InvoiceBatchTable) *InvoiceHandler {
+func NewInvoiceHandler(invDb db.InvoiceTable, custDb db.CustomerTable, invItemDb db.InvoiceItemTable, prodDb db.ProductTable, batchDb db.InvoiceBatchTable, settingsDb db.SettingsTable) *InvoiceHandler {
 	if invoiceHandlerInstance == nil {
-		invoiceHandlerInstance = &InvoiceHandler{invDb: invDb, custDb: custDb, invItemDb: invItemDb, prodDb: prodDb, batchDb: batchDb}
+		invoiceHandlerInstance = &InvoiceHandler{invDb: invDb, custDb: custDb, invItemDb: invItemDb, prodDb: prodDb, batchDb: batchDb, settingsDb: settingsDb}
 	}
 
 	return invoiceHandlerInstance
@@ -138,7 +139,9 @@ func (h *InvoiceHandler) HandlePreviewInvoicePdf(w http.ResponseWriter, r *http.
 
 	batch, err := h.batchDb.Get(data.Invoice.BatchId)
 	handleHttpError(w, err, 500)
-	path, err := pdf.MakeInvoicePdf(batch, data.Customer, data.Items, data.Products)
+	settings, err := h.settingsDb.GetAll()
+	handleHttpError(w, err, 500)
+	path, err := pdf.MakeInvoicePdf(settings, batch, data.Invoice, data.Customer, data.Items, data.Products)
 	handleHttpError(w, err, 500)
 	AddAttachment(w, path, "invoice.pdf")
 }

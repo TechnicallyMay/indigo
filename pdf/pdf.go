@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"strconv"
 
 	"codeberg.org/go-pdf/fpdf"
 	"github.com/TechnicallyMay/indigo/db"
@@ -16,7 +17,7 @@ var pageW float64 = 210
 
 var paddingY float64 = 5
 
-func MakeInvoicePdf(batch db.InvoiceBatch, cust db.Customer, items []db.InvoiceItem, allProducts map[int64]db.Product) (string, error) {
+func MakeInvoicePdf(settings db.IndigoSettings, batch db.InvoiceBatch, inv db.Invoice, cust db.Customer, items []db.InvoiceItem, allProducts map[int64]db.Product) (string, error) {
 	grandTotal := 0.0
 	for _, it := range items {
 		grandTotal += float64(it.Quantity) * allProducts[it.ProductId].UnitPrice
@@ -24,18 +25,13 @@ func MakeInvoicePdf(batch db.InvoiceBatch, cust db.Customer, items []db.InvoiceI
 	totalStr := "$" + humanize.FormatFloat("#,###.##", grandTotal)
 
 	pdf := fpdf.New("P", "mm", "A4", "")
-	pdf.SetHeaderFunc(func() { header(pdf, totalStr) })
-	pdf.SetFooterFunc(func() { footer(pdf) })
+	pdf.SetHeaderFunc(func() { header(pdf, batch, inv, settings, totalStr) })
+	pdf.SetFooterFunc(func() { footer(pdf, settings) })
 	pdf.AliasNbPages("")
 
 	pdf.AddPage()
 	invItems(pdf, items, allProducts, totalStr)
 
-	// fmt.Println("Due Date", batch.DueDate)
-	// for _, item := range items {
-	// 	fmt.Println("\t", allProducts[item.ProductId].Name, "x"+fmt.Sprint(item.Quantity))
-	// }
-	//
 	filename := randFileName(".pdf")
 	file, err := os.CreateTemp(os.TempDir(), filename)
 	err = pdf.OutputAndClose(file)
@@ -53,29 +49,34 @@ func randFileName(extension string) string {
 	return string(b) + extension
 }
 
-func header(pdf *fpdf.Fpdf, grandTotal string) {
-	pdf.SetFillColor(237, 229, 149)
+func header(pdf *fpdf.Fpdf, batch db.InvoiceBatch, inv db.Invoice, settings db.IndigoSettings, grandTotal string) {
+	r, g, b, err := hexToRgb(settings.InvoiceColor)
+	if err != nil {
+		pdf.SetFillColor(r, g, b)
+	} else {
+		pdf.SetFillColor(237, 229, 149)
+	}
 	pdf.Rect(0, 0, 1000, 40, "F")
 
 	// Left header (business details)
 	pdf.SetY(paddingY)
 	pdf.SetFont("Arial", "B", 14)
-	pdf.CellFormat(40, 10, "Your Business", "0", 2, "0", false, 0, "0")
+	pdf.CellFormat(40, 10, settings.BusinessName, "0", 2, "0", false, 0, "0")
 	pdf.SetFont("Arial", "", 12)
-	pdf.CellFormat(40, 5, "(555) 555-555", "0", 2, "0", false, 0, "0")
-	pdf.CellFormat(40, 5, "123 N. Main Street", "0", 2, "0", false, 0, "0")
-	pdf.CellFormat(40, 5, "City ST, 55555", "0", 2, "0", false, 0, "0")
+	pdf.CellFormat(40, 5, settings.BusinessPhone, "0", 2, "0", false, 0, "0")
+	pdf.CellFormat(40, 5, settings.BusinessAddr, "0", 2, "0", false, 0, "0")
+	pdf.CellFormat(40, 5, fmt.Sprintf("%s %s, %v", settings.BusinessCity, settings.BusinessState, settings.BusinessZip), "0", 2, "0", false, 0, "0")
 
 	// Right header (invoice details)
 	right := pageW * 0.5
 	pdf.SetY(paddingY + 10)
 	pdf.SetX(right)
 	pdf.CellFormat(0, 5, "Invoice #:", "0", 0, "L", false, 0, "0")
-	pdf.CellFormat(0, 5, "12345", "0", 1, "R", false, 0, "0")
+	pdf.CellFormat(0, 5, string(inv.Id), "0", 1, "R", false, 0, "0")
 
 	pdf.SetX(right)
 	pdf.CellFormat(0, 5, "Payment Due:", "0", 0, "L", false, 0, "0")
-	pdf.CellFormat(0, 5, "Saturday, December 15 2025", "0", 1, "R", false, 0, "0")
+	pdf.CellFormat(0, 5, batch.GetDueDateStr(), "0", 1, "R", false, 0, "0")
 
 	pdf.SetX(right)
 	pdf.SetFont("Arial", "B", 12)
@@ -124,8 +125,22 @@ func invItems(pdf *fpdf.Fpdf, items []db.InvoiceItem, allProducts map[int64]db.P
 	pdf.CellFormat(0, 10, grandTotal, "T", 0, "R", false, 0, "0")
 }
 
-func footer(pdf *fpdf.Fpdf) {
+func footer(pdf *fpdf.Fpdf, settings db.IndigoSettings) {
 	pdf.SetY(-15)
 	pdf.SetFont("Arial", "", 12)
-	pdf.Write(5, "Please make checks payable to Business Owner. Payment is due on the date listed on this document. Payments received after the listed date will be charged a $10 late fee.")
+	pdf.Write(5, settings.InvoiceFooter)
+}
+
+func hexToRgb(hex string) (r, g, b int, error error) {
+	values, error := strconv.ParseInt(hex, 16, 64)
+
+	if error != nil {
+		return
+	}
+
+	r = int(values >> 16)
+	g = int((values >> 8) & 0xFF)
+	b = int(values & 0xFF)
+
+	return
 }

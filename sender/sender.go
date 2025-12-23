@@ -1,6 +1,8 @@
 package sender
 
 import (
+	"strings"
+
 	"github.com/TechnicallyMay/indigo/db"
 	"github.com/TechnicallyMay/indigo/mail"
 	"github.com/TechnicallyMay/indigo/pdf"
@@ -10,7 +12,7 @@ type InvoiceSender struct {
 	MailClient *mail.SmtpClient
 }
 
-func (s *InvoiceSender) SendInvoice(batch db.InvoiceBatch, cust db.Customer, items []db.InvoiceItem, allProducts map[int64]db.Product) error {
+func (s *InvoiceSender) SendInvoice(settings db.IndigoSettings, batch db.InvoiceBatch, cust db.Customer, items []db.InvoiceItem, allProducts map[int64]db.Product) error {
 	pdf, err := pdf.MakeInvoicePdf(batch, cust, items, allProducts)
 	if err != nil {
 		return err
@@ -18,7 +20,7 @@ func (s *InvoiceSender) SendInvoice(batch db.InvoiceBatch, cust db.Customer, ite
 
 	mail := mail.Mail{
 		To:  []string{cust.Email},
-		Bcc: []string{"masonwells01@pm.me"},
+		Bcc: strings.Split(settings.EmailBccs, ","),
 
 		From: "postmaster@sandbox6799805213174515aa97c14ef663c50e.mailgun.org", // TODO
 
