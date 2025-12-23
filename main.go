@@ -42,12 +42,14 @@ func main() {
 	invoiceItemTable := db.InitInvoiceItemTable(pool)
 	productsTable := db.InitProductTable(pool)
 	notTable := db.InitInvoiceNotificationTable(pool)
+	settingsTable := db.InitSettingsTable(pool)
 
 	customerHandler := handlers.NewCustomerHandler(*custTable)
 	billingHandler := handlers.NewBillingHandler(*invoiceBatchTable, *invoiceTable, *custTable, *productsTable, *invoiceItemTable, sender, *notTable)
 	invoiceHandler := handlers.NewInvoiceHandler(*invoiceTable, *custTable, *invoiceItemTable, *productsTable, *invoiceBatchTable)
 	invoiceItemHandler := handlers.NewInvoiceItemHandler(*invoiceItemTable, *productsTable)
 	productsHandler := handlers.NewProductHandler(*productsTable)
+	settingsHandler := handlers.NewSettingsHandler(*settingsTable)
 
 	mux := http.NewServeMux()
 	mux.Handle("GET /js/", http.StripPrefix("/js/", http.FileServer(http.Dir("./static/js"))))
@@ -89,7 +91,8 @@ func main() {
 
 	mux.HandleFunc("GET /records/", handlers.HandleGetRecords)
 
-	mux.HandleFunc("GET /settings/", handlers.HandleGetSettings)
+	mux.HandleFunc("GET /settings/", settingsHandler.HandleGetSettings)
+	mux.HandleFunc("PUT /settings/", settingsHandler.HandlePutSettings)
 
 	server := &http.Server{
 		Addr:    ":8080",

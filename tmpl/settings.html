@@ -1,7 +1,115 @@
 {{ template "base" . }}
 
+{{ define "header" }}
+<div id="main-header" hx-swap-oob="true" class="flex-row full-width space-between flex-center">
+    <h4>Settings</h4>
+</div>
+{{ end }}
+
 {{ define "content" }}
-<h4>
-    Settings!
-</h4>
+
+<div id="settings-content" class="widget">
+    <hgroup>
+        <h5>Invoice Settings</h5>
+        <p>The following information is added to each invoice</p>
+    </hgroup>
+
+    <form class="flex-row gap-md flex-wrap"
+          hx-put="/settings"
+          hx-swap="outerHTML"
+          hx-target="#settings-content">
+
+        <label>
+            Business Name
+            <input type="text"
+                   name="businessName"
+                   placeholder="Business Name"
+                   value="{{ .BusinessName }}">
+            </input>
+        </label>
+
+        <label>
+            Business Phone
+            <input type="tel"
+                   name="businessPhone"
+                   placeholder="Business Phone"
+                   value="{{ .BusinessPhone }}">
+            </input>
+        </label>
+
+        <div class="full-width"></div>
+
+        <label>
+            Business Address
+            <input type="text"
+                   name="businessAddress"
+                   placeholder="Business Address"
+                   value="{{ .BusinessAddr }}">
+            </input>
+        </label>
+
+        <label>
+            Business City
+            <input type="text"
+                   name="businessCity"
+                   placeholder="Business City"
+                   value="{{ .BusinessCity }}">
+            </input>
+        </label>
+
+        <label>
+            Business State
+            <input type="text"
+                   name="businessState"
+                   placeholder="Business State"
+                   value="{{ .BusinessState }}">
+            </input>
+        </label>
+
+        <label>
+            Business Zip
+            <input type="number"
+                   name="businessZip"
+                   placeholder="Business Zip"
+                   value="{{ .BusinessZip }}">
+            </input>
+        </label>
+
+        <div class="full-width"></div>
+
+        <label>
+            Invoice Color
+            <input type="color"
+                   name="invoiceColor"
+                   placeholder="Invoice Color"
+                   value="{{ .InvoiceColor }}">
+            </input>
+        </label>
+
+        <label>
+            Email Bccs
+            <input type="text"
+                   name="invoiceBccs"
+                   data-tooltip="Comma separated list of addresses to bcc in each invoice email"
+                   placeholder="Emails to bcc on each invoice"
+                   value="{{ .EmailBccs }}">
+            </input>
+        </label>
+
+        <div class="full-width"></div>
+
+        <label class="full-width">
+            Invoice Footer
+            <textarea
+                   class="full-width"
+                   name="invoiceFooter"
+                   placeholder="Invoice Footer">{{ .InvoiceFooter }}</textarea>
+        </label>
+
+        <div class="flex-row full-width gap-sm flex-end">
+            <button type="button" class="secondary button-md">Preview</button>
+            <input type="submit" class="button-md" value="Save"></input>
+        </div>
+    </form>
+</div>
 {{ end }}

@@ -28,6 +28,11 @@ main {
     margin-bottom: 0;
 }
 
+#main-header > h4 {
+    height: 65px;
+    line-height: 65px;
+}
+
 .flex-row {
     display: flex;
     flex-direction: row;
@@ -48,6 +53,10 @@ main {
 
 .flex-center {
     align-items: center;
+}
+
+.flex-wrap {
+    flex-wrap: wrap;
 }
 
 .flex-spacer {
