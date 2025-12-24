@@ -1,7 +1,16 @@
 {{ template "base" . }}
 
 {{ define "header" }}
-<div id="main-header" hx-swap-oob="outerHTML" class="flex-row full-width space-between flex-center">
+<div id="main-header"
+     {{ if eq .Batch.State.String "Sending" }}
+     hx-get="/billing/{{ .Batch.Id }}"
+     hx-trigger="load delay:1s"
+     hx-target="#main-header"
+     hx-select="#main-header"
+     {{ end }}
+
+     hx-swap-oob="outerHTML"
+     class="flex-row full-width space-between flex-center">
     <h4>Billing - (Batch {{ .Batch.Id }}) - {{ .Batch.State.String }}</h4>
 
     <div class="flex-row gap-sm">
@@ -21,7 +30,9 @@
 {{ end }}
 
 {{ define "content" }}
-<div id="invoice-batch-details" class="flex-column gap-sm widget">
+<div id="invoice-batch-details"
+
+    class="flex-column gap-sm widget">
     {{ template "invBatchDetailsView" .Batch }}
 </div>
 <div class="flex-column widget">

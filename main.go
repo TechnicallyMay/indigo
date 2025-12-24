@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/smtp"
 	"os"
+	"strings"
 
 	"github.com/TechnicallyMay/indigo/appsettings"
 	"github.com/TechnicallyMay/indigo/db"
@@ -23,7 +24,7 @@ func main() {
 	}
 
 	passBytes, err := os.ReadFile(settings.Smtp.PassFile)
-	smtpPass := string(passBytes)
+	smtpPass := strings.TrimSpace(string(passBytes))
 
 	auth := smtp.PlainAuth("", settings.Smtp.From, smtpPass, settings.Smtp.Host)
 	client := mail.SmtpClient{Host: settings.Smtp.Host, Port: settings.Smtp.Port, Auth: auth}

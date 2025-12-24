@@ -3,7 +3,7 @@
 ## Todo
 ### In Progress
 
-- [ ] Loading indicator & polling on invoice send
+- [x] Loading indicator & polling on invoice send
 ### Short List
 - [ ] Billing page totals need oob updates
 
