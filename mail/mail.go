@@ -31,7 +31,10 @@ type SmtpClient struct {
 func (client SmtpClient) SendMail(mail Mail) error {
 	mailData := buildMailData(mail)
 	// Cc works by including the addresses in the SendMail call but not in the message headers
-	allRecipients := slices.Concat(mail.To, mail.Bcc)
+	allRecipients := slices.Concat(mail.To)
+	if len(mail.Bcc) > 0 {
+		allRecipients = append(allRecipients, mail.Bcc...)
+	}
 	return smtp.SendMail(client.getFullAddress(), client.Auth, mail.From, allRecipients, mailData)
 }
 

@@ -38,7 +38,7 @@ func InitCustomerTable(db *sql.DB) *CustomerTable {
 
             first_name TEXT NOT NULL,
             last_name TEXT NOT NULL,
-            email TEXT NOT NULL UNIQUE,
+            email TEXT NOT NULL,
 			PRIMARY KEY (id, version)
         );
     `)
@@ -135,26 +135,69 @@ func (h *CustomerTable) Add(cust Customer) int64 {
 func (h *CustomerTable) Update(cust Customer) int64 {
 	log.Printf("Updating existing customer with id %v.\n", cust.Id)
 
-	res, err := h.db.Exec(`
+	tx, err := h.db.Begin()
+	if err != nil {
+		log.Fatal("Error when updating customer.", err)
+	}
+
+	res, err := tx.Exec(`
 		INSERT INTO customer (id, version, created_at, first_name, last_name, email) 
 		VALUES (?, (SELECT MAX(version) + 1 FROM customer WHERE id == (?)), strftime('%s', 'now'), ?, ?, ?);`, cust.Id, cust.Id, cust.FirstName, cust.LastName, cust.Email)
 
 	if err != nil {
+		tx.Rollback()
 		log.Fatal("Error when updating customer.", err)
 	}
 
 	rowsAffected, err := res.RowsAffected()
 
 	if err != nil {
+		tx.Rollback()
 		log.Fatal("Error when determining if update was successful.", err)
 	}
 
 	if rowsAffected == 0 {
+		tx.Rollback()
 		log.Fatal("Attempted update didn't modify any rows for id.", err)
 	}
 
-	log.Println("Successfully updated customer.")
+	row := tx.QueryRow(`
+		SELECT version
+		FROM customer 
+		WHERE id = (?)
+		ORDER BY version DESC
+		LIMIT 1;`, cust.Id)
 
+	var newVer int
+	if err := row.Scan(&newVer); err != nil {
+		tx.Rollback()
+		log.Fatal("Couldn't find updated customer's new version")
+	}
+
+	res, err = tx.Exec(`
+		UPDATE invoice
+		SET customer_version = (?)
+		FROM (
+			SELECT * FROM invoice as inv 
+			INNER JOIN invoice_batch as bat
+			ON inv.batch_id = bat.id
+			WHERE (bat.state = 0 OR bat.state = 3) -- Draft or failed
+			AND inv.customer_id = (?)
+		) AS needs_up
+		WHERE invoice.id = needs_up.id`, newVer, cust.Id)
+
+	if err != nil {
+		tx.Rollback()
+		log.Fatal("Error updating customer version in invoices", err)
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		tx.Rollback()
+		log.Fatal("Error committing customer update transaction", err)
+	}
+
+	log.Println("Successfully updated customer.")
 	return cust.Id
 }
 

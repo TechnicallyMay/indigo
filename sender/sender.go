@@ -18,9 +18,17 @@ func (s *InvoiceSender) SendInvoice(settings db.IndigoSettings, batch db.Invoice
 		return err
 	}
 
+	bccs := make([]string, 0)
+	for bcc := range strings.SplitSeq(settings.EmailBccs, ",") {
+		bcc = strings.TrimSpace(bcc)
+		if bcc != "" {
+			bccs = append(bccs, bcc)
+		}
+	}
+
 	mail := mail.Mail{
 		To:  []string{cust.Email},
-		Bcc: strings.Split(settings.EmailBccs, ","),
+		Bcc: bccs,
 
 		From: "postmaster@sandbox6799805213174515aa97c14ef663c50e.mailgun.org", // TODO
 

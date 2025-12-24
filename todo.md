@@ -5,10 +5,11 @@
 - [ ] Config file
 
 ### Short List
-- [ ] Update customer version in invoices in draft state
+- [x] Update customer version in invoices in draft state
 - [x] Clone batch
 - [x] Sums on batch page
 - [ ] Billing page totals need oob updates
+- [ ] Loading indicator & polling on invoice send
 
 ### Must
 
