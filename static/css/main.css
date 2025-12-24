@@ -109,6 +109,10 @@ main {
     padding-right: 12px;
 }
 
+.pad-lg-l {
+    padding-left: 12px;
+}
+
 .full-width {
     width: 100%;
 }
@@ -151,4 +155,8 @@ main {
 
 #invoice-preview * {
     all: unset;
+}
+
+.border-right {
+    border-right: 1px solid var(--pico-card-border-color)
 }
