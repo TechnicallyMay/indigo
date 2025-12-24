@@ -62,15 +62,7 @@ func (h *BillingHandler) HandleGetBilling(w http.ResponseWriter, r *http.Request
 }
 
 func (h *BillingHandler) HandleGetNewBilling(w http.ResponseWriter, r *http.Request) {
-	due := time.Now()
-	if due.Day() >= 15 {
-		due = due.AddDate(0, 1, 0)
-	}
-	due = time.Date(due.Year(), due.Month(), 15, 0, 0, 0, 0, due.Location())
-	subj := "Invoice for " + due.Month().String()
-	desc := "Hello,\n\nThis is the invoice for " + due.Month().String() + "."
-
-	newBatch := db.InvoiceBatch{State: db.Draft, DueDate: due.Unix(), FinishedSendingAt: 0, NotificationSubject: subj, NotificationDescription: desc}
+	newBatch := h.batchDb.GetDefaultBatch()
 	newId := h.batchDb.Add(newBatch)
 
 	dest := fmt.Sprintf("/billing/%d", newId)
@@ -281,6 +273,23 @@ func (h *BillingHandler) HandleSendBatch(w http.ResponseWriter, r *http.Request)
 	go h.sendInvoices(batch)
 
 	HtmxRefresh(w)
+}
+
+func (h *BillingHandler) HandleDuplicateInvoiceBatch(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("here")
+	idStr := r.PathValue("id")
+
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	handleHttpError(w, err, 400)
+
+	newId, err := h.batchDb.Duplicate(id)
+	handleHttpError(w, err, 500)
+	data, err := h.getBatchData(newId)
+	handleHttpError(w, err, 500)
+
+	renderOpts := newRenderOpts("invbatch/batch", data, "content", "header")
+	renderOpts.prereqTemplates = []string{"invbatch/customerPicker", "invbatch/detailsview"}
+	renderTemplate(w, r, renderOpts)
 }
 
 func (h *BillingHandler) getNonIncludedCustomers(incCusts []db.Customer) []db.Customer {

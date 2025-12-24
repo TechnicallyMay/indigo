@@ -63,6 +63,7 @@ func main() {
 	mux.HandleFunc("GET /billing/edit/{id}", billingHandler.HandleEditBatchDetails)
 	mux.HandleFunc("GET /billing/details/{id}", billingHandler.HandleViewBatchDetails)
 	mux.HandleFunc("PUT /billing/{id}", billingHandler.HandleUpdateInvoiceBatch)
+	mux.HandleFunc("POST /billing/duplicate/{id}", billingHandler.HandleDuplicateInvoiceBatch)
 	mux.HandleFunc("POST /billing/send/{id}", billingHandler.HandleSendBatch)
 	mux.HandleFunc("POST /billing/{id}/invoice/{customerId}", billingHandler.HandleAddInvoiceToBatch)
 

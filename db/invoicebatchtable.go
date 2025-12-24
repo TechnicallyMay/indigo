@@ -202,3 +202,98 @@ func (h *InvoiceBatchTable) GetInvoiceTotalsByCust(batchId int64) (map[int64]flo
 
 	return result, nil
 }
+
+func (h *InvoiceBatchTable) Duplicate(batchId int64) (int64, error) {
+	tx, err := h.db.Begin()
+	if err != nil {
+		return -1, nil
+	}
+
+	defBat := h.GetDefaultBatch()
+	res, err := tx.Exec(`
+		INSERT INTO invoice_batch(created_at, due_date, notification_subject, notification_description, state, finished_sending_at) 
+		SELECT strftime('%s', 'now'), (?), (?), (?), (?), (?)
+		FROM invoice_batch WHERE id = (?);
+	`, defBat.DueDate, defBat.NotificationSubject, defBat.NotificationDescription, defBat.State, defBat.FinishedSendingAt, batchId)
+
+	if err != nil {
+		tx.Rollback()
+		return -1, nil
+	}
+
+	newId, err := res.LastInsertId()
+	if err != nil {
+		tx.Rollback()
+		return -1, nil
+	}
+
+	res, err = tx.Exec(`
+		INSERT INTO invoice(created_at, batch_id, customer_id, customer_version, is_paid)
+		SELECT strftime('%s', 'now'), (?), inv.customer_id, cust.max_version, 0
+		FROM invoice AS inv
+		INNER JOIN (
+			SELECT id, max(version) AS max_version
+			FROM customer
+			GROUP BY id
+		) as cust ON inv.customer_id = cust.id
+		WHERE inv.batch_id = (?)
+	`, newId, batchId)
+
+	if err != nil {
+		tx.Rollback()
+		return -1, nil
+	}
+
+	res, err = tx.Exec(`
+		INSERT INTO invoice_item(invoice_id, product_id, product_version, quantity)
+		SELECT newInv.id, oldItem.product_id, prod.max_version, oldItem.quantity
+
+		FROM (
+			SELECT id, customer_id, batch_id
+			FROM invoice
+			WHERE batch_id = (?)
+		) AS oldInv
+
+		INNER JOIN (
+			SELECT id, customer_id, batch_id
+			FROM invoice
+			WHERE batch_id = (?)
+		) AS newInv ON newInv.customer_id = oldInv.customer_id
+
+		INNER JOIN (
+			SELECT invoice_id, product_id, product_version, quantity
+			FROM invoice_item
+		) AS oldItem ON oldItem.invoice_id = oldInv.id
+
+		INNER JOIN (
+			SELECT id, max(version) AS max_version
+			FROM product
+			GROUP BY id
+		) as prod ON prod.id = oldItem.product_id;
+	`, batchId, newId)
+
+	if err != nil {
+		tx.Rollback()
+		return -1, nil
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		tx.Rollback()
+		return -1, nil
+	}
+
+	return newId, nil
+}
+
+func (h *InvoiceBatchTable) GetDefaultBatch() InvoiceBatch {
+	due := time.Now()
+	if due.Day() >= 15 {
+		due = due.AddDate(0, 1, 0)
+	}
+	due = time.Date(due.Year(), due.Month(), 15, 0, 0, 0, 0, due.Location())
+	subj := "Invoice for " + due.Month().String()
+	desc := "Hello,\n\nThis is the invoice for " + due.Month().String() + "."
+
+	return InvoiceBatch{State: Draft, DueDate: due.Unix(), FinishedSendingAt: 0, NotificationSubject: subj, NotificationDescription: desc}
+}

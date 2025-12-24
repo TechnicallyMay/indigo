@@ -36,13 +36,17 @@
                     <td>{{ if gt .FinishedSendingAt 0 }} {{ convertLocalTimestamp .FinishedSendingAt }} {{ end }}</td>
                     <td>{{ if gt .CreatedAt 0 }} {{ convertLocalTimestamp .CreatedAt }} {{ end }}</td>
                     <td>
-                        <a href="/billing/{{ .Id }}" hx-target="#main-content">
-                        {{ if eq .State.String "Draft" }}
-                            Edit
-                        {{ else }}
-                            View
-                        {{ end }}
-                        </a>
+                        <div class="flex-row gap-sm">
+                            <a hx-post="/billing/duplicate/{{ .Id }}" hx-target="#main-content">Duplicate</a>
+
+                            <a href="/billing/{{ .Id }}" hx-target="#main-content">
+                            {{ if eq .State.String "Draft" }}
+                                Edit
+                            {{ else }}
+                                View
+                            {{ end }}
+                            </a>
+                        </div>
                     </td>
                 </tr>
                 {{ end }}

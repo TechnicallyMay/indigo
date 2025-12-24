@@ -2,18 +2,11 @@
 
 ## Todo
 ### In Progress
-- [x] Invoice notifications
-- [x] Send email to actual customers
-- [x] Settings page
-- [x] Fill in invoice with actual info
-- [x] Fix invoice number rendering on pdf
-- [x] New setting for invoice footer
-- [x] oob button rendering when not Htmx-request
-- [ ] Rework how invoice item product versions work
+- [ ] Config file
 
 ### Short List
-- [ ] Clone batch
-- [ ] Config file
+- [ ] Update customer version in invoices in draft state
+- [x] Clone batch
 - [x] Sums on batch page
 - [ ] Billing page totals need oob updates
 
@@ -43,6 +36,14 @@
 * [ ] Docker?
 
 ### Archive
+- [x] Invoice notifications
+- [x] Send email to actual customers
+- [x] Settings page
+- [x] Fill in invoice with actual info
+- [x] Fix invoice number rendering on pdf
+- [x] New setting for invoice footer
+- [x] oob button rendering when not Htmx-request
+- [x] Rework how invoice item product versions work
 - [x] Save invoice batch metadata
 - [x] Join billing page into 1 page, edit vs not-edit
 - [x] Select Due Date
