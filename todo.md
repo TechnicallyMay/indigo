@@ -14,7 +14,8 @@
 ### Short List
 - [ ] Clone batch
 - [ ] Config file
-- [ ] Sums on batch page
+- [x] Sums on batch page
+- [ ] Billing page totals need oob updates
 
 ### Must
 

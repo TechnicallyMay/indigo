@@ -1,6 +1,6 @@
 {{ define "content" }}
 <div id="invoice-{{ .Invoice.Id }}">
-    <h5> Invoice for {{ .Customer.FirstName }} {{ .Customer.LastName }}</h5>
+    <h5>Invoice for {{ .Customer.FirstName }} {{ .Customer.LastName }}</h5>
 
     <table id="invoice-items-{{ .Invoice.Id }}">
         <thead>
@@ -16,6 +16,13 @@
         {{ range .Items }}
             {{ template "invoiceItem" . }}
         {{ end }}
+        <tr>
+            <td></td>
+            <td></td>
+            <td><strong>Total:</strong></td>
+            <td id="invoice-{{ .Invoice.Id }}-total">${{ printf "%.2f" .GetInvoiceTotal }}</td>
+            <td></td>
+        </tr>
         </tbody>
     </table>
 
@@ -26,7 +33,7 @@
             <li>
                 <a hx-post="/invoiceItem/{{ $.Invoice.Id }}/{{ .Id }}"
                    hx-target="#invoice-items-{{ $.Invoice.Id }} tbody"
-                   hx-swap="afterend">
+                   hx-swap="afterbegin">
                     {{ .Name }}
                 </a>
             </li>

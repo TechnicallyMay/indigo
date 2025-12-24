@@ -47,7 +47,7 @@ func main() {
 	customerHandler := handlers.NewCustomerHandler(*custTable)
 	billingHandler := handlers.NewBillingHandler(*invoiceBatchTable, *invoiceTable, *custTable, *productsTable, *invoiceItemTable, sender, *notTable, *settingsTable)
 	invoiceHandler := handlers.NewInvoiceHandler(*invoiceTable, *custTable, *invoiceItemTable, *productsTable, *invoiceBatchTable, *settingsTable)
-	invoiceItemHandler := handlers.NewInvoiceItemHandler(*invoiceItemTable, *productsTable)
+	invoiceItemHandler := handlers.NewInvoiceItemHandler(*invoiceItemTable, *productsTable, *invoiceHandler)
 	productsHandler := handlers.NewProductHandler(*productsTable)
 	settingsHandler := handlers.NewSettingsHandler(*settingsTable)
 

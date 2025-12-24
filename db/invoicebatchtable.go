@@ -172,3 +172,33 @@ func (h *InvoiceBatchTable) Update(batch InvoiceBatch) int64 {
 
 	return batch.Id
 }
+
+func (h *InvoiceBatchTable) GetInvoiceTotalsByCust(batchId int64) (map[int64]float64, error) {
+	result := make(map[int64]float64, 0)
+	rows, err := h.db.Query(`
+		SELECT inv.customer_id, SUM(it.quantity * p.unit_price) FROM invoice AS inv
+		INNER JOIN invoice_item AS it ON it.invoice_id = inv.id
+		INNER JOIN product AS p ON it.product_id = p.id AND it.product_version = p.version
+		WHERE inv.batch_id = (?)
+		GROUP BY inv.id, inv.customer_id
+	`, batchId)
+
+	if err != nil {
+		return result, err
+	}
+
+	for rows.Next() {
+		if rows.Err() != nil {
+			return result, rows.Err()
+		}
+		var custId int64
+		var total float64
+		if err := rows.Scan(&custId, &total); err != nil {
+			return result, err
+		}
+
+		result[custId] = total
+	}
+
+	return result, nil
+}

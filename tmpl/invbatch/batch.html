@@ -25,7 +25,10 @@
     {{ template "invBatchDetailsView" .Batch }}
 </div>
 <div class="flex-column widget">
-    <h5>Invoices</h5>
+    <hgroup>
+        <h5>Invoices</h5>
+        <p id="invoice-batch-total">Total - ${{ printf "%.2f" .GetBatchTotal }}</p>
+    </hgroup>
     <div class="main-content-with-sidebar grow">
         {{ template "customerPicker" . }}
 

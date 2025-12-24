@@ -1,0 +1,3 @@
+{{ define "invoiceTotal" }}
+<td id="invoice-{{ .Invoice.Id }}-total" hx-swap-oob="true">${{ printf "%.2f" .GetInvoiceTotal }}</td>
+{{ end }}

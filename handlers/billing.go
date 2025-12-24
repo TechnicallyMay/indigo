@@ -23,9 +23,20 @@ type BillingHandler struct {
 }
 
 type billingData struct {
-	Batch              db.InvoiceBatch
-	IncludedCustomers  []db.Customer
-	AvailableCustomers []db.Customer
+	Batch                db.InvoiceBatch
+	InvoiceTotalsPerCust map[int64]float64
+	IncludedCustomers    []db.Customer
+	AvailableCustomers   []db.Customer
+}
+
+func (d *billingData) GetBatchTotal() float64 {
+	sum := 0.0
+
+	for _, tot := range d.InvoiceTotalsPerCust {
+		sum += tot
+	}
+
+	return sum
 }
 
 var billingHandlerInstance *BillingHandler
@@ -156,11 +167,16 @@ func (h *BillingHandler) HandleDeleteInvoiceFromBatch(w http.ResponseWriter, r *
 
 	h.invDb.Add(inv)
 	newIncludedCusts := append(incCusts, addedCust)
+	handleHttpError(w, err, 500)
+
+	totals, err := h.batchDb.GetInvoiceTotalsByCust(bId)
+	handleHttpError(w, err, 500)
 
 	data := &billingData{
-		Batch:              batch,
-		IncludedCustomers:  newIncludedCusts,
-		AvailableCustomers: h.getNonIncludedCustomers(newIncludedCusts),
+		Batch:                batch,
+		IncludedCustomers:    newIncludedCusts,
+		AvailableCustomers:   h.getNonIncludedCustomers(newIncludedCusts),
+		InvoiceTotalsPerCust: totals,
 	}
 	fmt.Println(data.AvailableCustomers)
 
@@ -201,10 +217,14 @@ func (h *BillingHandler) HandleAddInvoiceToBatch(w http.ResponseWriter, r *http.
 	h.invDb.Add(inv)
 	newIncludedCusts := append(incCusts, addedCust)
 
+	totals, err := h.batchDb.GetInvoiceTotalsByCust(bId)
+	handleHttpError(w, err, 500)
+
 	data := &billingData{
-		Batch:              batch,
-		IncludedCustomers:  newIncludedCusts,
-		AvailableCustomers: h.getNonIncludedCustomers(newIncludedCusts),
+		Batch:                batch,
+		IncludedCustomers:    newIncludedCusts,
+		AvailableCustomers:   h.getNonIncludedCustomers(newIncludedCusts),
+		InvoiceTotalsPerCust: totals,
 	}
 	fmt.Println(data.AvailableCustomers)
 
@@ -292,10 +312,16 @@ func (h *BillingHandler) getBatchData(id int64) (*billingData, error) {
 	incCusts := h.custDb.GetByInvoiceBatch(id)
 	allCusts := h.getNonIncludedCustomers(incCusts)
 
+	totals, err := h.batchDb.GetInvoiceTotalsByCust(id)
+	if err != nil {
+		return nil, err
+	}
+
 	return &billingData{
-		Batch:              batch,
-		IncludedCustomers:  incCusts,
-		AvailableCustomers: allCusts,
+		Batch:                batch,
+		IncludedCustomers:    incCusts,
+		AvailableCustomers:   allCusts,
+		InvoiceTotalsPerCust: totals,
 	}, nil
 }
 

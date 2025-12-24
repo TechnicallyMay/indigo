@@ -47,6 +47,14 @@ func (d *invoiceData) GetUnusedProducts() []db.Product {
 	return res
 }
 
+func (d *invoiceData) GetInvoiceTotal() float64 {
+	sum := 0.0
+	for _, it := range d.Items {
+		sum += it.GetItemSubtotal()
+	}
+	return sum
+}
+
 var invoiceHandlerInstance *InvoiceHandler
 
 func NewInvoiceHandler(invDb db.InvoiceTable, custDb db.CustomerTable, invItemDb db.InvoiceItemTable, prodDb db.ProductTable, batchDb db.InvoiceBatchTable, settingsDb db.SettingsTable) *InvoiceHandler {
@@ -74,7 +82,7 @@ func (h *InvoiceHandler) HandleGetInvoice(w http.ResponseWriter, r *http.Request
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	handleHttpError(w, err, 400)
 
-	data, err := h.getInvoiceData(id)
+	data, err := h.GetInvoiceData(id)
 	handleHttpError(w, err, 500)
 
 	opts := newRenderOpts("invoice", data)
@@ -114,7 +122,7 @@ func (h *InvoiceHandler) HandleQueryInvoice(w http.ResponseWriter, r *http.Reque
 	invoice, err := h.invDb.QueryRow(query)
 	handleHttpError(w, err, 500)
 
-	data, err := h.getInvoiceData(invoice.Id)
+	data, err := h.GetInvoiceData(invoice.Id)
 	handleHttpError(w, err, 500)
 
 	opts := newRenderOpts("invoice", data)
@@ -127,7 +135,7 @@ func (h *InvoiceHandler) HandlePreviewInvoicePdf(w http.ResponseWriter, r *http.
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	handleHttpError(w, err, 400)
 
-	data, err := h.getInvoiceData(id)
+	data, err := h.GetInvoiceData(id)
 	handleHttpError(w, err, 500)
 
 	batch, err := h.batchDb.Get(data.Invoice.BatchId)
@@ -207,7 +215,7 @@ func (h *InvoiceHandler) HandleSampleInvoicePdf(w http.ResponseWriter, r *http.R
 	AddAttachment(w, path, "invoice.pdf")
 }
 
-func (h *InvoiceHandler) getInvoiceData(id int64) (*invoiceData, error) {
+func (h *InvoiceHandler) GetInvoiceData(id int64) (*invoiceData, error) {
 	inv, err := h.invDb.Get(id)
 	if err != nil {
 		return nil, err

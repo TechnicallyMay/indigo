@@ -3,6 +3,7 @@ package db
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"log"
 )
 
@@ -141,7 +142,7 @@ func (t InvoiceItemTable) Delete(invId int64, prodId int64) error {
 	}
 
 	if cnt != 1 {
-		return errors.New("When deleting an invoice item, " + string(cnt) + " rows were effected. 1 was expected")
+		return errors.New("When deleting an invoice item, " + fmt.Sprint(cnt) + " rows were effected. 1 was expected")
 	}
 
 	return nil

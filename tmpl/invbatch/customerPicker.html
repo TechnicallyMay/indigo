@@ -4,14 +4,18 @@
             <div id="customer-picker-{{ .Id }}" class="flex-row space-between">
             <div>
                 {{ .FirstName }} {{ .LastName }}
-            </div>
-            <a
-                hx-get="/invoice?batchId={{ $.Batch.Id }}&customerId={{ .Id }}"
-                hx-target="#invoice-display"
-                hx-swap="innerHTML"
-                hx-replace-url="false">
-                Invoice
-            </a>
+           </div>
+
+           <div class="flex-row gap-sm">
+               <div>${{ printf "%.2f" (index $.InvoiceTotalsPerCust .Id) }}</div>
+               <a
+                   hx-get="/invoice?batchId={{ $.Batch.Id }}&customerId={{ .Id }}"
+                   hx-target="#invoice-display"
+                   hx-swap="innerHTML"
+                   hx-replace-url="false">
+                   Invoice
+               </a>
+           </div>
         </div>
     {{ end }}
 

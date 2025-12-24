@@ -129,7 +129,7 @@ main {
 .main-content-with-sidebar {
     display: grid;
     grid-template-columns:
-         350px auto
+         500px auto
 }
 
 .button-md {
