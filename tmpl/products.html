@@ -32,7 +32,7 @@
                 <td>{{ .Id }}</td>
                 <td>{{ .Name }}</td>
                 <td>{{ .Description }}</td>
-                <td>{{ .UnitPrice }}</td>
+                <td>${{ printf "%.2f" .UnitPrice }}</td>
                 <td>
                     <a href="/products/edit/{{ .Id }}" hx-target="#product-table-{{ .Id }}" hx-swap="outerHTML" hx-replace-url="false">Edit</a>
                 </td>

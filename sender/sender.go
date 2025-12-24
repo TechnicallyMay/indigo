@@ -12,8 +12,8 @@ type InvoiceSender struct {
 	MailClient *mail.SmtpClient
 }
 
-func (s *InvoiceSender) SendInvoice(settings db.IndigoSettings, batch db.InvoiceBatch, inv db.Invoice, cust db.Customer, items []db.InvoiceItem, allProducts map[int64]db.Product) error {
-	pdf, err := pdf.MakeInvoicePdf(settings, batch, inv, cust, items, allProducts)
+func (s *InvoiceSender) SendInvoice(settings db.IndigoSettings, batch db.InvoiceBatch, inv db.Invoice, cust db.Customer, items []db.InvoiceItemWithProduct) error {
+	pdf, err := pdf.MakeInvoicePdf(settings, batch, inv, cust, items)
 	if err != nil {
 		return err
 	}

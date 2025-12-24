@@ -23,16 +23,8 @@ type InvoiceHandler struct {
 type invoiceData struct {
 	Invoice  db.Invoice
 	Customer db.Customer
-	Items    []db.InvoiceItem
+	Items    []db.InvoiceItemWithProduct
 	Products map[int64]db.Product
-}
-
-func (d *invoiceData) GetInvoiceItemData(item db.InvoiceItem) invoiceItemData {
-	product := d.Products[item.ProductId]
-	return invoiceItemData{
-		InvoiceItem: item,
-		Product:     product,
-	}
 }
 
 func (d *invoiceData) GetUnusedProducts() []db.Product {
@@ -41,7 +33,7 @@ func (d *invoiceData) GetUnusedProducts() []db.Product {
 	for _, product := range d.Products {
 		canUse := true
 		for _, item := range d.Items {
-			if item.ProductId == product.Id {
+			if item.Product.Id == product.Id {
 				canUse = false
 				break
 			}
@@ -142,7 +134,7 @@ func (h *InvoiceHandler) HandlePreviewInvoicePdf(w http.ResponseWriter, r *http.
 	handleHttpError(w, err, 500)
 	settings, err := h.settingsDb.GetAll()
 	handleHttpError(w, err, 500)
-	path, err := pdf.MakeInvoicePdf(settings, batch, data.Invoice, data.Customer, data.Items, data.Products)
+	path, err := pdf.MakeInvoicePdf(settings, batch, data.Invoice, data.Customer, data.Items)
 	handleHttpError(w, err, 500)
 	AddAttachment(w, path, "invoice.pdf")
 }
@@ -176,43 +168,41 @@ func (h *InvoiceHandler) HandleSampleInvoicePdf(w http.ResponseWriter, r *http.R
 		CustomerVersion: customer.Version,
 	}
 
-	prod1 := db.Product{
-		Id:          1,
-		Version:     1,
-		CreatedAt:   now.Unix(),
-		Name:        "Apple",
-		Description: "A juicy apple",
-		UnitPrice:   2.96,
-	}
-
-	prod2 := db.Product{
-		Id:          2,
-		Version:     1,
-		CreatedAt:   now.Unix(),
-		Name:        "1 hr Lawn Mowing",
-		Description: "Mowed your lawn for 1 hour",
-		UnitPrice:   50,
-	}
-
-	products := make(map[int64]db.Product, 0)
-	products[prod1.Id] = prod1
-	products[prod2.Id] = prod2
-
-	items := make([]db.InvoiceItem, 0)
-	items = append(items, db.InvoiceItem{
-		InvoiceId: invoice.Id,
-		ProductId: prod1.Id,
-		Quantity:  15,
+	items := make([]db.InvoiceItemWithProduct, 0)
+	items = append(items, db.InvoiceItemWithProduct{
+		Item: db.InvoiceItem{
+			InvoiceId: invoice.Id,
+			ProductId: 1,
+			Quantity:  15,
+		},
+		Product: db.Product{
+			Id:          1,
+			Version:     1,
+			CreatedAt:   now.Unix(),
+			Name:        "Apple",
+			Description: "A juicy apple",
+			UnitPrice:   2.96,
+		},
 	})
-	items = append(items, db.InvoiceItem{
-		InvoiceId: invoice.Id,
-		ProductId: prod2.Id,
-		Quantity:  2,
+	items = append(items, db.InvoiceItemWithProduct{
+		Item: db.InvoiceItem{
+			InvoiceId: invoice.Id,
+			ProductId: 2,
+			Quantity:  2,
+		},
+		Product: db.Product{
+			Id:          2,
+			Version:     1,
+			CreatedAt:   now.Unix(),
+			Name:        "1 hr Lawn Mowing",
+			Description: "Mowed your lawn for 1 hour",
+			UnitPrice:   50,
+		},
 	})
 
 	settings, err := h.settingsDb.GetAll()
 	handleHttpError(w, err, 500)
-	path, err := pdf.MakeInvoicePdf(settings, batch, invoice, customer, items, products)
+	path, err := pdf.MakeInvoicePdf(settings, batch, invoice, customer, items)
 	handleHttpError(w, err, 500)
 	AddAttachment(w, path, "invoice.pdf")
 }

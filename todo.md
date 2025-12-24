@@ -9,22 +9,20 @@
 - [x] Fix invoice number rendering on pdf
 - [x] New setting for invoice footer
 - [x] oob button rendering when not Htmx-request
+- [ ] Rework how invoice item product versions work
+
+### Short List
+- [ ] Clone batch
 - [ ] Config file
 - [ ] Sums on batch page
 
-### Short List
-
 ### Must
-- [ ] When invoices are sent, need to finalize the invoice item version
-- [ ] Deleted flags for versioned records
-- [ ] Product dropdown properly re-filter after adding item
-- [ ] Add all customers to batch in a single action
-- [ ] Ability to delete draft batches
-- [ ] Don't create a new batch every time you navigate to `/new`
-  - Maybe just check if there already exists an empty batch
-* [ ] Config file
 
 ### Should
+- [ ] Add all customers to batch in a single action
+- [ ] Ability to delete draft batches
+- [ ] Product dropdown properly re-filter after adding item
+- [ ] Deleted flags for versioned records
 - [ ] Remove weird save button from invocie batch
 - [ ] Save when starting an invoice batch?
 - [ ] Customers Tweaks

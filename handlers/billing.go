@@ -315,16 +315,6 @@ func (h *BillingHandler) sendInvoices(batch db.InvoiceBatch) error {
 		custMap[cust.Id] = cust
 	}
 
-	products, err := h.prodDb.List()
-	if err != nil {
-		return err
-	}
-
-	prodMap := make(map[int64]db.Product, 0)
-	for _, prod := range products {
-		prodMap[prod.Id] = prod
-	}
-
 	settings, err := h.settingsDb.GetAll()
 	if err != nil {
 		return err
@@ -333,7 +323,7 @@ func (h *BillingHandler) sendInvoices(batch db.InvoiceBatch) error {
 	var errs error
 	failCount := 0
 	for _, inv := range invs {
-		sent, _ := h.sendInvoice(settings, batch, inv, custMap[inv.CustomerId], prodMap)
+		sent, _ := h.sendInvoice(settings, batch, inv, custMap[inv.CustomerId])
 		if !sent {
 			failCount++
 		}
@@ -353,14 +343,14 @@ func (h *BillingHandler) sendInvoices(batch db.InvoiceBatch) error {
 	return errs
 }
 
-func (h *BillingHandler) sendInvoice(settings db.IndigoSettings, batch db.InvoiceBatch, inv db.Invoice, cust db.Customer, prodMap map[int64]db.Product) (sent bool, error error) {
+func (h *BillingHandler) sendInvoice(settings db.IndigoSettings, batch db.InvoiceBatch, inv db.Invoice, cust db.Customer) (sent bool, error error) {
 	items, error := h.itemDb.List(inv.Id)
 
 	if error != nil {
 		return
 	}
 
-	error = h.sender.SendInvoice(settings, batch, inv, cust, items, prodMap)
+	error = h.sender.SendInvoice(settings, batch, inv, cust, items)
 
 	notification := db.InvoiceNotification{
 		InvoiceId:  inv.Id,

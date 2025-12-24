@@ -3,7 +3,7 @@
     <td>
         <form
             id="update-form-{{ .Id }}"
-            action={{ if .Id }} "/products/{{ .Id }}" {{ else }} "/products" {{ end }} method={{ if .Id }} "put" {{ else }} "post" {{ end }}>
+            action={{ if . }} "/products/{{ .Id }}" {{ else }} "/products" {{ end }} method={{ if . }} "put" {{ else }} "post" {{ end }}>
             <input type="hidden" name="id" value="{{ .Id }}" />
         </form>
     </td>
@@ -12,7 +12,7 @@
     <td><input form="update-form-{{ .Id }}" type="number" step="0.01" name="unitPrice" placeholder="Unit Price..." value="{{ .UnitPrice }}"></td>
     <td>
         <div class="flex-row gap-sm">
-            <input form="update-form-{{ .Id }}" type="submit" value={{ if .Id }} "Update" {{ else }} "Create" {{ end }}>
+            <input form="update-form-{{ .Id }}" type="submit" value={{ if . }} "Update" {{ else }} "Create" {{ end }}>
             <input class="secondary" type="button" value="Cancel" hx-get="/products" hx-target="#main-content">
         </div>
     </td>

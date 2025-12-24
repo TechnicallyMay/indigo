@@ -12,12 +12,6 @@ type InvoiceItemHandler struct {
 	prodDb    db.ProductTable
 }
 
-// Data required to populate the invoiceItem template
-type invoiceItemData struct {
-	InvoiceItem db.InvoiceItem
-	Product     db.Product
-}
-
 var invoiceItemHandlerInstance *InvoiceItemHandler
 
 func NewInvoiceItemHandler(invItemDb db.InvoiceItemTable, prodDb db.ProductTable) *InvoiceItemHandler {
@@ -41,19 +35,21 @@ func (h *InvoiceItemHandler) HandleNewInvoiceItem(w http.ResponseWriter, r *http
 	handleHttpError(w, err, 500)
 
 	item := db.InvoiceItem{
-		InvoiceId: parsedInvId,
-		ProductId: parsedProdId,
-		Quantity:  1,
+		InvoiceId:      parsedInvId,
+		ProductId:      parsedProdId,
+		ProductVersion: &product.Version,
+		Quantity:       1,
 	}
 
 	err = h.invItemDb.Add(item)
 	handleHttpError(w, err, 500)
 
-	data := invoiceItemData{
-		InvoiceItem: item,
-		Product:     product,
-	}
-	renderTemplate(w, r, newRenderOpts("viewInvoiceItem", data, "invoiceItem"))
+	newItem, err := h.invItemDb.Get(parsedInvId, parsedProdId)
+	handleHttpError(w, err, 500)
+
+	opts := newRenderOpts("viewInvoiceItem", newItem, "invoiceItem")
+	opts.hasOobs = true
+	renderTemplate(w, r, opts)
 }
 
 func (h *InvoiceItemHandler) HandleDeleteInvoiceItem(w http.ResponseWriter, r *http.Request) {
@@ -68,6 +64,7 @@ func (h *InvoiceItemHandler) HandleDeleteInvoiceItem(w http.ResponseWriter, r *h
 	err = h.invItemDb.Delete(parsedInvId, parsedProdId)
 	handleHttpError(w, err, 500)
 
+	//TODO: Return updated invoice total OOB
 	renderTemplate(w, r, newRenderOpts("empty", nil))
 }
 
@@ -86,9 +83,6 @@ func (h *InvoiceItemHandler) HandleUpdateInvoiceItem(w http.ResponseWriter, r *h
 	parsedQty, err := strconv.ParseInt(qty, 10, 64)
 	handleHttpError(w, err, 500)
 
-	product, err := h.prodDb.Get(parsedProdId)
-	handleHttpError(w, err, 500)
-
 	item := db.InvoiceItem{
 		InvoiceId: parsedInvId,
 		ProductId: parsedProdId,
@@ -98,11 +92,10 @@ func (h *InvoiceItemHandler) HandleUpdateInvoiceItem(w http.ResponseWriter, r *h
 	err = h.invItemDb.Update(item)
 	handleHttpError(w, err, 500)
 
-	data := invoiceItemData{
-		InvoiceItem: item,
-		Product:     product,
-	}
-	renderTemplate(w, r, newRenderOpts("viewInvoiceItem", data, "invoiceItem"))
+	updated, err := h.invItemDb.Get(parsedInvId, parsedProdId)
+	handleHttpError(w, err, 500)
+
+	renderTemplate(w, r, newRenderOpts("viewInvoiceItem", updated, "invoiceItem"))
 }
 
 func (h *InvoiceItemHandler) HandleGetInvoiceItem(w http.ResponseWriter, r *http.Request) {
@@ -117,15 +110,7 @@ func (h *InvoiceItemHandler) HandleGetInvoiceItem(w http.ResponseWriter, r *http
 	item, err := h.invItemDb.Get(invId, prodId)
 	handleHttpError(w, err, 500)
 
-	product, err := h.prodDb.Get(prodId)
-	handleHttpError(w, err, 500)
-
-	data := invoiceItemData{
-		InvoiceItem: *item,
-		Product:     product,
-	}
-
-	renderTemplate(w, r, newRenderOpts("viewInvoiceItem", data, "invoiceItem"))
+	renderTemplate(w, r, newRenderOpts("viewInvoiceItem", item, "invoiceItem"))
 }
 
 func (h *InvoiceItemHandler) HandleGetInvoiceItemEditForm(w http.ResponseWriter, r *http.Request) {
@@ -140,13 +125,5 @@ func (h *InvoiceItemHandler) HandleGetInvoiceItemEditForm(w http.ResponseWriter,
 	item, err := h.invItemDb.Get(invId, prodId)
 	handleHttpError(w, err, 500)
 
-	product, err := h.prodDb.Get(prodId)
-	handleHttpError(w, err, 500)
-
-	data := invoiceItemData{
-		InvoiceItem: *item,
-		Product:     product,
-	}
-
-	renderTemplate(w, r, newRenderOpts("editInvoiceItem", data))
+	renderTemplate(w, r, newRenderOpts("editInvoiceItem", item))
 }

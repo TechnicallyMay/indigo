@@ -3,6 +3,7 @@ package db
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"log"
 	"strings"
 )
@@ -120,7 +121,7 @@ func (h *ProductTable) Query(query productQuery) ([]Product, error) {
 	if err != nil {
 		return make([]Product, 0), err
 	}
-	return parseRows(rows)
+	return parseProductRows(rows)
 }
 
 func (h *ProductTable) List() ([]Product, error) {
@@ -148,29 +149,86 @@ func (h *ProductTable) Add(product Product) (int64, error) {
 
 func (h *ProductTable) Update(product Product) error {
 	log.Println("Updating existing product with id", product.Id)
-	res, err := h.db.Exec(`
+
+	tx, err := h.db.Begin()
+	res, err := tx.Exec(`
 		INSERT INTO product (id, version, created_at, name, description, unit_price) 
 		VALUES (?, (SELECT MAX(version) + 1 FROM product WHERE id == (?)), strftime('%s', 'now'), ?, ?, ?);`, product.Id, product.Id, product.Name, product.Description, product.UnitPrice)
 
 	if err != nil {
+		tx.Rollback()
 		return err
 	}
 
 	rowsAffected, err := res.RowsAffected()
-
 	if err != nil {
-		log.Fatal("Error when determining if update was successful.", err)
+		tx.Rollback()
+		return err
 	}
 
 	if rowsAffected == 0 {
-		log.Fatal("Attempted update didn't modify any rows for id.", err)
+		tx.Rollback()
+		return errors.New("Attempted product update didn't modify any rows.")
 	}
 
+	rows, err := tx.Query(`
+		SELECT id, version, created_at, name, description, unit_price
+		FROM product
+		INNER JOIN (
+			SELECT id as innerId, MAX(version) as maxVersion
+			FROM product as p2
+			GROUP BY id
+		) ON id = innerId AND version = maxVersion
+		WHERE id = (?)`, product.Id)
+
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	prods, err := parseProductRows(rows)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	updatedProd := prods[0]
+
+	res, err = tx.Exec(`
+		UPDATE invoice_item
+		SET product_version = (?)
+		FROM (
+			SELECT * FROM invoice_item as iit 
+			INNER JOIN invoice as inv
+			ON iit.invoice_id = inv.id
+			INNER JOIN invoice_batch as bat
+			ON inv.batch_id = bat.id
+			WHERE (bat.state = 0 OR bat.state = 3) -- Draft or failed
+			AND iit.product_id = (?)
+		) AS needs_up
+		WHERE invoice_item.invoice_id = needs_up.invoice_id AND invoice_item.product_id = needs_up.product_id;`, updatedProd.Version, updatedProd.Id)
+
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	rowsAffected, err = res.RowsAffected()
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	fmt.Println(rowsAffected, "invoice item rows were updated during product update")
+
+	err = tx.Commit()
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
 	log.Println("Successfully updated product.")
 	return nil
 }
 
-func parseRows(rows *sql.Rows) ([]Product, error) {
+func parseProductRows(rows *sql.Rows) ([]Product, error) {
 	products := make([]Product, 0)
 	for rows.Next() {
 		if rows.Err() != nil {

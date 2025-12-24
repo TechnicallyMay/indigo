@@ -71,7 +71,8 @@ func (h *ProductHandler) HandlePutProduct(w http.ResponseWriter, r *http.Request
 	handleHttpError(w, err, 500)
 
 	updatedProduct.Id = id
-	h.db.Update(*updatedProduct)
+	err = h.db.Update(*updatedProduct)
+	handleHttpError(w, err, 500)
 
 	HtmxSoftRedirect(w, "/products", "#main-content")
 }

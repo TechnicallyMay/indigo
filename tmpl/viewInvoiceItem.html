@@ -1,20 +1,25 @@
+{{ define "oobs" }}
+<p id="invoice-{{ .Item.InvoiceId }}-total" hx-swap-oob="true">Swapped</p>
+{{ end }}
+
 {{ define "invoiceItem" }}
 
-<tr id="invoice-item-table-{{ .InvoiceItem.InvoiceId }}-{{ .InvoiceItem.ProductId }}">
+<tr id="invoice-item-table-{{ .Item.InvoiceId }}-{{ .Item.ProductId }}">
     <td>{{ .Product.Name }}</td>
     <td>${{ .Product.UnitPrice }}</td>
-    <td>x{{ .InvoiceItem.Quantity }}</td>
+    <td>x{{ .Item.Quantity }}</td>
+    <td>${{ printf "%.2f" .GetItemSubtotal }}</td>
     <td>
         <div class="flex-row gap-sm">
-            <a href="/invoiceItem/edit/{{ .InvoiceItem.InvoiceId }}/{{ .InvoiceItem.ProductId }}"
-                hx-target="#invoice-item-table-{{ .InvoiceItem.InvoiceId }}-{{ .InvoiceItem.ProductId }}"
+            <a href="/invoiceItem/edit/{{ .Item.InvoiceId }}/{{ .Item.ProductId }}"
+                hx-target="#invoice-item-table-{{ .Item.InvoiceId }}-{{ .Item.ProductId }}"
                 hx-swap="outerHTML"
                 hx-replace-url="false">
                 Edit
             </a>
 
-            <a hx-delete="/invoiceItem/{{ .InvoiceItem.InvoiceId }}/{{ .InvoiceItem.ProductId }}"
-                hx-target="#invoice-item-table-{{ .InvoiceItem.InvoiceId }}-{{ .InvoiceItem.ProductId }}"
+            <a hx-delete="/invoiceItem/{{ .Item.InvoiceId }}/{{ .Item.ProductId }}"
+                hx-target="#invoice-item-table-{{ .Item.InvoiceId }}-{{ .Item.ProductId }}"
                 hx-swap="outerHTML"
                 hx-replace-url="false">
                 Delete

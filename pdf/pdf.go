@@ -18,10 +18,10 @@ var pageW float64 = 210
 
 var paddingY float64 = 5
 
-func MakeInvoicePdf(settings db.IndigoSettings, batch db.InvoiceBatch, inv db.Invoice, cust db.Customer, items []db.InvoiceItem, allProducts map[int64]db.Product) (string, error) {
+func MakeInvoicePdf(settings db.IndigoSettings, batch db.InvoiceBatch, inv db.Invoice, cust db.Customer, items []db.InvoiceItemWithProduct) (string, error) {
 	grandTotal := 0.0
 	for _, it := range items {
-		grandTotal += float64(it.Quantity) * allProducts[it.ProductId].UnitPrice
+		grandTotal += it.GetItemSubtotal()
 	}
 	totalStr := "$" + humanize.FormatFloat("#,###.##", grandTotal)
 
@@ -31,7 +31,7 @@ func MakeInvoicePdf(settings db.IndigoSettings, batch db.InvoiceBatch, inv db.In
 	pdf.AliasNbPages("")
 
 	pdf.AddPage()
-	invItems(pdf, items, allProducts, totalStr)
+	invItems(pdf, items, totalStr)
 
 	filename := randFileName(".pdf")
 	file, err := os.CreateTemp(os.TempDir(), filename)
@@ -87,7 +87,7 @@ func header(pdf *fpdf.Fpdf, batch db.InvoiceBatch, inv db.Invoice, settings db.I
 	pdf.SetY(50)
 }
 
-func invItems(pdf *fpdf.Fpdf, items []db.InvoiceItem, allProducts map[int64]db.Product, grandTotal string) {
+func invItems(pdf *fpdf.Fpdf, items []db.InvoiceItemWithProduct, grandTotal string) {
 	colWidths := []float64{pageW * .3, pageW * .2, pageW * .2, pageW * .2}
 	cols := []string{"Item", "Unit Price", "Quantity", "Total"}
 	alignment := []string{"L", "R", "R", "R"}
@@ -100,20 +100,18 @@ func invItems(pdf *fpdf.Fpdf, items []db.InvoiceItem, allProducts map[int64]db.P
 
 	pdf.SetFont("Arial", "", 12)
 	for _, item := range items {
-		product := allProducts[item.ProductId]
-
 		for i := range colWidths {
 			var content string
 
 			switch cols[i] {
 			case "Item":
-				content = product.Name
+				content = item.Product.Name
 			case "Unit Price":
-				content = "$" + humanize.FormatFloat("#,###.##", product.UnitPrice)
+				content = "$" + humanize.FormatFloat("#,###.##", item.Product.UnitPrice)
 			case "Quantity":
-				content = fmt.Sprintf("x%v", item.Quantity)
+				content = fmt.Sprintf("x%v", item.Item.Quantity)
 			case "Total":
-				total := product.UnitPrice * float64(item.Quantity)
+				total := item.GetItemSubtotal()
 				content = "$" + humanize.FormatFloat("#,###.##", total)
 			}
 

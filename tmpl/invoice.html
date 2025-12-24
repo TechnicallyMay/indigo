@@ -8,12 +8,13 @@
                 <th scope="col">Product</th>
                 <th scope="col">Unit Price</th>
                 <th scope="col">Quantity</th>
+                <th scope="col">Subtotal</th>
                 <th scope="col"></th>
             </tr>
         </thead>
         <tbody>
         {{ range .Items }}
-            {{ template "invoiceItem" $.GetInvoiceItemData . }}
+            {{ template "invoiceItem" . }}
         {{ end }}
         </tbody>
     </table>
