@@ -7,11 +7,13 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/TechnicallyMay/indigo/appsettings"
 	"github.com/TechnicallyMay/indigo/db"
 	"github.com/TechnicallyMay/indigo/sender"
 )
 
 type BillingHandler struct {
+	settings   appsettings.AppSettings
 	batchDb    db.InvoiceBatchTable
 	invDb      db.InvoiceTable
 	custDb     db.CustomerTable
@@ -385,7 +387,7 @@ func (h *BillingHandler) sendInvoice(settings db.IndigoSettings, batch db.Invoic
 		return
 	}
 
-	error = h.sender.SendInvoice(settings, batch, inv, cust, items)
+	error = h.sender.SendInvoice(settings, h.settings.Smtp, batch, inv, cust, items)
 
 	notification := db.InvoiceNotification{
 		InvoiceId:  inv.Id,

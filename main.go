@@ -1,12 +1,13 @@
 package main
 
 import (
-	"bufio"
+	"fmt"
 	"log"
 	"net/http"
 	"net/smtp"
 	"os"
 
+	"github.com/TechnicallyMay/indigo/appsettings"
 	"github.com/TechnicallyMay/indigo/db"
 	"github.com/TechnicallyMay/indigo/handlers"
 	"github.com/TechnicallyMay/indigo/mail"
@@ -16,21 +17,16 @@ import (
 func main() {
 	log.Println("Starting!")
 
-	var smtpPass string
-	passBuf, err := os.Open("/home/mason/smtppass.txt")
-
-	scanner := bufio.NewScanner(passBuf)
-	scanner.Scan()
-	// TODO: Config file
-	smtpPass = scanner.Text()
-
-	passBuf.Close()
+	settings, err := appsettings.GetSettings()
 	if err != nil {
-		panic(err)
+		log.Fatal("Unable to read settings file. Ensure a settings file is available at " + appsettings.SettingsPath)
 	}
 
-	auth := smtp.PlainAuth("", "postmaster@sandbox6799805213174515aa97c14ef663c50e.mailgun.org", smtpPass, "smtp.mailgun.org")
-	client := mail.SmtpClient{Host: "smtp.mailgun.org", Port: 587, Auth: auth}
+	passBytes, err := os.ReadFile(settings.Smtp.PassFile)
+	smtpPass := string(passBytes)
+
+	auth := smtp.PlainAuth("", settings.Smtp.From, smtpPass, settings.Smtp.Host)
+	client := mail.SmtpClient{Host: settings.Smtp.Host, Port: settings.Smtp.Port, Auth: auth}
 	sender := sender.InvoiceSender{MailClient: &client}
 
 	pool := db.OpenDb()
@@ -102,4 +98,9 @@ func main() {
 	}
 
 	log.Fatal(server.ListenAndServe())
+}
+
+func faviconHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("here")
+	http.ServeFile(w, r, "/static/favicon.ico")
 }

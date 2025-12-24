@@ -2,14 +2,10 @@
 
 ## Todo
 ### In Progress
-- [ ] Config file
 
-### Short List
-- [x] Update customer version in invoices in draft state
-- [x] Clone batch
-- [x] Sums on batch page
-- [ ] Billing page totals need oob updates
 - [ ] Loading indicator & polling on invoice send
+### Short List
+- [ ] Billing page totals need oob updates
 
 ### Must
 
@@ -37,7 +33,11 @@
 * [ ] Docker?
 
 ### Archive
+- [x] Update customer version in invoices in draft state
+- [x] Clone batch
+- [x] Sums on batch page
 - [x] Invoice notifications
+- [x] Config file
 - [x] Send email to actual customers
 - [x] Settings page
 - [x] Fill in invoice with actual info

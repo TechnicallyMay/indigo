@@ -1,0 +1,5 @@
+[smtp]
+Host = ""
+Port = 587
+From = ""
+PassFile = "/var/lib/indigo/passfile.txt"
