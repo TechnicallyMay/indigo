@@ -50,9 +50,11 @@ func NewBillingHandler(batchDb db.InvoiceBatchTable,
 	itemDb db.InvoiceItemTable,
 	sender sender.InvoiceSender,
 	notDb db.InvoiceNotificationTable,
-	settingsDb db.SettingsTable) *BillingHandler {
+	settingsDb db.SettingsTable,
+	settings appsettings.AppSettings,
+) *BillingHandler {
 	if billingHandlerInstance == nil {
-		billingHandlerInstance = &BillingHandler{batchDb: batchDb, invDb: invDb, custDb: custDb, prodDb: prodDb, itemDb: itemDb, sender: sender, notDb: notDb, settingsDb: settingsDb}
+		billingHandlerInstance = &BillingHandler{settings: settings, batchDb: batchDb, invDb: invDb, custDb: custDb, prodDb: prodDb, itemDb: itemDb, sender: sender, notDb: notDb, settingsDb: settingsDb}
 	}
 
 	return billingHandlerInstance

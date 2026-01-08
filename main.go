@@ -42,7 +42,7 @@ func main() {
 	settingsTable := db.InitSettingsTable(pool)
 
 	customerHandler := handlers.NewCustomerHandler(*custTable)
-	billingHandler := handlers.NewBillingHandler(*invoiceBatchTable, *invoiceTable, *custTable, *productsTable, *invoiceItemTable, sender, *notTable, *settingsTable)
+	billingHandler := handlers.NewBillingHandler(*invoiceBatchTable, *invoiceTable, *custTable, *productsTable, *invoiceItemTable, sender, *notTable, *settingsTable, settings)
 	invoiceHandler := handlers.NewInvoiceHandler(*invoiceTable, *custTable, *invoiceItemTable, *productsTable, *invoiceBatchTable, *settingsTable)
 	invoiceItemHandler := handlers.NewInvoiceItemHandler(*invoiceItemTable, *productsTable, *invoiceHandler)
 	productsHandler := handlers.NewProductHandler(*productsTable)
