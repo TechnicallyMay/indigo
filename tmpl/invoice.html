@@ -34,7 +34,7 @@
                 <a hx-post="/invoiceItem/{{ $.Invoice.Id }}/{{ .Id }}"
                    hx-target="#invoice-items-{{ $.Invoice.Id }} tbody"
                    hx-swap="afterbegin">
-                    {{ .Name }}
+                    {{ .Name }} - ${{ .UnitPrice }}
                 </a>
             </li>
             {{ end }}
