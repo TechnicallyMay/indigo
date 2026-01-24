@@ -107,7 +107,8 @@ func (h *InvoiceBatchTable) Get(id int64) (InvoiceBatch, error) {
 func (h *InvoiceBatchTable) List() []InvoiceBatch {
 	rows, err := h.db.Query(`
 		SELECT id, created_at, due_date, notification_subject, notification_description, state, finished_sending_at
-		FROM invoice_batch;`)
+		FROM invoice_batch
+		ORDER BY created_at DESC;`)
 	if err != nil {
 		log.Fatal("Error when listing invoice batches.", err)
 	}
