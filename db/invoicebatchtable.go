@@ -47,7 +47,12 @@ type InvoiceBatch struct {
 
 func (b *InvoiceBatch) GetDueDateStr() string {
 	dueDate := time.Unix(b.DueDate, 0)
-	return dueDate.Format(time.DateOnly)
+	return dueDate.UTC().Format("January _2, 2006")
+}
+
+func (b *InvoiceBatch) GetDueDateForPicker() string {
+	dueDate := time.Unix(b.DueDate, 0)
+	return dueDate.UTC().Format(time.DateOnly)
 }
 
 type InvoiceBatchTable struct {
