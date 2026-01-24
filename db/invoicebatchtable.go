@@ -212,9 +212,9 @@ func (h *InvoiceBatchTable) Duplicate(batchId int64) (int64, error) {
 	defBat := h.GetDefaultBatch()
 	res, err := tx.Exec(`
 		INSERT INTO invoice_batch(created_at, due_date, notification_subject, notification_description, state, finished_sending_at) 
-		SELECT strftime('%s', 'now'), (?), (?), (?), (?), (?)
+		SELECT strftime('%s', 'now'), (?), invoice_batch.notification_subject, invoice_batch.notification_description, (?), (?)
 		FROM invoice_batch WHERE id = (?);
-	`, defBat.DueDate, defBat.NotificationSubject, defBat.NotificationDescription, defBat.State, defBat.FinishedSendingAt, batchId)
+	`, defBat.DueDate, defBat.State, defBat.FinishedSendingAt, batchId)
 
 	if err != nil {
 		tx.Rollback()
