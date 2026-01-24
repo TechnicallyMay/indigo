@@ -24,13 +24,17 @@ main {
     padding: var(--pico-spacing);
 }
 
-#main-header * {
+#main-header *, #page-title {
     margin-bottom: 0;
 }
 
 #main-header > h4 {
     height: 65px;
     line-height: 65px;
+}
+
+#header-logo {
+    width: 50px;
 }
 
 .flex-row {

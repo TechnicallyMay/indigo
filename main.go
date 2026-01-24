@@ -51,6 +51,7 @@ func main() {
 	mux := http.NewServeMux()
 	mux.Handle("GET /js/", http.StripPrefix("/js/", http.FileServer(http.Dir("./static/js"))))
 	mux.Handle("GET /css/", http.StripPrefix("/css/", http.FileServer(http.Dir("./static/css"))))
+	mux.Handle("GET /image/", http.StripPrefix("/image/", http.FileServer(http.Dir("./static/image"))))
 
 	mux.HandleFunc("GET /{$}", handlers.GetRootHandler)
 
