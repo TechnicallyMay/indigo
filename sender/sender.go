@@ -1,12 +1,18 @@
 package sender
 
 import (
+	"context"
+	"fmt"
+
 	"strings"
+	"time"
 
 	"github.com/TechnicallyMay/indigo/appsettings"
 	"github.com/TechnicallyMay/indigo/db"
 	"github.com/TechnicallyMay/indigo/mail"
 	"github.com/TechnicallyMay/indigo/pdf"
+
+	"github.com/cenkalti/backoff/v5"
 )
 
 type InvoiceSender struct {
@@ -40,7 +46,31 @@ func (s *InvoiceSender) SendInvoice(settings db.IndigoSettings, smtpSettings app
 		AttachmentFileName: "invoice.pdf",
 	}
 
-	err = s.MailClient.SendMail(mail)
+	operation := func() (string, error) {
+		err := s.MailClient.SendMail(mail)
+		if err == nil {
+			return "", nil
+		}
+
+		if strings.Contains(err.Error(), "try again after ") {
+			datePart := strings.Split(err.Error(), "try again after ")[1]
+			nextTryAt, err := time.Parse(time.RFC1123, datePart)
+
+			fmt.Println(datePart)
+
+			if err != nil {
+				return "", backoff.Permanent(err)
+			}
+
+			waitTime := time.Until(nextTryAt)
+			backoff.RetryAfter(int(waitTime.Seconds()))
+			fmt.Println("Retrying after", waitTime.Seconds(), "seconds")
+		}
+
+		return "", backoff.Permanent(err)
+	}
+
+	_, err = backoff.Retry(context.TODO(), operation, backoff.WithBackOff(backoff.NewExponentialBackOff()))
 
 	return err
 }
