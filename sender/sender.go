@@ -20,8 +20,10 @@ type InvoiceSender struct {
 }
 
 func (s *InvoiceSender) SendInvoice(settings db.IndigoSettings, smtpSettings appsettings.SmtpSettings, batch db.InvoiceBatch, inv db.Invoice, cust db.Customer, items []db.InvoiceItemWithProduct) error {
+	fmt.Println("Sending invoice")
 	pdf, err := pdf.MakeInvoicePdf(settings, batch, inv, cust, items)
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 
@@ -71,6 +73,12 @@ func (s *InvoiceSender) SendInvoice(settings db.IndigoSettings, smtpSettings app
 	}
 
 	_, err = backoff.Retry(context.TODO(), operation, backoff.WithBackOff(backoff.NewExponentialBackOff()))
+
+	if err == nil {
+		fmt.Println("Successfully sent invoice")
+	} else {
+		fmt.Println(err)
+	}
 
 	return err
 }
