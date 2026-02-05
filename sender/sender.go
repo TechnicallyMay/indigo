@@ -65,7 +65,7 @@ func (s *InvoiceSender) SendInvoice(settings db.IndigoSettings, smtpSettings app
 			}
 
 			waitTime := time.Until(nextTryAt)
-			backoff.RetryAfter(int(waitTime.Seconds()))
+			backoff.RetryAfter(int(waitTime.Seconds()) + 2)
 			fmt.Println("Retrying after", waitTime.Seconds(), "seconds")
 		}
 
