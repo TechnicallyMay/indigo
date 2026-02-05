@@ -205,7 +205,9 @@ func (h InvoiceTable) Delete(id int64) error {
 		WHERE invoice_id = (?);
 
 		DELETE FROM invoice
-		WHERE id = (?);`, id, id)
+		WHERE id = (?);
+
+		COMMIT;`, id, id)
 
 	if err != nil {
 		return err
