@@ -1,3 +1,5 @@
+DbPath = "db.db"
+
 [smtp]
 Host = ""
 Port = 587

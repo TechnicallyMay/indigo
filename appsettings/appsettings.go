@@ -6,7 +6,7 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
-var SettingsPath = "indigo.toml"
+const SettingsPath = "indigo.toml"
 
 type SmtpSettings struct {
 	Host     string
@@ -16,11 +16,17 @@ type SmtpSettings struct {
 }
 
 type AppSettings struct {
-	Smtp SmtpSettings
+	DbPath string
+	Smtp   SmtpSettings
 }
 
 func GetSettings() (settings AppSettings, error error) {
-	bytes, error := os.ReadFile(SettingsPath)
+	cfg := os.Getenv("INDIGO_CONFIG")
+	if cfg == "" {
+		cfg = SettingsPath
+	}
+
+	bytes, error := os.ReadFile(cfg)
 	if error != nil {
 		return
 	}

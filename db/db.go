@@ -4,12 +4,13 @@ import (
 	"database/sql"
 	"log"
 
+	"github.com/TechnicallyMay/indigo/appsettings"
 	_ "modernc.org/sqlite"
 )
 
 var pool *sql.DB
 
-func OpenDb() *sql.DB {
+func OpenDb(opts appsettings.AppSettings) *sql.DB {
 	log.Println("Opening a connection to the database.")
 	if pool != nil {
 		log.Println("Connection already open, using existing connection.")
@@ -17,9 +18,7 @@ func OpenDb() *sql.DB {
 	}
 
 	var err error
-	//TODO: Physical file/db
-	// pool, err = sql.Open("sqlite", ":memory:")
-	pool, err = sql.Open("sqlite", "db.db")
+	pool, err = sql.Open("sqlite", opts.DbPath)
 
 	if err != nil {
 		log.Fatal("Error when connecting to database.", err)

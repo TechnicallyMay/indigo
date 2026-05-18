@@ -30,7 +30,7 @@ func main() {
 	client := mail.SmtpClient{Host: settings.Smtp.Host, Port: settings.Smtp.Port, Auth: auth}
 	sender := sender.InvoiceSender{MailClient: &client}
 
-	pool := db.OpenDb()
+	pool := db.OpenDb(settings)
 	defer pool.Close()
 
 	custTable := db.InitCustomerTable(pool)
