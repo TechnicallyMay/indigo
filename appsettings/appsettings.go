@@ -1,6 +1,7 @@
 package appsettings
 
 import (
+	"log/slog"
 	"os"
 
 	"github.com/BurntSushi/toml"
@@ -19,6 +20,7 @@ type AppSettings struct {
 }
 
 func GetSettings(settingsPath string) (settings AppSettings, error error) {
+	slog.Info("Reading app settings", "path", settingsPath)
 	bytes, error := os.ReadFile(settingsPath)
 	if error != nil {
 		return
