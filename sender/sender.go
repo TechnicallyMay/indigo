@@ -3,6 +3,7 @@ package sender
 import (
 	"context"
 	"fmt"
+	"log/slog"
 
 	"strings"
 	"time"
@@ -20,10 +21,10 @@ type InvoiceSender struct {
 }
 
 func (s *InvoiceSender) SendInvoice(settings db.IndigoSettings, smtpSettings appsettings.SmtpSettings, batch db.InvoiceBatch, inv db.Invoice, cust db.Customer, items []db.InvoiceItemWithProduct) error {
-	fmt.Println("Sending invoice")
+	slog.Info("Sending invoice", "customer first name", cust.FirstName, "customer last name", cust.LastName)
 	pdf, err := pdf.MakeInvoicePdf(settings, batch, inv, cust, items)
 	if err != nil {
-		fmt.Println(err)
+		slog.Error("There was an error making the invoice pdf", "error", err)
 		return err
 	}
 
@@ -54,6 +55,8 @@ func (s *InvoiceSender) SendInvoice(settings db.IndigoSettings, smtpSettings app
 			return "", nil
 		}
 
+		slog.Error("There was an error while sending the invoice", "error", err)
+
 		if strings.Contains(err.Error(), "try again after ") {
 			datePart := strings.Split(err.Error(), "try again after ")[1]
 			nextTryAt, err := time.Parse(time.RFC1123, datePart)
@@ -66,7 +69,7 @@ func (s *InvoiceSender) SendInvoice(settings db.IndigoSettings, smtpSettings app
 
 			waitTime := time.Until(nextTryAt)
 			backoff.RetryAfter(int(waitTime.Seconds()) + 2)
-			fmt.Println("Retrying after", waitTime.Seconds(), "seconds")
+			slog.Info("Error was a throttling error, waiting to retry", "wait time secs", waitTime.Seconds())
 		}
 
 		return "", backoff.Permanent(err)
@@ -75,9 +78,9 @@ func (s *InvoiceSender) SendInvoice(settings db.IndigoSettings, smtpSettings app
 	_, err = backoff.Retry(context.TODO(), operation, backoff.WithBackOff(backoff.NewExponentialBackOff()))
 
 	if err == nil {
-		fmt.Println("Successfully sent invoice")
+		slog.Info("Successfully sent invoice")
 	} else {
-		fmt.Println(err)
+		slog.Error("Unrecoverable error while sending invoice", "error", err)
 	}
 
 	return err
