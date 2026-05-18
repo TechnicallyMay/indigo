@@ -68,8 +68,8 @@ func (s *InvoiceSender) SendInvoice(settings db.IndigoSettings, smtpSettings app
 			}
 
 			waitTime := time.Until(nextTryAt)
-			backoff.RetryAfter(int(waitTime.Seconds()) + 2)
 			slog.Info("Error was a throttling error, waiting to retry", "wait time secs", waitTime.Seconds())
+			return "", backoff.RetryAfter(int(waitTime.Seconds()) + 2)
 		}
 
 		return "", backoff.Permanent(err)
