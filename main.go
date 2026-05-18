@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"log/slog"
 	"net/http"
 	"net/smtp"
 	"os"
@@ -101,10 +102,17 @@ func main() {
 	mux.HandleFunc("GET /settings/", settingsHandler.HandleGetSettings)
 	mux.HandleFunc("PUT /settings/", settingsHandler.HandlePutSettings)
 
+	port := settings.Port
+	if port == 0 {
+		port = 8080
+	}
+
 	server := &http.Server{
-		Addr:    ":8080",
+		Addr:    fmt.Sprintf(":%v", port),
 		Handler: mux,
 	}
+
+	slog.Info("listening", "port", port)
 
 	log.Fatal(server.ListenAndServe())
 }

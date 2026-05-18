@@ -16,6 +16,7 @@ type SmtpSettings struct {
 
 type AppSettings struct {
 	DbPath string
+	Port   int
 	Smtp   SmtpSettings
 }
 
