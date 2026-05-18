@@ -6,8 +6,6 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
-const SettingsPath = "indigo.toml"
-
 type SmtpSettings struct {
 	Host     string
 	Port     int
@@ -20,13 +18,8 @@ type AppSettings struct {
 	Smtp   SmtpSettings
 }
 
-func GetSettings() (settings AppSettings, error error) {
-	cfg := os.Getenv("INDIGO_CONFIG")
-	if cfg == "" {
-		cfg = SettingsPath
-	}
-
-	bytes, error := os.ReadFile(cfg)
+func GetSettings(settingsPath string) (settings AppSettings, error error) {
+	bytes, error := os.ReadFile(settingsPath)
 	if error != nil {
 		return
 	}

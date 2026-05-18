@@ -2,7 +2,7 @@ package db
 
 import (
 	"database/sql"
-	"log"
+	"log/slog"
 
 	"github.com/TechnicallyMay/indigo/appsettings"
 	_ "modernc.org/sqlite"
@@ -11,9 +11,9 @@ import (
 var pool *sql.DB
 
 func OpenDb(opts appsettings.AppSettings) *sql.DB {
-	log.Println("Opening a connection to the database.")
+	slog.Info("Opening a connection to the database", "path", opts.DbPath)
 	if pool != nil {
-		log.Println("Connection already open, using existing connection.")
+		slog.Info("Connection already open, using existing connection.")
 		return pool
 	}
 
@@ -21,19 +21,21 @@ func OpenDb(opts appsettings.AppSettings) *sql.DB {
 	pool, err = sql.Open("sqlite", opts.DbPath)
 
 	if err != nil {
-		log.Fatal("Error when connecting to database.", err)
+		slog.Error("Error when connecting to database.", "error", err)
+		panic(err)
 	}
 
-	log.Println("Successfully connected to the database.")
+	slog.Info("Successfully connected to the database.")
 
 	pool.SetMaxOpenConns(1)
 	pool.SetConnMaxLifetime(0)
 
 	err = pool.Ping()
 	if err != nil {
-		log.Fatal("Error when pinging database.", err)
+		slog.Error("Error when pinging database.", "error", err)
+		panic(err)
 	}
-	log.Println("Successfully pinged db!")
+	slog.Info("Successfully pinged db!")
 
 	return pool
 }

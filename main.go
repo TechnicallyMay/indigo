@@ -15,12 +15,19 @@ import (
 	"github.com/TechnicallyMay/indigo/sender"
 )
 
+const DefaultSettingsPath = "indigo.toml"
+
 func main() {
 	log.Println("Starting!")
 
-	settings, err := appsettings.GetSettings()
+	path := os.Getenv("INDIGO_CONFIG")
+	if path == "" {
+		path = DefaultSettingsPath
+	}
+
+	settings, err := appsettings.GetSettings(path)
 	if err != nil {
-		log.Fatal("Unable to read settings file. Ensure a settings file is available at " + appsettings.SettingsPath)
+		log.Fatal("Unable to read settings file. Ensure a settings file is available at " + path)
 	}
 
 	passBytes, err := os.ReadFile(settings.Smtp.PassFile)
