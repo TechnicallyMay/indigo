@@ -59,6 +59,7 @@ func (s *InvoiceSender) SendInvoice(settings db.IndigoSettings, smtpSettings app
 
 		if strings.Contains(err.Error(), "try again after ") {
 			datePart := strings.Split(err.Error(), "try again after ")[1]
+			datePart = strings.SplitAfter(datePart, "UTC")[0]
 			nextTryAt, err := time.Parse(time.RFC1123, datePart)
 
 			fmt.Println(datePart)
